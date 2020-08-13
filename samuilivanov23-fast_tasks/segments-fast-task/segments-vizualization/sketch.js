@@ -1,5 +1,5 @@
 //input parameters
-let n = 20;
+let n = 10;
 let a = 2;
 let b = 3;
 let c = 1;
