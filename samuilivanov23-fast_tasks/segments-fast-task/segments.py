@@ -2,20 +2,26 @@ n = int(input("n: "))
 a = int(input("a: "))
 b = int(input("b: "))
 c = int(input("c: "))
+
+while (n <= 0 or n >= 100000) or (a <= 0 or a >= 100000) or (b <= 0 or b >= 100000) or (c <= 0 or c >= 100000):
+    print("All numbers should be positive between 0 and 100 000!")
+    n = int(input("n: "))
+    a = int(input("a: "))
+    b = int(input("b: "))
+    c = int(input("c: "))
+
 n+=1
 line = [None] * n # None-> empty; 1-> first person dot; 2-> second person dot
 
 #populate the line with dots
 i = 0
 while i <= (n-1)/a:
-    print(i*a)
     line[i*a] = 1
     i+=1
 
 i = 0
 line[n - 1] = 2
 while i <= (n-1)/b:
-    print(n - (i * b))
     line[(n - 1) - (i * b)] = 2
     i+=1
 
