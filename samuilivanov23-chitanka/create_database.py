@@ -5,25 +5,32 @@ def createTables():
     command = ('''
 
     CREATE TABLE IF NOT EXISTS "Authors" (
-        "id" varchar PRIMARY KEY UNIQUE,
+        "id" bigserial PRIMARY KEY UNIQUE,
         "name" varchar UNIQUE
     );
 
     CREATE TABLE IF NOT EXISTS "Books" (
-        "id" varchar PRIMARY KEY UNIQUE,
+        "id" bigserial PRIMARY KEY UNIQUE,
         "name" varchar UNIQUE,
-        "author_id" varchar
+        "author_id" bigserial
     );
 
     CREATE TABLE IF NOT EXISTS "Words" (
-        "id" varchar PRIMARY KEY UNIQUE,
-        "word" varchar UNIQUE,
-        "book_id" varchar
+        "id" bigserial PRIMARY KEY UNIQUE,
+        "word" varchar UNIQUE
     );
 
-    ALTER TABLE "Books" ADD FOREIGN KEY (author_id) REFERENCES "Authors" (id);
+    CREATE TABLE IF NOT EXISTS "Books_Words" (
+        "book_id" bigserial,
+        "word_id" bigserial,
+        PRIMARY KEY("book_id", "word_id")
+    );
 
-    ALTER TABLE "Words" ADD FOREIGN KEY (book_id) REFERENCES "Books" (id);
+    ALTER TABLE "Books_Words" ADD FOREIGN KEY (book_id) REFERENCES "Books" (id);
+
+    ALTER TABLE "Books_Words" ADD FOREIGN KEY (word_id) REFERENCES "Words" (id);
+
+    ALTER TABLE "Books" ADD FOREIGN KEY (author_id) REFERENCES "Authors" (id);
     
     ''')
 

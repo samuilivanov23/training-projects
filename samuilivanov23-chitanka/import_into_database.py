@@ -23,10 +23,7 @@ def importDataByAuthor(author_name_latin, author_name_cyrillic):
 
     #using regex to match the starting pattern and everything else after that
     for book_link in soup.find_all("a", {'title': re.compile(r'^Сваляне във формат txt.zip')}):
-        #Name the files using the last portion of the link
-
         if book_link['href'].split('/')[-2] == "text":
-            #while True:
             try:
                 book_name = book_link['href'].split('/')[-1]
                 filename = os.path.join(folder_location, book_name)
@@ -94,65 +91,64 @@ def importDataByAuthor(author_name_latin, author_name_cyrillic):
                     print("\n")
                 except:
                     print("FAILED..END")
-                
-                #if os.path.isfile("../books/" + author_name + "/" + unzipped_file_name):
-                    #break
 
-
-        my_file = os.path.join(folder_location, unzipped_file_name)
-        f = open(my_file, encoding='utf-8', mode='r')
-        file_content = f.read()
-        f.close()
-
-        current_file_words = list(set(re.findall("[а-яА-Я]{3,}", file_content)))
-
-        #connect to the database
-        try:
-            connection = psycopg2.connect("dbname='" + chitanka_dbname + 
-                                        "' user='" + chitanka_dbuser + 
-                                        "' password='" + chitanka_dbpassword + "'")
-
-            connection.autocommit = True
-            cur = connection.cursor()
-
-            initial_author_id = author_id #for the books table
-            sql = 'insert into public."Authors" (id, name) values(%s, %s);'
-            try:
-                cur.execute(sql, (str(author_id), author_name))
-                author_id+=1
-            except:
-                print("skipping author: " + author_name)
-                author_id+=1
-                
-            connection.commit()
-
-            initial_book_id = book_id #for the words table
-            sql = 'insert into public."Books" (id, name, author_id) values(%s, %s, %s);'
-            try:
-                cur.execute(sql, (str(book_id), book_name, str(initial_author_id)))
-                book_id+=1
-            except:
-                print("skipping book: " + book_name)
-                book_id+=1
-                    
-            connection.commit()
-
-            sql = 'insert into public."Words" (id, word, book_id) values(%s, %s, %s);'
-            for word in current_file_words:
-                try:
-                    cur.execute(sql, (str(word_id), word.lower(), str(initial_book_id)))
-                    word_id+=1
-                except:
-                    print("skipping word: " + word)
-                    word_id+=1
-            
+            my_file = os.path.join(folder_location, unzipped_file_name)
+            f = open(my_file, encoding='utf-8', mode='r')
+            file_content = f.read()
             f.close()
-            connection.commit()
-        except (Exception, psycopg2.DatabaseError) as error:
-            print(error)
-        finally:
-            if connection is not None:
-                connection.close()
+
+            current_file_words = list(set(re.findall("[а-яА-Я]{3,}", file_content)))
+
+            #connect to the database
+            try:
+                connection = psycopg2.connect("dbname='" + chitanka_dbname + 
+                                            "' user='" + chitanka_dbuser + 
+                                            "' password='" + chitanka_dbpassword + "'")
+
+                connection.autocommit = True
+                cur = connection.cursor()
+
+                initial_author_id = author_id #for the books table
+                sql = 'insert into public."Authors" (id, name) values(%s, %s);'
+                try:
+                    cur.execute(sql, (author_id, author_name))
+                    author_id+=1
+                except Exception as e:
+                    print(e)
+                    #author_id+=1
+                    
+                connection.commit()
+
+                initial_book_id = book_id #for the words table
+                sql = 'insert into public."Books" (id, name, author_id) values(%s, %s);'
+                try:
+                    cur.execute(sql, (book_id, book_name, initial_author_id))
+                    book_id+=1
+                except Exception as e:
+                    print(e)
+                    #book_id+=1
+                        
+                connection.commit()
+
+                initial_word_id = word_id
+                sql = 'insert into public."Words" (id, word) values(%s);'
+                for word in current_file_words:
+                    try:
+                        cur.execute(sql, (word_id, word.lower()))
+                        sql = 'insert into public."Books_Words" (book_id, word_id) values(%s, %s);'
+                        cur.execute(sql, (initial_book_id, initial_word_id))
+                        word_id+=1
+                    except Exception as e:
+                        print(e)
+                        #word_id+=1
+                
+                f.close()
+                connection.commit()
+            except (Exception, psycopg2.DatabaseError) as error:
+                print(error)
+            finally:
+                if connection is not None:
+                    connection.close()
 
 def importData():
     i = 1
@@ -262,4 +258,5 @@ def importData():
 
 if __name__ == '__main__':
     #importAllData()
+    #importDataByAuthor("ivan-vazov", "Иван-Вазов")
     importDataByAuthor("ivan-dimitrov", "Иван-Димитров")
