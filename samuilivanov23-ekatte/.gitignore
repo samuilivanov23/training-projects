@@ -1,0 +1,5 @@
+~/
+/postgre_web_interface/~
+/postgre_web_interface/conf-db.php
+dbconfig.py
+__pycache__/
