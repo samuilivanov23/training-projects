@@ -12,9 +12,7 @@ def createTables():
     CREATE TABLE IF NOT EXISTS "Books" (
         "id" int PRIMARY KEY,
         "name" varchar UNIQUE,
-        "author_id" int,
-        "words_count" int,
-        "sentences_count" int
+        "author_id" int
     );
 
     CREATE TABLE IF NOT EXISTS "Words" (
@@ -25,7 +23,7 @@ def createTables():
     CREATE TABLE IF NOT EXISTS "Sentences" (
         "id" int PRIMARY KEY,
         "sentence" varchar,
-        "words_count" int, 
+        "words_count" int,
         "book_id" int
     );
 
