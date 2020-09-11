@@ -1,7 +1,6 @@
 from shutil import move
 from pathlib import Path
 import requests, os,re
-from urllib.parse import urljoin
 from bs4 import BeautifulSoup
 
 my_dirnames = os.listdir("../books")
