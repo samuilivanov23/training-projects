@@ -1,20 +1,31 @@
-n = int(input("n: "))
-k = int(input("k: "))
+# n = int(input("n: "))
+# k = int(input("k: "))
 
-while (n < 1 or n > 1000) or (k < 1 or k > 1000):
-    print("Numbers not in range: between 1 and 1000")
-    n = int(input("n: "))
-    k = int(input("k: "))
+# while (n < 1 or n > 1000) or (k < 1 or k > 1000):
+#     print("Numbers not in range: between 1 and 1000")
+#     n = int(input("n: "))
+#     k = int(input("k: "))
 
+# goat_weights = []
+
+# for i in range(n):
+#     a = int(input("a" + str(i + 1) + ": "))
+#     while (a < 1 or a > 100000):
+#         print("Weight not in range: between 1 and 100000")
+#         a = int(input("a" + str(i + 1) + ": "))
+
+n = 500
+k = 10
+
+f = open("./input.txt", encoding='utf-8', mode='r')
+file_content = f.read().split('\n')
+f.close()
 goat_weights = []
 
-for i in range(n):
-    a = int(input("a" + str(i + 1) + ": "))
-    while (a < 1 or a > 100000):
-        print("Weirht not in range: between 1 and 100000")
-        a = int(input("a" + str(i + 1) + ": "))
-    
-    goat_weights.append(a)
+for item in file_content[:len(file_content) - 1]:
+    goat_weights.append(int(item))
+
+# print(goat_weights)
 
 goat_weights.sort()
 goat_weights.reverse()
