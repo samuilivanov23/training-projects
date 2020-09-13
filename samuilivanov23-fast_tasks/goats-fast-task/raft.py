@@ -1,18 +1,18 @@
-# n = int(input("n: "))
-# k = int(input("k: "))
+n = int(input("n: "))
+k = int(input("k: "))
 
-# while (n < 1 or n > 1000) or (k < 1 or k > 1000):
-#     print("Numbers not in range: between 1 and 1000")
-#     n = int(input("n: "))
-#     k = int(input("k: "))
+while (n < 1 or n > 1000) or (k < 1 or k > 1000):
+    print("Numbers not in range: between 1 and 1000")
+    n = int(input("n: "))
+    k = int(input("k: "))
 
-# goat_weights = []
+goat_weights = []
 
-# for i in range(n):
-#     a = int(input("a" + str(i + 1) + ": "))
-#     while (a < 1 or a > 100000):
-#         print("Weight not in range: between 1 and 100000")
-#         a = int(input("a" + str(i + 1) + ": "))
+for i in range(n):
+    a = int(input("a" + str(i + 1) + ": "))
+    while (a < 1 or a > 100000):
+        print("Weight not in range: between 1 and 100000")
+        a = int(input("a" + str(i + 1) + ": "))
 
 n = 500
 k = 10
