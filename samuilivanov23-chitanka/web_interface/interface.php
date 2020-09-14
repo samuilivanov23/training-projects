@@ -4,6 +4,7 @@
         <title>Postgre interface</title>
         <link rel="stylesheet" type="text/css" href="style.css">
         <meta charset="utf-8">
+        <script src='https://cdn.plot.ly/plotly-latest.min.js'></script>
         <link rel="shortcut icon" href="#" />
     </head>
 
@@ -20,6 +21,8 @@
             $book_words_count;
             $book_longest_sentence;
             $word_in_books_occurs;
+            $authors_rank_list = array();
+            $words_rank_list = array();
             $output_case = 0;
 
             if( $input_author != "" || $input_book != "" || $input_word != "")
@@ -121,6 +124,29 @@
             }
             else
             {
+                $sql = 'select a.name, count(distinct w.word) as word_count from public."Authors" as a 
+                        join public."Books" as b on a.id=b.author_id 
+                        join public."Books_Words" as bw on b.id=bw.book_id 
+                        join public."Words" as w on bw.word_id=w.id 
+                        group by a.name order by word_count desc 
+                        limit 10';
+                
+                $connection_string = "host=" . $dbhost_ . " port=5432 dbname=" . $dbname_ . " user=" . $dbuser_ . " password=" . $dbpass_;
+                $dbConnection = pg_connect($connection_string);
+
+                $result = pg_query($dbConnection, $sql);
+                if (!$result) {
+                    echo "An error occurred.\n";
+                    exit;
+                }
+
+                $arr = pg_fetch_all($result);
+                foreach($arr as $row)
+                {
+                    $authors_rank_list[] = $row["name"];
+                    $words_rank_list[] = $row["word_count"];
+                }
+
                 $output_case = 4;
             }
 
@@ -148,6 +174,43 @@
 
             <input class="button button_style" type="submit" value="Submit" name="Submit"> <br><br>
         </form>
+
+        <div id="chart">
+        </div>
+
+        <?php if ($output_case == 4) : ?>
+            <script type="text/javascript">
+                var authors_rank_list =<?php echo json_encode($authors_rank_list); ?>;
+                var words_rank_list =<?php echo json_encode($words_rank_list); ?>;
+
+                console.log(authors_rank_list);
+                console.log(words_rank_list);
+
+                var unique_words_chart = {
+                    type: 'bar',
+                    name: 'Unique words per author',
+                    x: authors_rank_list,
+                    y: words_rank_list,
+                    marker: {
+                        color: '#C8A2C8',
+                        line: {
+                            width: 2.5
+                        },
+                    }
+                };
+
+                var data = [ unique_words_chart ];
+
+                var layout = { 
+                    title: 'Testing chart',
+                    font: {size: 14},
+                };
+
+                var config = {responsive: true}
+
+                Plotly.newPlot('chart', data, layout, config );
+            </script>
+        <?php endif; ?>
 
         <?php if($output_case == 1) : ?>
             <p> Брой уникални думи в творчеството му: <?php echo htmlspecialchars($author_words_count) ?></p>
@@ -197,6 +260,6 @@
 
         <?php if ($output_case == 4) : ?>
             <p>Не е извършено филтриране все още.</p>
-        <?php endif; ?>              
+        <?php endif; ?>
     </body>
 </html>
