@@ -50,16 +50,13 @@ while i < n - 1:
             x3 = x2 + h * (y1 - y0) / distance
             y3 = y2 - h * (x1 - x0) / distance
 
-            x4 = x2 - h * (y1 - y0) / distance
-            y4 = y2 + h * (x1 - x0) / distance
+            x2 = round(x2, 2)
+            y2 = round(y2, 2)
 
             x3 = round(x3, 2)
             y3 = round(y3, 2)
-
-            x4 = round(x4, 2)
-            y4 = round(y4, 2)
             
-            if not ((x3 == x4) and (y3 == y4)):
+            if not ((x3 == x2) and (y3 == y2)):
                 ##create arc between circles TODO
                 circle = "A"+str(i)
                 intersecting_circle = "A"+str(j)
@@ -68,15 +65,8 @@ while i < n - 1:
                     circles_graph[circle].append(intersecting_circle)
                 else:
                     circles_graph[circle] = [intersecting_circle]
-
-        else:
-            print("No intersection")
-        
         j += 1
     i+=1
-
-
-print(circles_graph)
 
 def find_path(graph, start, end, path=[]):
     path = path + [start]
