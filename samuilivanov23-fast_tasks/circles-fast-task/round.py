@@ -38,7 +38,6 @@ while i < n - 1:
         y1 = y_points[j]
         r1 = radiuses[j]
 
-        intersection_points = []
         distance = math.sqrt(math.pow((x1 - x0), 2)+ math.pow((y1 - y0), 2))
 
         if not (distance > (r0 + r1) or ( distance < abs(r0 - r1)) or (distance == 0 and r0 == r1)):
