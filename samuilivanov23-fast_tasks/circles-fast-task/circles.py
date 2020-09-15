@@ -76,13 +76,15 @@ while i < n - 1:
     i+=1
 
 
+print(circles_graph)
+
 def find_path(graph, start, end, path=[]):
     path = path + [start]
     if start == end:
         return path
 
     if not start in graph:
-        return -1
+        return None
     
     for circle in graph[start]:
         if circle not in path:
@@ -90,11 +92,10 @@ def find_path(graph, start, end, path=[]):
             
             if newpath: 
                 return newpath
-
     return None
 
-try:
-    path = find_path(circles_graph, "A0", "A"+str(n-1))
-    print(path)
-except Exception as e:
-    print(e)
+path = find_path(circles_graph, "A0", "A"+str(n-1))
+if path == None:
+    print(-1)
+else:
+    print(len(path) - 1)
