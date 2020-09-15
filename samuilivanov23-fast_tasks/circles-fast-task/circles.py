@@ -75,6 +75,7 @@ while i < n - 1:
         j += 1
     i+=1
 
+
 def find_path(graph, start, end, path=[]):
     path = path + [start]
     print(path)
@@ -93,5 +94,6 @@ def find_path(graph, start, end, path=[]):
 
     return None
 
+path = find_path(circles_graph, "A0", "A"+str(n-1))
 number_of_arcs = len(path) - 1
 print(number_of_arcs)
