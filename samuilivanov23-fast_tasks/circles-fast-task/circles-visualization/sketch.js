@@ -20,7 +20,7 @@ function setup(){
   background(backgroundColor);
 
   let populated_graph = PopulateGraph(x_points, y_points, radiuses, circlesGraph);
-  let final_path = FindPath(populated_graph, "A0", "A"+(n-1).toString());
+  let path = FindPath(populated_graph, "A0", "A"+(n-1).toString());
 
   //upscale coordinates and radiuses
   for(let i = 0; i <= n; i++)
@@ -37,6 +37,7 @@ function setup(){
   drawCircles(x_points, y_points, radiuses);
   drawCenters(x_points, y_points);
   drawLabels(x_points, y_points, radiuses);
+  drawPath(x_points, y_points, path);
 }
 
 function drawCircles(x_points, y_points, radiuses)
@@ -64,15 +65,48 @@ function drawCenters(x_points, y_points)
 {
   for(let i = 0; i <= n; i++)
   {
-    drawDot(x_points[i], y_points[i]);
+    drawDot(x_points[i], y_points[i], 255, 50, 50);
   }
 }
 
-function drawDot(positionX, positionY)
+function drawDot(positionX, positionY, r, g, b)
 {
-  stroke(200, 50, 50);
+  stroke(r, g, b);
   strokeWeight(10);
   point(positionX, positionY);
+}
+
+function drawPath(x_points, y_points, path)
+{
+  for (let i = 0; i < n-1;)
+  {
+    let is_circle_in_path = checkInPath("A"+i.toString(), path);
+
+    if(is_circle_in_path)
+    {
+      for (let j = i + 1; j < n; j++)
+      {
+        let is_intersecting_circle_in_path = checkInPath("A"+j.toString(), path);
+
+        if(is_intersecting_circle_in_path)
+        {
+          drawLine(x_points[i], y_points[i], x_points[j], y_points[j], 10, 50, 50, 255);
+          i = j;
+          break;
+        }
+      }
+    }
+  }
+
+  //redraw the centers of the circles in the path
+  for(let i = 0; i < n; i++)
+  {
+    let is_circle_in_path = checkInPath("A"+i.toString(), path);
+    if(is_circle_in_path)
+    {
+      drawDot(x_points[i], y_points[i], 50, 255, 50);
+    }
+  }
 }
 
 function PopulateGraph(x_points, y_points, radiuses, circlesGraph)
@@ -159,4 +193,18 @@ function drawLine(x1 ,y1, x2, y2, strokeWeight_, r, g, b)
   stroke(r, g, b);
   strokeWeight(strokeWeight_);
   line(x1, y1,x2, y2)
+}
+
+//checks if a given circle is in the path
+function checkInPath(circle, path)
+{
+  let  is_circle_in_path = 0;
+  path.forEach(node => {
+    if(node == circle)
+    {
+      is_circle_in_path = 1;
+    }
+  });
+
+  return is_circle_in_path;
 }
