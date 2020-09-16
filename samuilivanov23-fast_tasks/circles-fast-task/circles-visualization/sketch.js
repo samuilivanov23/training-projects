@@ -1,8 +1,8 @@
 //input parameters
 let n = 9;
-let x_points = [0, 3, 6, -7, 4, 8, 9, 19, 25];
-let y_points = [0, 0, 0, 6, 6, 7, 0, 8, 4];
-let radiuses = [2, 2, 2, 5, 2, 5, 8, 7, 2];
+let x_points = [0, 3, 6, -7, 8, 9, 4, 19, 25];
+let y_points = [0, 0, 0, 6, 7, 0, 6, 8, 4];
+let radiuses = [2, 2, 2, 5, 5, 8, 2, 7, 2];
 let circlesGraph = {};
 
 //canvas parameters

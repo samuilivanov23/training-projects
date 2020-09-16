@@ -37,65 +37,24 @@
                 {                    
                     $output_case = 2;
 
-                    $book_words_count_query = 'select count(distinct w.word) from public."Books" as b
-                                               join public."Books_Words" as bw on b.id=bw.book_id
-                                               join public."Words" as w on bw.word_id=w.id where b.name=:input_book';
+                    $sentences_rank_list = array();
                     
-                    $book_longest_sentence_query = 'select max(s.words_count) from public."Books" as b
-                                                    join public."Sentences" as s on b.id=s.book_id
-                                                    where b.name=:input_book';
-                    
-                    $params["input_book"] = $input_book;
+                    for($i = 0; $i<=70; $i+=5)
+                    {
+                        $end = $i + 10;
+                        $start_words_count = "'" . $i . "'";
+                        $end_words_count = "'" . $end . "'";
+                        $sentences_key = $start_words_count . "-" . $end_words_count;
+                        $sentences_stats = getSentencesStats($start_words_count, $end_words_count, $input_book, $dbConnection);
+                        $sentences_rank_list[$sentences_key] = $sentences_stats;
+                    }
 
-                    //get book's unique words count
-                    $result = $dbConnection->prepare($book_words_count_query); 
-                    $result->execute($params); 
-                    $book_words_count = $result->fetchColumn();
-
-                    //get book's longest sentence
-                    $result = $dbConnection->prepare($book_longest_sentence_query); 
-                    $result->execute($params); 
-                    $book_longest_sentence = $result->fetchColumn(); 
+                    $words_count_range = array_keys($sentences_rank_list);
+                    $sentences_count = array_values($sentences_rank_list);
                 }
                 else if($input_author != "")
                 {
                     $output_case = 1;
-
-                    // $author_words_count_query = 'select count(distinct w.word) from public."Authors" as a 
-                    //                             join public."Books" as b on a.id=b.author_id
-                    //                             join public."Books_Words" as bw on b.id=bw.book_id
-                    //                             join public."Words" as w on bw.word_id=w.id where a.name=:input_author';
-                    
-                    // $author_longest_sentence_query = 'select max(s.words_count) from public."Authors" as a 
-                    //                                 join public."Books" as b on a.id=b.author_id
-                    //                                 join public."Sentences" as s on b.id=s.book_id
-                    //                                 where a.name=:input_author';
-
-                    // $author_books_query = 'select a.name as author_name, b.name as book_name from public."Authors" as a
-                    //                     join public."Books" as b on a.id=b.author_id
-                    //                     where a.name=:input_author';
-                    
-                    // $params["input_author"] = $input_author;
-
-                    // //get author's unique words count
-                    // $result = $dbConnection->prepare($author_words_count_query); 
-                    // $result->execute($params); 
-                    // $author_words_count = $result->fetchColumn();
-
-                    // //get author's longest sentence
-                    // $result = $dbConnection->prepare($author_longest_sentence_query); 
-                    // $result->execute($params); 
-                    // $author_longest_sentence = $result->fetchColumn(); 
-
-                    // //get all author's books
-                    // $statement = $dbConnection->prepare($author_books_query);
-                    // $statement->execute($params);
-                    // $result = $statement->fetchAll();
-
-                    // if(count($result) <= 0)
-                    // {
-                    //     echo "<p>The input data is not matching any records</p><br>";
-                    // }
 
                     $sql_books_chart = 'select b.name, count(distinct w.word) as word_count from public."Authors" as a 
                                         join public."Books" as b on a.id=b.author_id 
@@ -104,6 +63,8 @@
                                         where a.name=:input_author
                                         group by b.name order by word_count desc 
                                         limit 10';
+                    
+                    $params["input_author"] = $input_author;
                     
                     $statement = $dbConnection->prepare($sql_books_chart);
                     $statement->execute($params);
@@ -119,28 +80,46 @@
             else
             {
                 $output_case = 3;
-                $sql = 'select a.name, count(distinct w.word) as word_count from public."Authors" as a 
-                join public."Books" as b on a.id=b.author_id 
-                join public."Books_Words" as bw on b.id=bw.book_id 
-                join public."Words" as w on bw.word_id=w.id 
-                group by a.name order by word_count desc 
-                limit 10';
+                // $sql = 'select a.name, count(distinct w.word) as word_count from public."Authors" as a 
+                //         join public."Books" as b on a.id=b.author_id 
+                //         join public."Books_Words" as bw on b.id=bw.book_id 
+                //         join public."Words" as w on bw.word_id=w.id 
+                //         group by a.name order by word_count desc 
+                //         limit 10';
         
-                $connection_string = "host=" . $dbhost_ . " port=5432 dbname=" . $dbname_ . " user=" . $dbuser_ . " password=" . $dbpass_;
-                $dbConnection = pg_connect($connection_string);
+                // $connection_string = "host=" . $dbhost_ . " port=5432 dbname=" . $dbname_ . " user=" . $dbuser_ . " password=" . $dbpass_;
+                // $dbConnection = pg_connect($connection_string);
 
-                $result = pg_query($dbConnection, $sql);
-                if (!$result) {
-                    echo "An error occurred.\n";
-                    exit;
-                }
+                // $result = pg_query($dbConnection, $sql);
+                // if (!$result) {
+                //     echo "An error occurred.\n";
+                //     exit;
+                // }
 
-                $arr = pg_fetch_all($result);
-                foreach($arr as $row)
-                {
-                    $authors_rank_list[] = $row["name"];
-                    $words_rank_list[] = $row["word_count"];
-                }
+                // $arr = pg_fetch_all($result);
+                // foreach($arr as $row)
+                // {
+                //     $authors_rank_list[] = $row["name"];
+                //     $words_rank_list[] = $row["word_count"];
+                // }
+            }
+
+
+            function getSentencesStats($start_words_count, $end_words_count, $input_book, $dbConnection)
+            {
+                $sql = 'select sum(sentences_count) from 
+                        (select words_count, count(s.sentence) as sentences_count from public."Books" as b 
+                        join public."Sentences" as s on b.id=s.book_id 
+                        where b.name =:input_book and words_count>=' . $start_words_count . ' 
+                        and words_count<' . $end_words_count . ' group by words_count) as a;';
+
+                $params["input_book"] = $input_book;
+
+                $statement = $dbConnection->prepare($sql);
+                $statement->execute($params);
+                $sentences_result = $statement->fetchColumn();
+
+                return $sentences_result;
             }
         ?>
 
@@ -186,8 +165,9 @@
                 var layout = { 
                     title: 'Top 10 books rank list',
                     font: {size: 14},
+                    height: 700,
                     margin: {
-                        b: 150,
+                        b: 300,
                     },    
                 };
 
@@ -197,43 +177,36 @@
             </script>
         <?php endif; ?>
 
-        <?php if ($output_case == 3) : ?>
+        <?php if ($output_case == 2) : ?>
             <script type="text/javascript">
-                var authors_rank_list =<?php echo json_encode($authors_rank_list); ?>;
-                var words_rank_list =<?php echo json_encode($words_rank_list); ?>;
+                var words_count_range =<?php echo json_encode($words_count_range); ?>;
+                var sentences_count =<?php echo json_encode($sentences_count); ?>;
 
-                var authors_words_chart = {
+                var books_words_chart = {
                     type: 'bar',
                     name: 'Unique words per author',
-                    x: authors_rank_list,
-                    y: words_rank_list,
+                    x: words_count_range,
+                    y: sentences_count,
                     marker: {
                         color: '#C8A2C8',
                         line: {
-                            width: 2.5
+                            width: 1
                         },
                     }
                 };
 
-                var data = [ authors_words_chart ];
+                var data = [ books_words_chart ];
 
                 var layout = { 
-                    title: 'Top 10 authors rank list',
+                    title: 'Top 10 books rank list',
                     font: {size: 14},
-                    margin: {
-                        b: 150,
-                    }, 
+                    height: 500,
                 };
 
                 var config = {responsive: true}
 
                 Plotly.newPlot('chart', data, layout, config );
             </script>
-        <?php endif; ?>
-
-        <?php if($output_case == 2) : ?>
-            <p> Брой уникални думи в книгата: : <?php echo htmlspecialchars($book_words_count) ?></p>
-            <p> Най-дългото изречение в книгата е с <?php echo htmlspecialchars($book_longest_sentence) ?> думи</p>
         <?php endif; ?>
 
         <?php if ($output_case == 3) : ?>
