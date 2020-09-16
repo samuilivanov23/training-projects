@@ -5,8 +5,6 @@ let y_points = [0, 0, 0, 6, 6, 7, 0, 8, 4];
 let radiuses = [2, 2, 2, 5, 2, 5, 8, 7, 2];
 let circlesGraph = {};
 
-let A = 4;
-
 //canvas parameters
 const canvasWidth = 1380;
 const canvasHeight = 620;
@@ -16,16 +14,13 @@ backgroundColor = 51;
 multiplicationCoefficient = 20;
 offsetX = 500;
 offsetY = 220;
-let i = 0;
 
 function setup(){
   createCanvas(canvasWidth, canvasHeight);
   background(backgroundColor);
 
-  let populatedGraph = PopulateGraph(x_points, y_points, radiuses, circlesGraph);
-  let final_path = FindPath(populatedGraph, "A0", "A"+(n-1).toString());
-
-  console.log(final_path);
+  let populated_graph = PopulateGraph(x_points, y_points, radiuses, circlesGraph);
+  let final_path = FindPath(populated_graph, "A0", "A"+(n-1).toString());
 
   //upscale coordinates and radiuses
   for(let i = 0; i <= n; i++)
@@ -96,7 +91,7 @@ function PopulateGraph(x_points, y_points, radiuses, circlesGraph)
 
       let distance = Math.sqrt(Math.pow((x1 - x0), 2)+ Math.pow((y1 - y0), 2))
 
-      if (!(distance > (r0 + r1)) || ( distance < abs(r0 - r1)) || (distance == 0 && r0 == r1))
+      if (!((distance > (r0 + r1)) || ( distance < abs(r0 - r1)) || (distance == 0 && r0 == r1)))
       {
         let a = (Math.pow(r0, 2) - Math.pow(r1, 2) + Math.pow(distance, 2)) / (2*distance)
         let h = Math.sqrt(Math.pow(r0, 2) - Math.pow(a, 2))
@@ -132,15 +127,12 @@ function PopulateGraph(x_points, y_points, radiuses, circlesGraph)
 function FindPath(graph, start, end, path=[])
 {
   path = path.concat([start]);
-  //console.log(path);
 
   if(start == end)
   {
     return path;
   }
 
-  //console.log(start);
-  //console.log(start in graph);
   if (!start in graph)
   {
     return null;
@@ -148,16 +140,7 @@ function FindPath(graph, start, end, path=[])
 
   for(let circle in graph[start])
   {
-    let is_circle_in_path = 0;
-    path.forEach(node => {
-      if(node == graph[start][circle])
-      {
-        is_circle_in_path = 1;
-      }
-    });
-
-    //console.log(graph[start]);
-    if(is_circle_in_path != 1)
+    if(!(graph[start][circle] in path))
     {
       let newpath = FindPath(graph, graph[start][circle], end, path);
 
