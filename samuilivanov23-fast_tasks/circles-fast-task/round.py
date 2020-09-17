@@ -27,64 +27,71 @@ for i in range(n):
     radiuses.append(r)
 
 i = 0
-while i < n - 1:
-    j = i + 1
+while i < n:
+    j = 0
     while j < n:
-        x0 = x_points[i]
-        y0 = y_points[i]
-        r0 = radiuses[i]
+        if not i == j:
+            x0 = x_points[i]
+            y0 = y_points[i]
+            r0 = radiuses[i]
 
-        x1 = x_points[j]
-        y1 = y_points[j]
-        r1 = radiuses[j]
+            x1 = x_points[j]
+            y1 = y_points[j]
+            r1 = radiuses[j]
 
-        distance = math.sqrt(math.pow((x1 - x0), 2)+ math.pow((y1 - y0), 2))
+            distance = math.sqrt(math.pow((x1 - x0), 2)+ math.pow((y1 - y0), 2))
 
-        if not (distance > (r0 + r1) or ( distance < abs(r0 - r1)) or (distance == 0 and r0 == r1)):
-            a = (math.pow(r0, 2) - math.pow(r1, 2) + math.pow(distance, 2)) / (2*distance)
-            h = math.sqrt(math.pow(r0, 2) - math.pow(a, 2))
+            if not (distance > (r0 + r1) or ( distance < abs(r0 - r1)) or (distance == 0 and r0 == r1)):
+                a = (math.pow(r0, 2) - math.pow(r1, 2) + math.pow(distance, 2)) / (2*distance)
+                h = math.sqrt(math.pow(r0, 2) - math.pow(a, 2))
 
-            x2 =  x0 + a * (x1 - x0) / distance
-            y2 = y0 + a * (y1 - x0) / distance
-            x3 = x2 + h * (y1 - y0) / distance
-            y3 = y2 - h * (x1 - x0) / distance
+                x2 =  x0 + a * (x1 - x0) / distance
+                y2 = y0 + a * (y1 - x0) / distance
+                x3 = x2 + h * (y1 - y0) / distance
+                y3 = y2 - h * (x1 - x0) / distance
 
-            x2 = round(x2, 2)
-            y2 = round(y2, 2)
+                x2 = round(x2, 2)
+                y2 = round(y2, 2)
 
-            x3 = round(x3, 2)
-            y3 = round(y3, 2)
-            
-            if not ((x3 == x2) and (y3 == y2)):
-                ##create arc between circles TODO
-                circle = "A"+str(i)
-                intersecting_circle = "A"+str(j)
+                x3 = round(x3, 2)
+                y3 = round(y3, 2)
                 
-                if circle in circles_graph:    
-                    circles_graph[circle].append(intersecting_circle)
-                else:
-                    circles_graph[circle] = [intersecting_circle]
+                if not ((x3 == x2) and (y3 == y2)):
+                    ##create arc between circles TODO
+                    circle = "A"+str(i)
+                    intersecting_circle = "A"+str(j)
+                    
+                    if circle in circles_graph:    
+                        circles_graph[circle].append(intersecting_circle)
+                    else:
+                        circles_graph[circle] = [intersecting_circle]
         j += 1
     i+=1
+
+print(circles_graph)
+all_paths = list()
 
 def find_path(graph, start, end, path=[]):
     path = path + [start]
     if start == end:
+        all_paths.append(path)
         return path
 
     if not start in graph:
         return None
     
     for circle in graph[start]:
-        if circle not in path:
+        if not circle in path:
             newpath = find_path(graph, circle, end, path)
             
-            if newpath: 
-                return newpath
+            #if newpath:
+                #return newpath
     return None
 
 path = find_path(circles_graph, "A0", "A"+str(n-1))
-if path == None:
+print(all_paths)
+if all_paths == None:
     print(-1)
 else:
-    print(len(path) - 1)
+    result = min(map(len, all_paths))
+    print(result - 1)
