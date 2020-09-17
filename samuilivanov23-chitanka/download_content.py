@@ -43,7 +43,6 @@ def downloadAll(start_index, end_index):
                 #Name the files using the last portion of the link
 
                 if book_link['href'].split('/')[-2] == "text":
-                    # while True:
                     try:
                         book_name = book_link['href'].split('/')[-1]
                         book_chitanka_id = re.findall('([0-9])', book_name)
@@ -122,9 +121,6 @@ def downloadAll(start_index, end_index):
                         except:
                             print("FAILED..END")
                         
-                        # if os.path.isfile("../books/" + cyrillic_name + "/" + unzipped_file_name):
-                        #     break
-                        
         print("\n")
         start += 1
 
@@ -133,27 +129,21 @@ if __name__ == '__main__':
     start = 36
     end = 36
 
-    # Declare a new process and pass arguments to it
     p1 = multiprocessing.Process(target=downloadAll, args=(start, end,))
     
-    # Declare a new process and pass arguments to it
     p2 = multiprocessing.Process(target=downloadAll, args=(start+1, end+1,))
     
-    # Declare a new process and pass arguments to it
     p3= multiprocessing.Process(target=downloadAll, args=(start+2, end+2,))
     
-    # Declare a new process and pass arguments to it
     p4 = multiprocessing.Process(target=downloadAll, args=(start+3, end+3,))
     
-    # Declare a new process and pass arguments to it
     p5 = multiprocessing.Process(target=downloadAll, args=(start+4, end+4, ))
 
-    # Declare a new process and pass arguments to it
     p6 = multiprocessing.Process(target=downloadAll, args=(start+5, end+5, ))
 
-    p1.start() # starting workers
-    p2.start() # starting workers
-    p3.start() # starting workers
-    p4.start() # starting workers
-    p5.start() # starting workers
-    p6.start() # starting workers
+    p1.start()
+    p2.start()
+    p3.start()
+    p4.start()
+    p5.start()
+    p6.start()

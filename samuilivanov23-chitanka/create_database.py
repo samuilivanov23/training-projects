@@ -5,23 +5,23 @@ def createTables():
     command = ('''
 
     CREATE TABLE IF NOT EXISTS "Authors" (
-        "id" int PRIMARY KEY,
+        "id" serial PRIMARY KEY,
         "name" varchar UNIQUE
     );
 
     CREATE TABLE IF NOT EXISTS "Books" (
-        "id" int PRIMARY KEY,
-        "name" varchar UNIQUE,
+        "id" serial PRIMARY KEY,
+        "name" varchar,
         "author_id" int
     );
 
     CREATE TABLE IF NOT EXISTS "Words" (
-        "id" int PRIMARY KEY,
+        "id" serial PRIMARY KEY,
         "word" varchar UNIQUE
     );
 
     CREATE TABLE IF NOT EXISTS "Sentences" (
-        "id" int PRIMARY KEY,
+        "id" serial PRIMARY KEY,
         "sentence" varchar,
         "words_count" int,
         "book_id" int
@@ -44,7 +44,7 @@ def createTables():
     ''')
 
     #connect to the database
-    connection = psycopg2.connect("dbname='" + chitanka_dbname + 
+    connection = psycopg2.connect("dbname='" + "chitanka_test" + 
                                   "' user='" + chitanka_dbuser + 
                                   "' password='" + chitanka_dbpassword + "'")
 
