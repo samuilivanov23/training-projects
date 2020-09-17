@@ -15,14 +15,8 @@
             $input_author = $_POST['author'];
             $input_book = $_POST['book'];
 
-            $author_words_count;
-            $author_longest_sentence;
-            $book_words_count;
-            $book_longest_sentence;
-            $word_in_books_occurs;
-            $authors_rank_list = array();
-            $books_rank_list = array();
-            $words_rank_list = array();
+            $x_axis = array();
+            $y_axis = array();
             $output_case = 0;
 
             if( $input_author != "" || $input_book != "")
@@ -49,8 +43,8 @@
                         $sentences_rank_list[$sentences_key] = $sentences_stats;
                     }
 
-                    $words_count_range = array_keys($sentences_rank_list);
-                    $sentences_count = array_values($sentences_rank_list);
+                    $x_axis = array_keys($sentences_rank_list);
+                    $y_axis = array_values($sentences_rank_list);
                 }
                 else if($input_author != "")
                 {
@@ -72,8 +66,8 @@
 
                     foreach($books_result as $row)
                     {
-                        $books_rank_list[] = $row["name"];
-                        $words_rank_list[] = $row["word_count"];
+                        $x_axis[] = $row["name"];
+                        $y_axis[] = $row["word_count"];
                     }
                 }
             }
@@ -99,8 +93,8 @@
                 // $arr = pg_fetch_all($result);
                 // foreach($arr as $row)
                 // {
-                //     $authors_rank_list[] = $row["name"];
-                //     $words_rank_list[] = $row["word_count"];
+                //     $x_axis[] = $row["name"];
+                //     $y_axis[] = $row["word_count"];
                 // }
             }
 
@@ -142,72 +136,39 @@
         <div id="chart">
         </div>
 
-        <?php if ($output_case == 1) : ?>
-            <script type="text/javascript">
-                var books_rank_list =<?php echo json_encode($books_rank_list); ?>;
-                var words_rank_list =<?php echo json_encode($words_rank_list); ?>;
+        <script type="text/javascript">
+            var x_axis =<?php echo json_encode($x_axis); ?>;
+            var y_axis =<?php echo json_encode($y_axis); ?>;
+            var chart_title = <?php echo json_encode($title); ?>;
 
-                var books_words_chart = {
-                    type: 'bar',
-                    name: 'Unique words per author',
-                    x: books_rank_list,
-                    y: words_rank_list,
-                    marker: {
-                        color: '#C8A2C8',
-                        line: {
-                            width: 2.5
-                        },
-                    }
-                };
+            var books_words_chart = {
+                type: 'bar',
+                name: chart_title,
+                x: x_axis,
+                y: y_axis,
+                marker: {
+                    color: '#C8A2C8',
+                    line: {
+                        width: 2.5
+                    },
+                }
+            };
 
-                var data = [ books_words_chart ];
+            var data = [ books_words_chart ];
 
-                var layout = { 
-                    title: 'Top 10 books rank list',
-                    font: {size: 14},
-                    height: 700,
-                    margin: {
-                        b: 300,
-                    },    
-                };
+            var layout = { 
+                title: chart_title,
+                font: {size: 14},
+                height: 700,
+                margin: {
+                    b: 300,
+                },    
+            };
 
-                var config = {responsive: true}
+            var config = {responsive: true}
 
-                Plotly.newPlot('chart', data, layout, config );
-            </script>
-        <?php endif; ?>
-
-        <?php if ($output_case == 2) : ?>
-            <script type="text/javascript">
-                var words_count_range =<?php echo json_encode($words_count_range); ?>;
-                var sentences_count =<?php echo json_encode($sentences_count); ?>;
-
-                var books_words_chart = {
-                    type: 'bar',
-                    name: 'Unique words per author',
-                    x: words_count_range,
-                    y: sentences_count,
-                    marker: {
-                        color: '#C8A2C8',
-                        line: {
-                            width: 1
-                        },
-                    }
-                };
-
-                var data = [ books_words_chart ];
-
-                var layout = { 
-                    title: 'Top 10 books rank list',
-                    font: {size: 14},
-                    height: 500,
-                };
-
-                var config = {responsive: true}
-
-                Plotly.newPlot('chart', data, layout, config );
-            </script>
-        <?php endif; ?>
+            Plotly.newPlot('chart', data, layout, config );
+        </script>
 
         <?php if ($output_case == 3) : ?>
             <p>Не е извършено филтриране все още.</p>
