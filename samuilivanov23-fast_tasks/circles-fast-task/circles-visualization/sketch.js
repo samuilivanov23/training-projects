@@ -1,9 +1,10 @@
 //input parameters
 let n = 9;
-let x_points = [0, 3, 6, -7, 8, 9, 4, 19, 25];
-let y_points = [0, 0, 0, 6, 7, 0, 6, 8, 4];
+let xPoints = [0, 3, 6, -7, 8, 9, 4, 19, 25];
+let yPoints = [0, 0, 0, 6, 7, 0, 6, 8, 4];
 let radiuses = [2, 2, 2, 5, 5, 8, 2, 7, 2];
 let circlesGraph = {};
+let allPaths = [];
 
 //canvas parameters
 const canvasWidth = 1380;
@@ -19,53 +20,54 @@ function setup(){
   createCanvas(canvasWidth, canvasHeight);
   background(backgroundColor);
 
-  let populated_graph = PopulateGraph(x_points, y_points, radiuses, circlesGraph);
-  let path = FindPath(populated_graph, "A0", "A"+(n-1).toString());
+  let populatedGraph = PopulateGraph(xPoints, yPoints, radiuses, circlesGraph);
+  let path = FindAllPaths(populatedGraph, "A0", "A"+(n-1).toString());
+  let shortestPath = FindShortestPath(allPaths);
 
   //upscale coordinates and radiuses
   for(let i = 0; i <= n; i++)
   {
-    x_points[i] *= multiplicationCoefficient;
-    x_points[i] += offsetX;
+    xPoints[i] *= multiplicationCoefficient;
+    xPoints[i] += offsetX;
 
-    y_points[i] *= multiplicationCoefficient;
-    y_points[i] += offsetY;
+    yPoints[i] *= multiplicationCoefficient;
+    yPoints[i] += offsetY;
     
     radiuses[i] *= multiplicationCoefficient;
   }
 
-  drawCircles(x_points, y_points, radiuses);
-  drawCenters(x_points, y_points);
-  drawLabels(x_points, y_points, radiuses);
-  drawPath(x_points, y_points, path);
+  drawCircles(xPoints, yPoints, radiuses);
+  drawCenters(xPoints, yPoints);
+  drawLabels(xPoints, yPoints, radiuses);
+  drawPath(xPoints, yPoints, shortestPath);
 }
 
-function drawCircles(x_points, y_points, radiuses)
+function drawCircles(xPoints, yPoints, radiuses)
 {
   stroke(255);
   noFill();
   for(let i = 0; i <= n; i++)
   {
-    circle(x_points[i], y_points[i], radiuses[i]*2);
+    circle(xPoints[i], yPoints[i], radiuses[i]*2);
   }
 }
 
-function drawLabels(x_points, y_points, radiuses)
+function drawLabels(xPoints, yPoints, radiuses)
 {
   noStroke();
   fill(255);
   for(let i = 0; i <= n; i++)
   {
     textSize(32);
-    text("A"+i.toString(), x_points[i] - 15, y_points[i] - radiuses[i] - 10);  
+    text("A"+i.toString(), xPoints[i] - 15, yPoints[i] - radiuses[i] - 10);  
   }
 }
 
-function drawCenters(x_points, y_points)
+function drawCenters(xPoints, yPoints)
 {
   for(let i = 0; i <= n; i++)
   {
-    drawDot(x_points[i], y_points[i], 255, 50, 50);
+    drawDot(xPoints[i], yPoints[i], 255, 50, 50);
   }
 }
 
@@ -76,94 +78,82 @@ function drawDot(positionX, positionY, r, g, b)
   point(positionX, positionY);
 }
 
-function drawPath(x_points, y_points, path)
+function drawPath(xPoints, yPoints, path)
 {
-  for (let i = 0; i < n-1;)
+  for(let i = 0 ; i < path.length - 1; i++)
   {
-    let is_circle_in_path = checkInPath("A"+i.toString(), path);
-
-    if(is_circle_in_path)
-    {
-      for (let j = i + 1; j < n; j++)
-      {
-        let is_intersecting_circle_in_path = checkInPath("A"+j.toString(), path);
-
-        if(is_intersecting_circle_in_path)
-        {
-          drawLine(x_points[i], y_points[i], x_points[j], y_points[j], 10, 50, 50, 255);
-          i = j;
-          break;
-        }
-      }
-    }
+    let currentCircleIndex = GetCircleIndex(path[i]);
+    let nextCircleIndex = GetCircleIndex(path[i+1]);
+    drawLine(xPoints[currentCircleIndex], yPoints[currentCircleIndex], xPoints[nextCircleIndex], yPoints[nextCircleIndex], 10, 50, 50, 255);
   }
 
   //redraw the centers of the circles in the path
-  for(let i = 0; i < n; i++)
+  for(let i = 0 ; i < path.length; i++)
   {
-    let is_circle_in_path = checkInPath("A"+i.toString(), path);
-    if(is_circle_in_path)
-    {
-      drawDot(x_points[i], y_points[i], 50, 255, 50);
-    }
+    let currentCircleIndex = GetCircleIndex(path[i]);
+    drawDot(xPoints[currentCircleIndex], yPoints[currentCircleIndex], 50, 255, 50);
   }
 }
 
-function PopulateGraph(x_points, y_points, radiuses, circlesGraph)
+function PopulateGraph(xPoints, yPoints, radiuses, circlesGraph)
 {
-  for(let i = 0; i < n - 1; i++)
+  for(let i = 0; i < n; i++)
   {
-    for(let j = i+1; j < n; j++)
+    for(let j = 0; j < n; j++)
     {
-      let x0 = x_points[i]
-      let y0 = y_points[i]
-      let r0 = radiuses[i]
-
-      let x1 = x_points[j]
-      let y1 = y_points[j]
-      let r1 = radiuses[j]
-
-      let distance = Math.sqrt(Math.pow((x1 - x0), 2)+ Math.pow((y1 - y0), 2))
-
-      if (!((distance > (r0 + r1)) || ( distance < abs(r0 - r1)) || (distance == 0 && r0 == r1)))
+      if(i != j)
       {
-        let a = (Math.pow(r0, 2) - Math.pow(r1, 2) + Math.pow(distance, 2)) / (2*distance)
-        let h = Math.sqrt(Math.pow(r0, 2) - Math.pow(a, 2))
+      	let x0 = xPoints[i]
+	      let y0 = yPoints[i]
+	      let r0 = radiuses[i]
 
-        let x2 =  x0 + a * (x1 - x0) / distance
-        let y2 = y0 + a * (y1 - x0) / distance
-        let x3 = x2 + h * (y1 - y0) / distance
-        let y3 = y2 - h * (x1 - x0) / distance
+	      let x1 = xPoints[j]
+	      let y1 = yPoints[j]
+	      let r1 = radiuses[j]
 
-        x2 = round(x2, 2)
-        y2 = round(y2, 2)
+	      let distance = Math.sqrt(Math.pow((x1 - x0), 2)+ Math.pow((y1 - y0), 2))
 
-        x3 = round(x3, 2)
-        y3 = round(y3, 2)
+	      if (!((distance > (r0 + r1)) || ( distance < abs(r0 - r1)) || (distance == 0 && r0 == r1)))
+	      {
+          let a = (Math.pow(r0, 2) - Math.pow(r1, 2) + Math.pow(distance, 2)) / (2*distance)
+          let h = Math.sqrt(Math.pow(r0, 2) - Math.pow(a, 2))
 
-        if (!((x3 == x2) && (y3 == y2)))
-        {
-          if("A"+i.toString() in circlesGraph)
+          let x2 =  x0 + a * (x1 - x0) / distance
+          let y2 = y0 + a * (y1 - x0) / distance
+          let x3 = x2 + h * (y1 - y0) / distance
+          let y3 = y2 - h * (x1 - x0) / distance
+
+          x2 = round(x2, 2)
+          y2 = round(y2, 2)
+
+          x3 = round(x3, 2)
+          y3 = round(y3, 2)
+
+          if (!((x3 == x2) && (y3 == y2)))
           {
-            circlesGraph["A"+i.toString()].push("A"+j.toString());
+            if("A"+i.toString() in circlesGraph)
+            {
+              circlesGraph["A"+i.toString()].push("A"+j.toString());
+            }
+            else
+            {
+              circlesGraph["A"+i.toString()] = ["A"+j.toString()];
+            }
           }
-          else
-          {
-            circlesGraph["A"+i.toString()] = ["A"+j.toString()];
-          }
-        }
+	      }
       }
     }
   }
   return circlesGraph;
 }
 
-function FindPath(graph, start, end, path=[])
+function FindAllPaths(graph, start, end, path=[])
 {
   path = path.concat([start]);
 
   if(start == end)
   {
+    allPaths.push(path);
     return path;
   }
 
@@ -174,18 +164,28 @@ function FindPath(graph, start, end, path=[])
 
   for(let circle in graph[start])
   {
-    if(!(graph[start][circle] in path))
-    {
-      let newpath = FindPath(graph, graph[start][circle], end, path);
+    let isCircleInPath = CheckInPath(graph[start][circle], path);
 
-      if(newpath)
-      {
-        return newpath;
-      }
+    if(!(isCircleInPath))
+    {
+      let newpath = FindAllPaths(graph, graph[start][circle], end, path);
     }
   }
-
   return null;
+}
+
+function FindShortestPath(paths)
+{
+  let shortestPath = paths[0];
+
+  for(let i = 1; i < paths.length; i++)
+  {
+    if(paths[i].length < shortestPath.length)
+    {
+      shortestPath = paths[i];
+    }
+  }
+  return shortestPath;
 }
 
 function drawLine(x1 ,y1, x2, y2, strokeWeight_, r, g, b)
@@ -196,15 +196,20 @@ function drawLine(x1 ,y1, x2, y2, strokeWeight_, r, g, b)
 }
 
 //checks if a given circle is in the path
-function checkInPath(circle, path)
+function CheckInPath(circle, path)
 {
-  let  is_circle_in_path = 0;
+  let  isCircleInPath = 0;
   path.forEach(node => {
     if(node == circle)
     {
-      is_circle_in_path = 1;
+      isCircleInPath = 1;
     }
   });
 
-  return is_circle_in_path;
+  return isCircleInPath;
+}
+
+function GetCircleIndex(circle)
+{
+  return parseInt(circle.slice(-1));
 }
