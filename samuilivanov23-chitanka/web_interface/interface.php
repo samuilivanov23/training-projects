@@ -33,15 +33,21 @@
 
                     $sentences_rank_list = array();
                     
-                    for($i = 0; $i<=70; $i+=5)
+                    for($i = 0; $i<=20; $i+=5)
                     {
-                        $end = $i + 10;
-                        $start_words_count = "'" . $i . "'";
-                        $end_words_count = "'" . $end . "'";
-                        $sentences_key = $start_words_count . "-" . $end_words_count;
+                        $end = $i + 5;
+                        $start_words_count = $i;
+                        $end_words_count = $end;
+                        $sentences_key = $start_words_count . "-" . $end_words_count . " words";
                         $sentences_stats = getSentencesStats($start_words_count, $end_words_count, $input_book, $dbConnection);
                         $sentences_rank_list[$sentences_key] = $sentences_stats;
                     }
+
+                    $start_words_count = '20';
+                    $end_words_count = '70';
+                    $sentences_key = '20 - 70 words';
+                    $sentences_stats = getSentencesStats($start_words_count, $end_words_count, $input_book, $dbConnection);
+                    $sentences_rank_list[$sentences_key] = $sentences_stats;
 
                     $x_axis = array_keys($sentences_rank_list);
                     $y_axis = array_values($sentences_rank_list);
@@ -136,39 +142,41 @@
         <div id="chart">
         </div>
 
-        <script type="text/javascript">
-            var x_axis =<?php echo json_encode($x_axis); ?>;
-            var y_axis =<?php echo json_encode($y_axis); ?>;
-            var chart_title = <?php echo json_encode($title); ?>;
+        <?php if ($output_case == 1 || $output_case == 2) : ?>
+            <script type="text/javascript">
+                var x_axis =<?php echo json_encode($x_axis); ?>;
+                var y_axis =<?php echo json_encode($y_axis); ?>;
+                var chart_title = <?php echo json_encode($title); ?>;
 
-            var books_words_chart = {
-                type: 'bar',
-                name: chart_title,
-                x: x_axis,
-                y: y_axis,
-                marker: {
-                    color: '#C8A2C8',
-                    line: {
-                        width: 2.5
-                    },
-                }
-            };
+                var books_words_chart = {
+                    type: 'bar',
+                    name: chart_title,
+                    x: x_axis,
+                    y: y_axis,
+                    marker: {
+                        color: '#C8A2C8',
+                        line: {
+                            width: 2.5
+                        },
+                    }
+                };
 
-            var data = [ books_words_chart ];
+                var data = [ books_words_chart ];
 
-            var layout = { 
-                title: chart_title,
-                font: {size: 14},
-                height: 700,
-                margin: {
-                    b: 300,
-                },    
-            };
+                var layout = { 
+                    title: chart_title,
+                    font: {size: 14},
+                    height: 700,
+                    margin: {
+                        b: 300,
+                    },    
+                };
 
-            var config = {responsive: true}
+                var config = {responsive: true}
 
-            Plotly.newPlot('chart', data, layout, config );
-        </script>
+                Plotly.newPlot('chart', data, layout, config );
+            </script>
+        <?php endif; ?>
 
         <?php if ($output_case == 3) : ?>
             <p>Не е извършено филтриране все още.</p>
