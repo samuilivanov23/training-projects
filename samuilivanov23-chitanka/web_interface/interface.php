@@ -11,7 +11,7 @@
     <body>
         <?php
             include 'db-conf.php';
-
+            
             $input_author = $_POST['author'];
             $input_book = $_POST['book'];
 
@@ -30,23 +30,57 @@
                 if($input_book != "")
                 {                    
                     $output_case = 2;
-
-                    $sentences_rank_list = array();
                     
-                    for($i = 0; $i<=20; $i+=5)
+                    $connString = "host=" . $dbhost_ . " dbname=" . $dbname_ . " user=" . $dbuser_ . " password=" . $dbpass_;
+                    $dbConn = pg_connect($connString) or die("Could not connect to database");
+                    $sentences_rank_list = array();
+
+                    $queries = "";
+
+                    for($i = 0; $i <=20; $i+=5)
                     {
                         $end = $i + 5;
                         $start_words_count = $i;
                         $end_words_count = $end;
-                        $sentences_key = $start_words_count . "-" . $end_words_count . " words";
-                        $sentences_stats = getSentencesStats($start_words_count, $end_words_count, $input_book, $dbConnection);
-                        $sentences_rank_list[$sentences_key] = $sentences_stats;
+
+                        $sql = 'select sum(sentences_count) from 
+                                (select words_count, count(s.sentence) as sentences_count from public."Books" as b 
+                                join public."Sentences" as s on b.id=s.book_id 
+                                where b.name =' . "'" . $input_book . "'" . ' and words_count>=' . $start_words_count . ' 
+                                and words_count<' . $end_words_count . ' group by words_count) as a;';
+
+                        $queries = $queries . $sql . " ";
                     }
+                    
 
                     $start_words_count = '20';
                     $end_words_count = '70';
                     $sentences_key = '20 - 70 words';
-                    $sentences_stats = getSentencesStats($start_words_count, $end_words_count, $input_book, $dbConnection);
+
+                    $sql = 'select sum(sentences_count) from 
+                        (select words_count, count(s.sentence) as sentences_count from public."Books" as b 
+                        join public."Sentences" as s on b.id=s.book_id 
+                        where b.name =' . "'" . $input_book . "'" . ' and words_count>=' . $start_words_count . ' 
+                        and words_count<' . $end_words_count . ' group by words_count) as a;';
+
+                    $queries = $queries . $sql;
+
+                    pg_send_query($dbConn, $queries);
+                    
+                    for($i = 0; $i<4; $i+=1)
+                    {
+                        $result = pg_get_result($dbConn);
+                        $sentences_stats = pg_fetch_result($result, 0, 0);
+
+                        $end = $i + 5;
+                        $start = $i;
+                        $sentences_key = $start . "-" . $end;
+                        $sentences_rank_list[$sentences_key] = $sentences_stats;
+                    }
+
+                    $result = pg_get_result($dbConn);
+                    $sentences_stats = pg_fetch_result($result, 0, 0);
+                    $sentences_key = "20 - 70";
                     $sentences_rank_list[$sentences_key] = $sentences_stats;
 
                     $x_axis = array_keys($sentences_rank_list);
@@ -57,9 +91,9 @@
                     $output_case = 1;
 
                     $sql_books_chart = 'select b.name, count(distinct w.word) as word_count from public."Authors" as a 
-                                        join public."Books" as b on a.id=b.author_id 
-                                        join public."Books_Words" as bw on b.id=bw.book_id 
-                                        join public."Words" as w on bw.word_id=w.id 
+                                        join public."Books" as b on a.id=b.author_id
+                                        join public."Books_Words" as bw on b.id=bw.book_id
+                                        join public."Words" as w on bw.word_id=w.id
                                         where a.name=:input_author
                                         group by b.name order by word_count desc 
                                         limit 10';
@@ -80,28 +114,28 @@
             else
             {
                 $output_case = 3;
-                // $sql = 'select a.name, count(distinct w.word) as word_count from public."Authors" as a 
-                //         join public."Books" as b on a.id=b.author_id 
-                //         join public."Books_Words" as bw on b.id=bw.book_id 
-                //         join public."Words" as w on bw.word_id=w.id 
-                //         group by a.name order by word_count desc 
-                //         limit 10';
-        
-                // $connection_string = "host=" . $dbhost_ . " port=5432 dbname=" . $dbname_ . " user=" . $dbuser_ . " password=" . $dbpass_;
-                // $dbConnection = pg_connect($connection_string);
+                $sql = 'select a.name, count(distinct w.word) as word_count from public."Authors" as a 
+                        inner join public."Books" as b on a.id=b.author_id 
+                        inner join public."Books_Words" as bw on b.id=bw.book_id 
+                        inner join public."Words" as w on bw.word_id=w.id 
+                        group by a.name order by word_count desc 
+                        limit 10';
 
-                // $result = pg_query($dbConnection, $sql);
-                // if (!$result) {
-                //     echo "An error occurred.\n";
-                //     exit;
-                // }
+                $connection_string = "host=" . $dbhost_ . " port=5432 dbname=" . $dbname_ . " user=" . $dbuser_ . " password=" . $dbpass_;
+                $dbConnection = pg_connect($connection_string);
 
-                // $arr = pg_fetch_all($result);
-                // foreach($arr as $row)
-                // {
-                //     $x_axis[] = $row["name"];
-                //     $y_axis[] = $row["word_count"];
-                // }
+                $result = pg_query($dbConnection, $sql);
+                if (!$result) {
+                    echo "An error occurred.\n";
+                    exit;
+                }
+
+                $arr = pg_fetch_all($result);
+                foreach($arr as $row)
+                {
+                    $x_axis[] = $row["name"];
+                    $y_axis[] = $row["word_count"];
+                }
             }
 
 
