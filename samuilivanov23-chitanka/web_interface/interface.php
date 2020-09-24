@@ -137,24 +137,6 @@
                     $y_axis[] = $row["word_count"];
                 }
             }
-
-
-            function getSentencesStats($start_words_count, $end_words_count, $input_book, $dbConnection)
-            {
-                $sql = 'select sum(sentences_count) from 
-                        (select words_count, count(s.sentence) as sentences_count from public."Books" as b 
-                        join public."Sentences" as s on b.id=s.book_id 
-                        where b.name =:input_book and words_count>=' . $start_words_count . ' 
-                        and words_count<' . $end_words_count . ' group by words_count) as a;';
-
-                $params["input_book"] = $input_book;
-
-                $statement = $dbConnection->prepare($sql);
-                $statement->execute($params);
-                $sentences_result = $statement->fetchColumn();
-
-                return $sentences_result;
-            }
         ?>
 
         <form name="Form" class="margin_style" action="" method="post" accept-charset="UTF-8">
