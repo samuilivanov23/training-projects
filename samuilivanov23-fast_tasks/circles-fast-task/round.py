@@ -64,14 +64,14 @@ def buildGraph(n):
     
     print(circles_graph) 
 
-def shortestPath(graph, start, goal):
+def shortestPath(graph, start, end):
     explored = [] 
     queue = [[start]]
 
     if not start in graph:
         return -1
 
-    if start == goal: 
+    if start == end: 
         return [start]
       
     while queue: 
@@ -87,7 +87,7 @@ def shortestPath(graph, start, goal):
                     new_path.append(neighbour) 
                     queue.append(new_path)
                 
-                if neighbour == goal: 
+                if neighbour == end: 
                     print("Shortest path = ", *new_path) 
                     return new_path
             explored.append(node) 

@@ -1,10 +1,10 @@
 //input parameters
 let n = 9;
-let xPoints = [0, 3, 6, -7, 8, 9, 4, 19, 25];
-let yPoints = [0, 0, 0, 6, 7, 0, 6, 8, 4];
-let radiuses = [2, 2, 2, 5, 5, 8, 2, 7, 2];
+let xPoints = [0, 3, 6, -7, 4, 8, 9, 19, 25];
+let yPoints = [0, 0, 0, 6, 6, 7, 0, 8, 4];
+let radiuses = [2, 2, 2, 5, 2, 5, 8, 7, 2];
 let circlesGraph = {};
-let allPaths = [];
+let shortestPath = [];
 
 //canvas parameters
 const canvasWidth = 1380;
@@ -21,8 +21,7 @@ function setup(){
   background(backgroundColor);
 
   let populatedGraph = PopulateGraph(xPoints, yPoints, radiuses, circlesGraph);
-  let path = FindAllPaths(populatedGraph, "A0", "A"+(n-1).toString());
-  let shortestPath = FindShortestPath(allPaths);
+  let resultPath = ShortestPath(populatedGraph, "A0", "A"+(n-1).toString())
 
   //upscale coordinates and radiuses
   for(let i = 0; i <= n; i++)
@@ -39,7 +38,7 @@ function setup(){
   drawCircles(xPoints, yPoints, radiuses);
   drawCenters(xPoints, yPoints);
   drawLabels(xPoints, yPoints, radiuses);
-  drawPath(xPoints, yPoints, shortestPath);
+  drawPath(xPoints, yPoints, resultPath);
 }
 
 function drawCircles(xPoints, yPoints, radiuses)
@@ -147,45 +146,61 @@ function PopulateGraph(xPoints, yPoints, radiuses, circlesGraph)
   return circlesGraph;
 }
 
-function FindAllPaths(graph, start, end, path=[])
+function ShortestPath(graph, start, end)
 {
-  path = path.concat([start]);
+  let explored = [];
+  let queue = [[start]];
+
+  if(!(start in graph))
+  {
+    return -1;
+  }
 
   if(start == end)
   {
-    allPaths.push(path);
-    return path;
+    return [start];
   }
 
-  if (!start in graph)
+  while(queue.length != 0)
   {
-    return null;
-  }
+    let path = queue.shift();
+    let circle = path[path.length - 1];
 
-  for(let circle in graph[start])
-  {
-    let isCircleInPath = CheckInPath(graph[start][circle], path);
-
-    if(!(isCircleInPath))
+    let isCircleInExplored = CheckInPath(circle, explored);
+    if(!(isCircleInExplored))
     {
-      let newpath = FindAllPaths(graph, graph[start][circle], end, path);
+      let neighbours = graph[circle];
+
+      neighbours.forEach(neighbour => {
+        let isNeighbourInPath = CheckInPath(neighbour, path);
+        let new_path = [];
+
+        if(!(isNeighbourInPath))
+        {
+          new_path = path.concat(neighbour);
+          queue.push(new_path);
+        }
+
+        if(neighbour == end)
+        {
+          if(shortestPath.length > new_path.length || shortestPath.length == 0)
+          {
+            shortestPath = new_path;
+          }
+        }
+      });
+      explored.push(circle);
     }
   }
-  return null;
-}
 
-function FindShortestPath(paths)
-{
-  let shortestPath = paths[0];
-
-  for(let i = 1; i < paths.length; i++)
+  if(shortestPath.length != 0)
   {
-    if(paths[i].length < shortestPath.length)
-    {
-      shortestPath = paths[i];
-    }
+    return shortestPath;
   }
-  return shortestPath;
+  else
+  {
+    return -1;
+  }
 }
 
 function drawLine(x1 ,y1, x2, y2, strokeWeight_, r, g, b)
