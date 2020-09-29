@@ -24,34 +24,50 @@ def IsPathCorrect(roadsConnections,cities):
                 visitetConnections[i] = 1
                 queue.append(i)
                 count += 1
-    return cities == count 
+    return cities == count
 
-# get input data
-inputData = input().split()
+f = open("../../../notes/speed-input.txt", mode="r")
+file_contents = f.read().split("\n")
+f.close()
+
+inputData = file_contents[0].split(" ")
 numCities = int(inputData[0])
 numRoutes = int(inputData[1])
 
-while (numCities < 2 or numCities > 1000) or (numRoutes < 1 or numRoutes > 10000):
-    print("Numbers not in range")
-    inputData = input().split()
-    numCities = int(inputData[0])
-    numRoutes = int(inputData[1])
-
-#populate the 
-for i in range(numRoutes):
-    inputData = input().split()
+for line in file_contents[1:len(file_contents) - 1]: # to skip the last '' line
+    inputData = line.split(" ")
     city1 = int(inputData[0])
     city2 = int(inputData[1])
     optimalSpeed = int(inputData[2])
-    
-    while (city1 < 1 or city1 > numCities) or (city2 < 1 or city2 > numCities) or (optimalSpeed < 1 or optimalSpeed > 30000):
-        print("Numbers not in range")
-        inputData = input().split()
-        city1 = int(inputData[0])
-        city2 = int(inputData[1])
-        optimalSpeed = int(inputData[2])
 
     roads.append(Route(city1, city2, optimalSpeed))
+
+# # get input data
+# inputData = input().split()
+# numCities = int(inputData[0])
+# numRoutes = int(inputData[1])
+
+# while (numCities < 2 or numCities > 1000) or (numRoutes < 1 or numRoutes > 10000):
+#     print("Numbers not in range")
+#     inputData = input().split()
+#     numCities = int(inputData[0])
+#     numRoutes = int(inputData[1])
+
+# #populate the roads Connections
+# for i in range(numRoutes):
+#     inputData = input().split()
+#     city1 = int(inputData[0])
+#     city2 = int(inputData[1])
+#     optimalSpeed = int(inputData[2])
+    
+#     while (city1 < 1 or city1 > numCities) or (city2 < 1 or city2 > numCities) or (optimalSpeed < 1 or optimalSpeed > 30000):
+#         print("Numbers not in range")
+#         inputData = input().split()
+#         city1 = int(inputData[0])
+#         city2 = int(inputData[1])
+#         optimalSpeed = int(inputData[2])
+
+#     roads.append(Route(city1, city2, optimalSpeed))
 
 roads.sort(key=lambda r: r.optimalSpeed)
 
