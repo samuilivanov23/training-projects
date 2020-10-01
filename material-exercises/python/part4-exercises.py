@@ -65,3 +65,17 @@ def counter(n):
         counter(n-1)
 
 counter(5)
+
+# functions as objects
+
+class PrintRoad:
+    def __init__(self, minSpeed, maxSpeed, length):
+        self.minSpeed = minSpeed
+        self.maxSpeed = maxSpeed
+        self.length = length
+    
+    def __call__(self):
+        print(self.minSpeed + " " + self.maxSpeed + " " + self.length)
+
+road = PrintRoad("80km/h", "140km/h", "450km")
+road()
