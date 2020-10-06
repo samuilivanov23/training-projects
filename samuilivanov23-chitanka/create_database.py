@@ -4,47 +4,49 @@ from dbconfig import chitanka_dbname, chitanka_dbuser, chitanka_dbpassword
 def createTables():    
     command = ('''
 
-    CREATE TABLE IF NOT EXISTS "Authors" (
+    CREATE TABLE IF NOT EXISTS authors (
         "id" serial PRIMARY KEY,
-        "name" varchar UNIQUE
+        "name" varchar UNIQUE,
+        "words_count" int
     );
 
-    CREATE TABLE IF NOT EXISTS "Books" (
+    CREATE TABLE IF NOT EXISTS books (
         "id" serial PRIMARY KEY,
         "name" varchar,
+        "words_count" int,
         "author_id" int
     );
 
-    CREATE TABLE IF NOT EXISTS "Words" (
+    CREATE TABLE IF NOT EXISTS words (
         "id" serial PRIMARY KEY,
         "word" varchar UNIQUE
     );
 
-    CREATE TABLE IF NOT EXISTS "Sentences" (
+    CREATE TABLE IF NOT EXISTS sentences (
         "id" serial PRIMARY KEY,
         "sentence" varchar,
         "words_count" int,
         "book_id" int
     );
 
-    CREATE TABLE IF NOT EXISTS "Books_Words" (
+    CREATE TABLE IF NOT EXISTS books_words (
         "book_id" int,
         "word_id" int,
         PRIMARY KEY("book_id", "word_id")
     );
 
-    ALTER TABLE "Books_Words" ADD FOREIGN KEY (book_id) REFERENCES "Books" (id);
+    ALTER TABLE books_words ADD FOREIGN KEY (book_id) REFERENCES books (id);
 
-    ALTER TABLE "Books_Words" ADD FOREIGN KEY (word_id) REFERENCES "Words" (id);
+    ALTER TABLE books_words ADD FOREIGN KEY (word_id) REFERENCES words (id);
 
-    ALTER TABLE "Books" ADD FOREIGN KEY (author_id) REFERENCES "Authors" (id);
+    ALTER TABLE books ADD FOREIGN KEY (author_id) REFERENCES authors (id);
 
-    ALTER TABLE "Sentences" ADD FOREIGN KEY (book_id) REFERENCES "Books" (id);
+    ALTER TABLE sentences ADD FOREIGN KEY (book_id) REFERENCES books (id);
     
     ''')
 
     #connect to the database
-    connection = psycopg2.connect("dbname='" + "chitanka_test" + 
+    connection = psycopg2.connect("dbname='" + chitanka_dbname + 
                                   "' user='" + chitanka_dbuser + 
                                   "' password='" + chitanka_dbpassword + "'")
 

@@ -126,19 +126,14 @@ def downloadAll(start_index, end_index):
 
 if __name__ == '__main__':
     repetition_count = 3
-    start = 36
-    end = 36
+    start = 1
+    end = 1
 
     p1 = multiprocessing.Process(target=downloadAll, args=(start, end,))
-    
     p2 = multiprocessing.Process(target=downloadAll, args=(start+1, end+1,))
-    
     p3= multiprocessing.Process(target=downloadAll, args=(start+2, end+2,))
-    
     p4 = multiprocessing.Process(target=downloadAll, args=(start+3, end+3,))
-    
     p5 = multiprocessing.Process(target=downloadAll, args=(start+4, end+4, ))
-
     p6 = multiprocessing.Process(target=downloadAll, args=(start+5, end+5, ))
 
     p1.start()

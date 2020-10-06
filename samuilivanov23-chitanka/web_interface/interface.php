@@ -31,72 +31,65 @@
                 {                    
                     $output_case = 2;
                     
-                    $connString = "host=" . $dbhost_ . " dbname=" . $dbname_ . " user=" . $dbuser_ . " password=" . $dbpass_;
-                    $dbConn = pg_connect($connString) or die("Could not connect to database");
                     $sentences_rank_list = array();
 
-                    $queries = "";
+                    $first_select_range = 0; // 0 ~ 5
+                    $second_select_range = 5; // 5 ~ 10
+                    $third_select_range = 10; // 10 ~ 15
+                    $fourth_select_range = 15; // 15 ~ 20
+                    $fifth_select_range = 20; // 20 ~ 70
 
-                    for($i = 0; $i <=20; $i+=5)
+                    $sql_sentences_chart = "select '0 - 5 words' as range, sum(sentences_count) from (select s.words_count, count(s.sentence) as sentences_count from books as b join sentences as s on b.id=s.book_id where b.name=:input_book and s.words_count>=:first_start and s.words_count<:first_end group by s.words_count) as a 
+                            union
+                            select '5 - 10 words' as range, sum(sentences_count) from (select s.words_count, count(s.sentence) as sentences_count from books as b join sentences as s on b.id=s.book_id where b.name=:input_book and s.words_count>=:first_end and s.words_count<:second_end group by s.words_count) as a
+                            union
+                            select '10 - 15 words' as range, sum(sentences_count) from (select s.words_count, count(s.sentence) as sentences_count from books as b join sentences as s on b.id=s.book_id where b.name=:input_book and s.words_count>=:second_end and s.words_count<:third_end group by s.words_count) as a
+                            union
+                            select '15 - 20 words' as range, sum(sentences_count) from (select s.words_count, count(s.sentence) as sentences_count from books as b join sentences as s on b.id=s.book_id where b.name=:input_book and s.words_count>=:third_end and s.words_count<:fourth_end group by s.words_count) as a
+                            union
+                            select '20 - 70 words' as range, sum(sentences_count) from (select s.words_count, count(s.sentence) as sentences_count from books as b join sentences as s on b.id=s.book_id where b.name=:input_book and s.words_count>=:fourth_end and s.words_count<:fifth_end group by s.words_count) as a";
+
+                    $params["input_book"] = $input_book;
+                    $params["first_start"] = $first_select_range;
+                    $params["first_end"] = $first_select_range + 5;
+                    $params["second_end"] = $second_select_range + 5;
+                    $params["third_end"] = $third_select_range + 5;
+                    $params["fourth_end"] = $fourth_select_range + 5;
+                    $params["fifth_end"] = $fifth_select_range + 50;
+
+                    $statement = $dbConnection->prepare($sql_sentences_chart);
+                    $statement->execute($params);
+                    $sentences_result = $statement->fetchAll();
+
+                    $start = 0;
+                    $end = 5;
+                    for($i = 0; $i < 5; $i++)
                     {
-                        $end = $i + 5;
-                        $start_words_count = $i;
-                        $end_words_count = $end;
-
-                        $sql = 'select sum(sentences_count) from 
-                                (select words_count, count(s.sentence) as sentences_count from public."Books" as b 
-                                join public."Sentences" as s on b.id=s.book_id 
-                                where b.name =' . "'" . $input_book . "'" . ' and words_count>=' . $start_words_count . ' 
-                                and words_count<' . $end_words_count . ' group by words_count) as a;';
-
-                        $queries = $queries . $sql . " ";
-                    }
-                    
-
-                    $start_words_count = '20';
-                    $end_words_count = '70';
-                    $sentences_key = '20 - 70 words';
-
-                    $sql = 'select sum(sentences_count) from 
-                        (select words_count, count(s.sentence) as sentences_count from public."Books" as b 
-                        join public."Sentences" as s on b.id=s.book_id 
-                        where b.name =' . "'" . $input_book . "'" . ' and words_count>=' . $start_words_count . ' 
-                        and words_count<' . $end_words_count . ' group by words_count) as a;';
-
-                    $queries = $queries . $sql;
-
-                    pg_send_query($dbConn, $queries);
-                    
-                    for($i = 0; $i<4; $i+=1)
-                    {
-                        $result = pg_get_result($dbConn);
-                        $sentences_stats = pg_fetch_result($result, 0, 0);
-
-                        $end = $i + 5;
-                        $start = $i;
-                        $sentences_key = $start . "-" . $end;
-                        $sentences_rank_list[$sentences_key] = $sentences_stats;
+                        for($j = 0; $j < 5; $j++)
+                        {
+                            if($sentences_result[$j]["range"] == $start . " - " . $end . " words")
+                            {
+                                $x_axis[] = $sentences_result[$j]["range"];
+                                $y_axis[] = $sentences_result[$j]["sum"];
+                                
+                                $start+=5;
+                                $end+=5;
+                                break;
+                            }
+                        }
                     }
 
-                    $result = pg_get_result($dbConn);
-                    $sentences_stats = pg_fetch_result($result, 0, 0);
-                    $sentences_key = "20 - 70";
-                    $sentences_rank_list[$sentences_key] = $sentences_stats;
-
-                    $x_axis = array_keys($sentences_rank_list);
-                    $y_axis = array_values($sentences_rank_list);
+                    $x_axis[] = $sentences_result[3]["range"];
+                    $y_axis[] = $sentences_result[3]["sum"];
                 }
                 else if($input_author != "")
                 {
                     $output_case = 1;
 
-                    $sql_books_chart = 'select b.name, count(distinct w.word) as word_count from public."Authors" as a 
-                                        join public."Books" as b on a.id=b.author_id
-                                        join public."Books_Words" as bw on b.id=bw.book_id
-                                        join public."Words" as w on bw.word_id=w.id
-                                        where a.name=:input_author
-                                        group by b.name order by word_count desc 
-                                        limit 10';
+                    $sql_books_chart = 'select b.name, b.words_count from authors as a 
+                                        join books as b on a.id=b.author_id 
+                                        where a.name=:input_author 
+                                        order by b.words_count desc limit 10';
                     
                     $params["input_author"] = $input_author;
                     
@@ -107,18 +100,15 @@
                     foreach($books_result as $row)
                     {
                         $x_axis[] = $row["name"];
-                        $y_axis[] = $row["word_count"];
+                        $y_axis[] = $row["words_count"];
                     }
                 }
             }
             else
             {
                 $output_case = 3;
-                $sql = 'select a.name, count(distinct w.word) as word_count from public."Authors" as a 
-                        inner join public."Books" as b on a.id=b.author_id 
-                        inner join public."Books_Words" as bw on b.id=bw.book_id 
-                        inner join public."Words" as w on bw.word_id=w.id 
-                        group by a.name order by word_count desc 
+                $sql = 'select name, words_count from authors 
+                        order by words_count desc 
                         limit 10';
 
                 $connection_string = "host=" . $dbhost_ . " port=5432 dbname=" . $dbname_ . " user=" . $dbuser_ . " password=" . $dbpass_;
@@ -134,7 +124,7 @@
                 foreach($arr as $row)
                 {
                     $x_axis[] = $row["name"];
-                    $y_axis[] = $row["word_count"];
+                    $y_axis[] = $row["words_count"];
                 }
             }
         ?>
@@ -158,41 +148,39 @@
         <div id="chart">
         </div>
 
-        <?php if ($output_case == 1 || $output_case == 2) : ?>
-            <script type="text/javascript">
-                var x_axis =<?php echo json_encode($x_axis); ?>;
-                var y_axis =<?php echo json_encode($y_axis); ?>;
-                var chart_title = <?php echo json_encode($title); ?>;
+        <script type="text/javascript">
+            var x_axis =<?php echo json_encode($x_axis); ?>;
+            var y_axis =<?php echo json_encode($y_axis); ?>;
+            var chart_title = <?php echo json_encode($title); ?>;
 
-                var books_words_chart = {
-                    type: 'bar',
-                    name: chart_title,
-                    x: x_axis,
-                    y: y_axis,
-                    marker: {
-                        color: '#C8A2C8',
-                        line: {
-                            width: 2.5
-                        },
-                    }
-                };
+            var books_words_chart = {
+                type: 'bar',
+                name: chart_title,
+                x: x_axis,
+                y: y_axis,
+                marker: {
+                    color: '#C8A2C8',
+                    line: {
+                        width: 2.5
+                    },
+                }
+            };
 
-                var data = [ books_words_chart ];
+            var data = [ books_words_chart ];
 
-                var layout = { 
-                    title: chart_title,
-                    font: {size: 14},
-                    height: 700,
-                    margin: {
-                        b: 300,
-                    },    
-                };
+            var layout = { 
+                title: chart_title,
+                font: {size: 14},
+                height: 700,
+                margin: {
+                    b: 300,
+                },    
+            };
 
-                var config = {responsive: true}
+            var config = {responsive: true}
 
-                Plotly.newPlot('chart', data, layout, config );
-            </script>
-        <?php endif; ?>
+            Plotly.newPlot('chart', data, layout, config );
+        </script>
 
         <?php if ($output_case == 3) : ?>
             <p>Не е извършено филтриране все още.</p>
