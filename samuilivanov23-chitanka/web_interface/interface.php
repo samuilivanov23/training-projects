@@ -10,7 +10,7 @@
 
     <body>
         <?php
-            include 'db-conf.php';
+            include 'db_conf.php';
             
             $input_author = $_POST['author'];
             $input_book = $_POST['book'];
@@ -63,6 +63,8 @@
 
                     $start = 0;
                     $end = 5;
+
+                    print_r($sentences_result);
                     for($i = 0; $i < 5; $i++)
                     {
                         for($j = 0; $j < 5; $j++)
@@ -79,8 +81,15 @@
                         }
                     }
 
-                    $x_axis[] = $sentences_result[3]["range"];
-                    $y_axis[] = $sentences_result[3]["sum"];
+                    for($i = 0; $i < 5; $i++)
+                    {
+                        if($sentences_result[$i]["range"] = "20 - 70 words")
+                        {
+                            $x_axis[] = $sentences_result[$i]["range"];
+                            $y_axis[] = $sentences_result[$i]["sum"];
+                            break;
+                        }
+                    }
                 }
                 else if($input_author != "")
                 {
@@ -127,6 +136,9 @@
                     $y_axis[] = $row["words_count"];
                 }
             }
+
+            print_r($x_axis);
+            print_r($y_axis);
         ?>
 
         <form name="Form" class="margin_style" action="" method="post" accept-charset="UTF-8">
@@ -155,9 +167,5 @@
         </script>
 
         <script type="text/javascript" src="plot.js"></script>
-
-        <?php if ($output_case == 3) : ?>
-            <p>Не е извършено филтриране все още.</p>
-        <?php endif; ?>
     </body>
 </html>
