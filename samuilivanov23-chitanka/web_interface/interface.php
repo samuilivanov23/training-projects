@@ -149,38 +149,12 @@
         </div>
 
         <script type="text/javascript">
-            var x_axis =<?php echo json_encode($x_axis); ?>;
-            var y_axis =<?php echo json_encode($y_axis); ?>;
-            var chart_title = <?php echo json_encode($title); ?>;
-
-            var books_words_chart = {
-                type: 'bar',
-                name: chart_title,
-                x: x_axis,
-                y: y_axis,
-                marker: {
-                    color: '#C8A2C8',
-                    line: {
-                        width: 2.5
-                    },
-                }
-            };
-
-            var data = [ books_words_chart ];
-
-            var layout = { 
-                title: chart_title,
-                font: {size: 14},
-                height: 700,
-                margin: {
-                    b: 300,
-                },    
-            };
-
-            var config = {responsive: true}
-
-            Plotly.newPlot('chart', data, layout, config );
+            var x_axis = <?php echo json_encode($x_axis); ?>;
+            var y_axis = <?php echo json_encode($y_axis); ?>;
+            var chart_title = <?php echo json_encode($title); ?>;    
         </script>
+
+        <script type="text/javascript" src="plot.js"></script>
 
         <?php if ($output_case == 3) : ?>
             <p>Не е извършено филтриране все още.</p>
