@@ -17,6 +17,7 @@
 
             $x_axis = array();
             $y_axis = array();
+            $char_title = "";
             $output_case = 0;
 
             if( $input_author != "" || $input_book != "")
@@ -28,7 +29,8 @@
                 $params = array();
 
                 if($input_book != "")
-                {                    
+                {
+                    $chart_title = "Sentences count in the specified ranges";
                     $output_case = 2;
                     
                     $sentences_rank_list = array();
@@ -64,7 +66,6 @@
                     $start = 0;
                     $end = 5;
 
-                    print_r($sentences_result);
                     for($i = 0; $i < 5; $i++)
                     {
                         for($j = 0; $j < 5; $j++)
@@ -93,6 +94,7 @@
                 }
                 else if($input_author != "")
                 {
+                    $chart_title = "Top 10 books with most unique words";
                     $output_case = 1;
 
                     $sql_books_chart = 'select b.name, b.words_count from authors as a 
@@ -115,6 +117,7 @@
             }
             else
             {
+                $chart_title = "Top 10 authors with most unique words";
                 $output_case = 3;
                 $sql = 'select name, words_count from authors 
                         order by words_count desc 
@@ -136,9 +139,6 @@
                     $y_axis[] = $row["words_count"];
                 }
             }
-
-            print_r($x_axis);
-            print_r($y_axis);
         ?>
 
         <form name="Form" class="margin_style" action="" method="post" accept-charset="UTF-8">
@@ -163,7 +163,7 @@
         <script type="text/javascript">
             var x_axis = <?php echo json_encode($x_axis); ?>;
             var y_axis = <?php echo json_encode($y_axis); ?>;
-            var chart_title = <?php echo json_encode($title); ?>;    
+            var chart_title = <?php echo json_encode($chart_title); ?>;    
         </script>
 
         <script type="text/javascript" src="plot.js"></script>

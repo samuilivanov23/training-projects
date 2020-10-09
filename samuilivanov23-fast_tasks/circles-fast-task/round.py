@@ -62,8 +62,6 @@ def buildGraph(n):
             j += 1
         i+=1
     
-    print(circles_graph) 
-
 def shortestPath(graph, start, end):
     explored = [] 
     queue = [[start]]

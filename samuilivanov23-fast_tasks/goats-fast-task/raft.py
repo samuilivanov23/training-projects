@@ -13,17 +13,18 @@ for i in range(n):
     while (a < 1 or a > 100000):
         print("Weight not in range: between 1 and 100000")
         a = int(input("a" + str(i + 1) + ": "))
+    goat_weights.append(a)
 
-n = 500
-k = 10
+# n = 500
+# k = 10
 
-f = open("./input.txt", encoding='utf-8', mode='r')
-file_content = f.read().split('\n')
-f.close()
-goat_weights = []
+# f = open("./input.txt", encoding='utf-8', mode='r')
+# file_content = f.read().split('\n')
+# f.close()
+# goat_weights = []
 
-for item in file_content[:len(file_content) - 1]:
-    goat_weights.append(int(item))
+# for item in file_content[:len(file_content) - 1]:
+#     goat_weights.append(int(item))
 
 # print(goat_weights)
 
@@ -31,6 +32,9 @@ goat_weights.sort()
 goat_weights.reverse()
 sum_weight = sum(goat_weights)
 rift_capacity = int(sum_weight / k)
+
+if rift_capacity < goat_weights[0]:
+    rift_capacity = goat_weights[0]
 
 while True:
     goats_taken = []
