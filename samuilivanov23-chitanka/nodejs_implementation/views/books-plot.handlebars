@@ -1,0 +1,66 @@
+<div class="container">
+    <div>
+        <h1>Author</h1>
+        <form action="/author" method="post">
+            <input type="text" name="author" placeholder="Enter author name" value="">
+            <input type="submit" value="submit">
+        </form>
+    </div>
+
+    <div>
+        <h1>Book</h1>
+        <form action="/book" method="POST">
+            <input type="text" name="book" placeholder="Enter book name" value="">
+            <input type="submit" value="submit">
+        </form>
+    </div>
+</div>
+
+<div id="chart">
+
+<script type="text/javascript">
+    let inputData = ['{{plotData}}'];
+    let formatedData = inputData[0].split(',');
+
+    let x_axis = []
+    let y_axis = []
+    chart_title = "Top 10 books with most unique words";
+
+    for(let i = 0; i < formatedData.length/2; i++)
+    {
+        x_axis.push(formatedData[i]);
+    }
+
+    for(let i = formatedData.length/2; i < formatedData.length; i++)
+    {
+        y_axis.push(formatedData[i]);
+    }
+    
+    var books_words_chart = {
+        type: 'bar',
+        name: chart_title,
+        x: x_axis,
+        y: y_axis,
+        marker: {
+            color: '#C8A2C8',
+            line: {
+                width: 2.5
+            },
+        }
+    };
+
+    var data = [ books_words_chart ];
+
+    var layout = { 
+        title: chart_title,
+        font: {size: 14},
+        height: 700,
+        margin: {
+            b: 300,
+        },
+    };
+
+    var config = {responsive: true}
+
+    Plotly.newPlot('chart', data, layout, config );
+</script>
