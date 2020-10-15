@@ -35,62 +35,6 @@
     {
         y_axis.push(formatedData[i]);
     }
-
-    let sorted_x_data = []
-    let sorted_y_data = []
-    let start = 0;
-    let end = 5;
-
-    for(let i = 0; i < x_axis.length; i++)
-    {
-        for(let j = 0; j < x_axis.length; j++)
-        {
-            if(x_axis[j] == (start.toString() + " - " + end.toString() + " words"))
-            {
-                sorted_x_data.push(x_axis[j]);
-                sorted_y_data.push(y_axis[j]);
-                start+=5;
-                end+=5;
-                break;
-            }
-        }
-    }
-
-    for(let i = 0; i < x_axis.length; i++)
-    {
-        if(x_axis[i] == "20 - 70 words")
-        {
-            sorted_x_data.push(x_axis[i]);
-            sorted_y_data.push(y_axis[i]);
-            break;
-        }
-    }
-    
-    var books_words_chart = {
-        type: 'bar',
-        name: chart_title,
-        x: sorted_x_data,
-        y: sorted_y_data,
-        marker: {
-            color: '#C8A2C8',
-            line: {
-                width: 2.5
-            },
-        }
-    };
-
-    var data = [ books_words_chart ];
-
-    var layout = { 
-        title: chart_title,
-        font: {size: 14},
-        height: 700,
-        margin: {
-            b: 300,
-        },
-    };
-
-    var config = {responsive: true}
-
-    Plotly.newPlot('chart', data, layout, config );
 </script>
+
+<script type="text/javascript" src="/plot.js"></script>
