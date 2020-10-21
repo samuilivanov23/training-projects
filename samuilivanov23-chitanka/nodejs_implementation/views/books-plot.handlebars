@@ -1,19 +1,17 @@
 <div class="container">
-    <div>
-        <h1>Author</h1>
-        <form action="/author" method="post">
-            <input type="text" name="author" placeholder="Enter author name" value="">
-            <input type="submit" value="submit">
-        </form>
-    </div>
+    <form action="/plot" autocomplete="off" class="margin_style" method="post">
+        <div class="autocomplete" style="width:300px">
+            <label for="author"> Author </label><br>
+            <input id = "myAuthor" type="text" name="author" placeholder="Enter author name" value=""><br>
+        </div>
 
-    <div>
-        <h1>Book</h1>
-        <form action="/book" method="POST">
-            <input type="text" name="book" placeholder="Enter book name" value="">
-            <input type="submit" value="submit">
-        </form>
-    </div>
+        <div class="autocomplete" style="width:300px">
+            <label for="author"> Book </label><br>
+            <input id="myBook" type="text" name="book" placeholder="Enter book name" value=""><br>
+        </div>
+
+        <input class="button button_style" type="submit" value="submit">
+    </form>
 </div>
 
 <div id="chart">
@@ -38,3 +36,13 @@
 </script>
 
 <script type="text/javascript" src="/plot.js"></script>
+
+<script type="text/javascript">
+    inputData = ['{{authors_autocomplete}}'];
+    let formatedDataAuthors = inputData[0].split(',');
+
+    inputData = ['{{books_autocomplete}}'];
+    let formatedDataBooks = inputData[0].split(',');
+</script>
+
+<script type="text/javascript" src="/autocomplete.js"></script>
