@@ -1,14 +1,3 @@
-function clearFilters()
-{
-    document.forms["Form"]["city"].value = "";
-    document.forms["Form"]["state"].value = "";
-    document.forms["Form"]["zip_code"].value = "";
-    document.forms["Form"]["first_point_latitude"].value = "";
-    document.forms["Form"]["first_point_longitude"].value = "";
-    document.forms["Form"]["second_point_latitude"].value = "";
-    document.forms["Form"]["second_point_longitude"].value = "";
-}
-
 //first arg -> the text field
 //second arg -> the array of cities
 function autocomplete(input, cities) 
@@ -37,7 +26,6 @@ function autocomplete(input, cities)
 
         //append this div elemetn as a child of the input field
         this.parentNode.appendChild(all_items_div);
-
         //iterate through the array of cities
         for (i = 0; i < cities.length; i++) {
 
