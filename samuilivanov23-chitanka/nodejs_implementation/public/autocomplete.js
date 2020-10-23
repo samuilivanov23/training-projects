@@ -1,6 +1,6 @@
 //first arg -> the text field
 //second arg -> the array of cities
-function autoComplete(input, cities) 
+function AutoComplete(input, cities) 
 {
     //used to track which is the active city we are about to choose
     var currentFocus;
@@ -10,7 +10,7 @@ function autoComplete(input, cities)
     {
         var all_items_div, single_item_div, i, val = this.value;
         //close any already open lists of autocompleted values
-        closeAllLists();
+        CloseAllLists();
 
         if (!val) 
         {
@@ -49,7 +49,7 @@ function autoComplete(input, cities)
                     input.value = this.getElementsByTagName("input")[0].value;
 
                     //then close the list of all other autocomplete values (matching values)
-                    closeAllLists();
+                    CloseAllLists();
                 });
 
                 //add the individual item's div element as a child of the autocomplete container
@@ -70,7 +70,7 @@ function autoComplete(input, cities)
             //increase the currentFocus 
             //and make the current item active
             currentFocus++;
-            addActive(items);
+            AddActive(items);
         }
         //if the arrow UP is pressed
         else if (pressed_key.keyCode == 38) 
@@ -78,7 +78,7 @@ function autoComplete(input, cities)
             //decrease the currentFocus 
             //and make the current item active
             currentFocus--;
-            addActive(items);
+            AddActive(items);
         } 
         //if the ENTER key is pressed, prevent the form from being submitted
         else if (pressed_key.keyCode == 13) 
@@ -93,12 +93,12 @@ function autoComplete(input, cities)
     });
 
     //classify and item as "active"
-    function addActive(items) 
+    function AddActive(items) 
     {
         if (!items) return false; //no active items
 
         //remove the "active" class from all items
-        removeActive(items);
+        RemoveActive(items);
 
         if (currentFocus >= items.length) currentFocus = 0;
         if (currentFocus < 0) currentFocus = (items.length - 1);
@@ -108,7 +108,7 @@ function autoComplete(input, cities)
     }
 
     //remove the "active" classe from all autocomplete items;
-    function removeActive(autocomplete_active_items)
+    function RemoveActive(autocomplete_active_items)
     {
         for (var i = 0; i < autocomplete_active_items.length; i++) 
         {
@@ -118,7 +118,7 @@ function autoComplete(input, cities)
 
     //close all autocomplete lists
     //except the one passed as an argument
-    function closeAllLists(element) 
+    function CloseAllLists(element) 
     {
         var items = document.getElementsByClassName("autocomplete-items");
         for (var i = 0; i < items.length; i++) {
@@ -131,9 +131,9 @@ function autoComplete(input, cities)
     /*execute a function when someone clicks in the document:*/
     document.addEventListener("click", function (e) 
     {
-        closeAllLists(e.target);
+        CloseAllLists(e.target);
     });
 }
 
-autoComplete(document.getElementById("myAuthor"), formatedDataAuthors);
-autoComplete(document.getElementById("myBook"), formatedDataBooks);
+AutoComplete(document.getElementById("myAuthor"), formatedDataAuthors);
+AutoComplete(document.getElementById("myBook"), formatedDataBooks);
