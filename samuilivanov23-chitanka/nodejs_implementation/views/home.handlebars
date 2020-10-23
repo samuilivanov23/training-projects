@@ -2,27 +2,29 @@
     <form action="/plot" autocomplete="off" class="margin_style" method="post">
         <div class="autocomplete" style="width:300px">
             <label for="author"> Author </label><br>
-            <input id = "myAuthor" type="text" name="author" placeholder="Enter author name" value=""><br>
+            <input id = "myAuthor" type="text" name="author" placeholder="Enter author name" value=""><br><br>
         </div>
 
         <div class="autocomplete" style="width:300px">
             <label for="author"> Book </label><br>
-            <input id="myBook" type="text" name="book" placeholder="Enter book name" value=""><br>
+            <input id="myBook" type="text" name="book" placeholder="Enter book name" value=""><br><br>
         </div>
 
-        <input class="button button_style" type="submit" value="submit">
-    </form>    
-
+        <input class="button button_style" type="submit" value="submit"><br>
+    </form>
 </div>
 
 <div id="chart">
 
 <script type="text/javascript">
+    //get data for the plot.js script that draws the plot
     let inputData = ['{{plotData}}'];
     let formatedData = inputData[0].split(',');
 
     let x_axis = []
     let y_axis = []
+
+    console.log(formatedData);
     chart_title = "Top 10 authors with most unique words";
 
     for(let i = 0; i < formatedData.length/2; i++)
@@ -39,6 +41,7 @@
 <script type="text/javascript" src="/plot.js"></script>
 
 <script type="text/javascript">
+    //get data for the autocomplete.js
     inputData = ['{{authors_autocomplete}}'];
     let formatedDataAuthors = inputData[0].split(',');
 

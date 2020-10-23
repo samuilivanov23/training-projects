@@ -1,6 +1,6 @@
 //first arg -> the text field
 //second arg -> the array of cities
-function autocomplete(input, cities) 
+function autoComplete(input, cities) 
 {
     //used to track which is the active city we are about to choose
     var currentFocus;
@@ -135,5 +135,5 @@ function autocomplete(input, cities)
     });
 }
 
-autocomplete(document.getElementById("myAuthor"), formatedDataAuthors);
-autocomplete(document.getElementById("myBook"), formatedDataBooks);
+autoComplete(document.getElementById("myAuthor"), formatedDataAuthors);
+autoComplete(document.getElementById("myBook"), formatedDataBooks);

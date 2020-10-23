@@ -2,15 +2,15 @@
     <form action="/plot" autocomplete="off" class="margin_style" method="post">
         <div class="autocomplete" style="width:300px">
             <label for="author"> Author </label><br>
-            <input id = "myAuthor" type="text" name="author" placeholder="Enter author name" value=""><br>
+            <input id = "myAuthor" type="text" name="author" placeholder="Enter author name" value=""><br><br>
         </div>
 
         <div class="autocomplete" style="width:300px">
             <label for="author"> Book </label><br>
-            <input id="myBook" type="text" name="book" placeholder="Enter book name" value=""><br>
+            <input id="myBook" type="text" name="book" placeholder="Enter book name" value=""><br><br>
         </div>
 
-        <input class="button button_style" type="submit" value="submit">
+        <input class="button button_style" type="submit" value="submit"><br>
     </form>
 </div>
 
@@ -38,6 +38,7 @@
 <script type="text/javascript" src="/plot.js"></script>
 
 <script type="text/javascript">
+    //get data for the autocomplete.js
     inputData = ['{{authors_autocomplete}}'];
     let formatedDataAuthors = inputData[0].split(',');
 

@@ -7,13 +7,16 @@ const bodyParser = require('body-parser');
 const { request, response, query } = require('express');
 const port = 8000;
 
+//set main.handlebars as the main template
 app.engine('handlebars', expressHandlebars({defaultLayout: 'main'}))
 app.set('view engine', 'handlebars');
 
+//use the public directory for external scripts 
 app.use(express.static('public'))
 app.use(bodyParser.urlencoded({extended: false}))
 app.use(bodyParser.json())
 
+//set the database client's credentials
 const client = new Client({
     user: data.credentials['dbuser_'],
     host: data.credentials['dbhost_'],
@@ -194,6 +197,8 @@ app.post('/plot', function(request, response) {
                     x_axis_items.push(book['name'])
                     y_axis_items.push(book['words_count'])
                 })
+
+                console.log(res['rows'])
                 
                 let authors_autocomplete = []
                 query = `select name from authors`
