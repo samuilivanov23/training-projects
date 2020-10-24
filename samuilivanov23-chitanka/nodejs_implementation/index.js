@@ -11,7 +11,7 @@ const port = 8000;
 app.engine('handlebars', expressHandlebars({defaultLayout: 'main'}))
 app.set('view engine', 'handlebars');
 
-//use the public directory for external scripts 
+//use the public directory for external scripts
 app.use(express.static('public'))
 app.use(bodyParser.urlencoded({extended: false}))
 app.use(bodyParser.json())
@@ -25,7 +25,8 @@ const client = new Client({
 })
 client.connect()
 
-app.get('/', function(request, response) {
+getTop10Authors = function (response)
+{
     var query = 'select name, words_count from authors order by words_count desc limit 10'
     client.query(query, (err, res) => {
         if(err != null)
@@ -42,35 +43,8 @@ app.get('/', function(request, response) {
                 y_axis_items.push(book['words_count'])
             })
 
-            let authors_autocomplete = []
-            query = `select name from authors`
-            client.query(query, (err, res) => {
-                if(err != null)
-                {
-                    console.log(err)
-                }
-                else
-                {
-                    res['rows'].forEach(author => {
-                        authors_autocomplete.push(author["name"])
-                    })
-                }
-            })
-
-            let books_autocomplete = []
-            query = `select name from books`
-            client.query(query, (err, res) => {
-                if(err != null)
-                {
-                    console.log(err)
-                }
-                else
-                {
-                    res['rows'].forEach(book => {
-                        books_autocomplete.push(book["name"])
-                    })
-                }
-            })
+            let authors_autocomplete = getAllAuthors()
+            let books_autocomplete = getAllBooks()
             
             let plotData = [x_axis_items, y_axis_items]
 
@@ -79,6 +53,78 @@ app.get('/', function(request, response) {
             })
         }
     })
+}
+
+sentencesRanges = function (resultSentences, response)
+{
+    let x_axis_items = []
+    let y_axis_items = []
+
+    let ranges_map = {
+        "1": "0 - 5 words",
+        "2": "5 - 10 words",
+        "3": "10 - 15 words",
+        "4": "15 - 20 words",
+        "5": "20 - 70 words"
+    }
+
+    resultSentences.forEach(sentences => {
+        x_axis_items.push(ranges_map[sentences['range']])
+        y_axis_items.push(sentences['sum'])
+    })
+
+    let authors_autocomplete = getAllAuthors()
+    let books_autocomplete = getAllBooks()
+    
+    let plotData = [x_axis_items, y_axis_items]
+
+    response.render('sentences-plot', {
+        plotData, authors_autocomplete, books_autocomplete
+    })
+}
+
+getAllAuthors = function()
+{
+    var authors_autocomplete = []
+    let query = `select name from authors`
+    client.query(query, (err, res) => {
+        if(err != null)
+        {
+            console.log(err)
+        }
+        else
+        {
+            res['rows'].forEach(author => {
+                authors_autocomplete.push(author["name"])
+            })
+        }
+    })
+
+    return authors_autocomplete
+}
+
+getAllBooks = function()
+{
+    var books_autocomplete = []
+    let query = `select name from books`
+    client.query(query, (err, res) => {
+        if(err != null)
+        {
+            console.log(err)
+        }
+        else
+        {
+            res['rows'].forEach(book => {
+                books_autocomplete.push(book["name"])
+            })
+        }
+    })
+
+    return books_autocomplete
+}
+
+app.get('/', function(request, response) {
+    getTop10Authors(response)
 });
 
 app.post('/plot', function(request, response) {
@@ -86,6 +132,13 @@ app.post('/plot', function(request, response) {
     let book_name = request.body.book
     let query = ""
     let parameters = []
+
+    let first_start = '0';
+    let first_end = '5';
+    let second_end = '10';
+    let third_end = '15';
+    let fourth_end = '20';
+    let fifth_end = '70';
 
     if(author_name != "" && book_name != "")
     {
@@ -112,29 +165,12 @@ app.post('/plot', function(request, response) {
                         union
                         select '5' as range, sum(sentences_count) from (select s.words_count, count(s.sentence) as sentences_count from books as b join sentences as s on b.id=s.book_id where b.author_id=$17 and b.name=$18 and s.words_count>=$19 and s.words_count<$20 group by s.words_count) as a
                         order by range asc`
-                
-                let first_start = '0';
-                let first_end = '5';
-                let second_end = '10';
-                let third_end = '15';
-                let fourth_end = '20';
-                let fifth_end = '70';
             
                 parameters = [author_id, book_name, first_start, first_end, 
                               author_id, book_name, first_end, second_end, 
                               author_id, book_name, second_end, third_end, 
                               author_id, book_name, third_end, fourth_end, 
                               author_id, book_name, fourth_end, fifth_end]
-        
-                console.log(parameters)
-                
-                let ranges_map = {
-                    "1": "0 - 5 words",
-                    "2": "5 - 10 words",
-                    "3": "10 - 15 words",
-                    "4": "15 - 20 words",
-                    "5": "20 - 70 words"
-                }
             
                 client.query(query, parameters, (err, res) => {
                     if(err != null)
@@ -142,112 +178,15 @@ app.post('/plot', function(request, response) {
                         console.log(err)
                     }
                     else
-                    {
-                        console.log(res['rows'])
-                        
+                    {                        
                         if(res['rows'][0]['sum'] == null)
                         {
                             console.log("Author-Book does not match!")
-
-                            var query = 'select name, words_count from authors order by words_count desc limit 10'
-                            client.query(query, (err, res) => {
-                                if(err != null)
-                                {
-                                    console.log(err)
-                                }
-                                else
-                                {
-                                    let x_axis_items = []
-                                    let y_axis_items = []
-                        
-                                    res['rows'].forEach(book => {
-                                        x_axis_items.push(book['name'])
-                                        y_axis_items.push(book['words_count'])
-                                    })
-                        
-                                    let authors_autocomplete = []
-                                    query = `select name from authors`
-                                    client.query(query, (err, res) => {
-                                        if(err != null)
-                                        {
-                                            console.log(err)
-                                        }
-                                        else
-                                        {
-                                            res['rows'].forEach(author => {
-                                                authors_autocomplete.push(author["name"])
-                                            })
-                                        }
-                                    })
-                        
-                                    let books_autocomplete = []
-                                    query = `select name from books`
-                                    client.query(query, (err, res) => {
-                                        if(err != null)
-                                        {
-                                            console.log(err)
-                                        }
-                                        else
-                                        {
-                                            res['rows'].forEach(book => {
-                                                books_autocomplete.push(book["name"])
-                                            })
-                                        }
-                                    })
-                                    
-                                    let plotData = [x_axis_items, y_axis_items]
-                        
-                                    response.render('home', {
-                                        plotData, authors_autocomplete, books_autocomplete
-                                    })
-                                }
-                            })
+                            getTop10Authors(response)
                         }
                         else
                         {
-                            let x_axis_items = []
-                            let y_axis_items = []
-                
-                            res['rows'].forEach(sentences => {
-                                x_axis_items.push(ranges_map[sentences['range']])
-                                y_axis_items.push(sentences['sum'])
-                            })
-            
-                            let authors_autocomplete = []
-                            query = `select name from authors`
-                            client.query(query, (err, res) => {
-                                if(err != null)
-                                {
-                                    console.log(err)
-                                }
-                                else
-                                {
-                                    res['rows'].forEach(author => {
-                                        authors_autocomplete.push(author["name"])
-                                    })
-                                }
-                            })
-            
-                            let books_autocomplete = []
-                            query = `select name from books`
-                            client.query(query, (err, res) => {
-                                if(err != null)
-                                {
-                                    console.log(err)
-                                }
-                                else
-                                {
-                                    res['rows'].forEach(book => {
-                                        books_autocomplete.push(book["name"])
-                                    })
-                                }
-                            })
-                            
-                            let plotData = [x_axis_items, y_axis_items]
-                
-                            response.render('sentences-plot', {
-                                plotData, authors_autocomplete, books_autocomplete
-                            })
+                            sentencesRanges(res['rows'], response)
                         }
                     }
                 })          
@@ -267,27 +206,12 @@ app.post('/plot', function(request, response) {
             union
             select '5' as range, sum(sentences_count) from (select s.words_count, count(s.sentence) as sentences_count from books as b join sentences as s on b.id=s.book_id where b.name=$13 and s.words_count>=$14 and s.words_count<$15 group by s.words_count) as a
             order by range asc`
-        
-        let first_start = '0';
-        let first_end = '5';
-        let second_end = '10';
-        let third_end = '15';
-        let fourth_end = '20';
-        let fifth_end = '70';
     
         let parameters = [book_name, first_start, first_end, 
                           book_name, first_end, second_end, 
                           book_name, second_end, third_end, 
                           book_name, third_end, fourth_end, 
                           book_name, fourth_end, fifth_end]
-        
-        let ranges_map = {
-            "1": "0 - 5 words",
-            "2": "5 - 10 words",
-            "3": "10 - 15 words",
-            "4": "15 - 20 words",
-            "5": "20 - 70 words"
-        }
     
         client.query(query, parameters, (err, res) => {
             if(err != null)
@@ -296,49 +220,7 @@ app.post('/plot', function(request, response) {
             }
             else
             {
-                let x_axis_items = []
-                let y_axis_items = []
-    
-                res['rows'].forEach(sentences => {
-                    x_axis_items.push(ranges_map[sentences['range']])
-                    y_axis_items.push(sentences['sum'])
-                })
-
-                let authors_autocomplete = []
-                query = `select name from authors`
-                client.query(query, (err, res) => {
-                    if(err != null)
-                    {
-                        console.log(err)
-                    }
-                    else
-                    {
-                        res['rows'].forEach(author => {
-                            authors_autocomplete.push(author["name"])
-                        })
-                    }
-                })
-
-                let books_autocomplete = []
-                query = `select name from books`
-                client.query(query, (err, res) => {
-                    if(err != null)
-                    {
-                        console.log(err)
-                    }
-                    else
-                    {
-                        res['rows'].forEach(book => {
-                            books_autocomplete.push(book["name"])
-                        })
-                    }
-                })
-                
-                let plotData = [x_axis_items, y_axis_items]
-    
-                response.render('sentences-plot', {
-                    plotData, authors_autocomplete, books_autocomplete
-                })
+                sentencesRanges(res['rows'], response)
             }
         })   
     }
@@ -363,38 +245,9 @@ app.post('/plot', function(request, response) {
                     x_axis_items.push(book['name'])
                     y_axis_items.push(book['words_count'])
                 })
-
-                console.log(res['rows'])
                 
-                let authors_autocomplete = []
-                query = `select name from authors`
-                client.query(query, (err, res) => {
-                    if(err != null)
-                    {
-                        console.log(err)
-                    }
-                    else
-                    {
-                        res['rows'].forEach(author => {
-                            authors_autocomplete.push(author["name"])
-                        })
-                    }
-                })
-
-                let books_autocomplete = []
-                query = `select name from books`
-                client.query(query, (err, res) => {
-                    if(err != null)
-                    {
-                        console.log(err)
-                    }
-                    else
-                    {
-                        res['rows'].forEach(book => {
-                            books_autocomplete.push(book["name"])
-                        })
-                    }
-                })
+                let authors_autocomplete = getAllAuthors()
+                let books_autocomplete = getAllBooks()
                 
                 let plotData = [x_axis_items, y_axis_items]
 
