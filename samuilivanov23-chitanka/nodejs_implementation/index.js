@@ -55,6 +55,58 @@ getTop10Authors = function (response)
     })
 }
 
+getTop10Books = function (query, parameters, response)
+{
+
+    client.query(query, parameters, (err, res) => {
+        if(err != null)
+        {
+            console.log(err)
+        }
+        else
+        {
+            let x_axis_items = []
+            let y_axis_items = []
+
+            res['rows'].forEach(book => {
+                x_axis_items.push(book['name'])
+                y_axis_items.push(book['words_count'])
+            })
+            
+            let authors_autocomplete = getAllAuthors()
+            let books_autocomplete = getAllBooks()
+            
+            let plotData = [x_axis_items, y_axis_items]
+
+            response.render('books-plot', {
+                plotData, authors_autocomplete, books_autocomplete
+            })
+        }
+    })
+}
+
+getTopSentences = function (query, parameters, response)
+{
+    client.query(query, parameters, (err, res) => {
+        if(err != null)
+        {
+            console.log(err)
+        }
+        else
+        {                        
+            if(res['rows'][0]['sum'] == null)
+            {
+                console.log("Author-Book does not match!")
+                getTop10Authors(response)
+            }
+            else
+            {
+                sentencesRanges(res['rows'], response)
+            }
+        }
+    })
+}
+
 sentencesRanges = function (resultSentences, response)
 {
     let x_axis_items = []
@@ -171,30 +223,14 @@ app.post('/plot', function(request, response) {
                               author_id, book_name, second_end, third_end, 
                               author_id, book_name, third_end, fourth_end, 
                               author_id, book_name, fourth_end, fifth_end]
-            
-                client.query(query, parameters, (err, res) => {
-                    if(err != null)
-                    {
-                        console.log(err)
-                    }
-                    else
-                    {                        
-                        if(res['rows'][0]['sum'] == null)
-                        {
-                            console.log("Author-Book does not match!")
-                            getTop10Authors(response)
-                        }
-                        else
-                        {
-                            sentencesRanges(res['rows'], response)
-                        }
-                    }
-                })          
+
+                getTopSentences(query, parameters, response)
             }
         })
     }
     else if (book_name != "")
     {
+
         query = `select '1' as range, sum(sentences_count) from (select s.words_count, count(s.sentence) as sentences_count from books as b join sentences as s on
             b.id=s.book_id where b.name=$1 and s.words_count>=$2 and s.words_count<$3 group by s.words_count) as a 
             union
@@ -206,56 +242,25 @@ app.post('/plot', function(request, response) {
             union
             select '5' as range, sum(sentences_count) from (select s.words_count, count(s.sentence) as sentences_count from books as b join sentences as s on b.id=s.book_id where b.name=$13 and s.words_count>=$14 and s.words_count<$15 group by s.words_count) as a
             order by range asc`
-    
-        let parameters = [book_name, first_start, first_end, 
-                          book_name, first_end, second_end, 
-                          book_name, second_end, third_end, 
-                          book_name, third_end, fourth_end, 
+        
+        let parameters = [book_name, first_start, first_end,
+                          book_name, first_end, second_end,
+                          book_name, second_end, third_end,
+                          book_name, third_end, fourth_end,
                           book_name, fourth_end, fifth_end]
-    
-        client.query(query, parameters, (err, res) => {
-            if(err != null)
-            {
-                console.log(err)
-            }
-            else
-            {
-                sentencesRanges(res['rows'], response)
-            }
-        })   
+
+        
+        getTopSentences(query, parameters, response)
     }
     else if(author_name != "")
     {
-        query = `select b.name, b.words_count from authors as a 
-        join books as b on a.id=b.author_id 
+        query = `select b.name, b.words_count from authors as a
+        join books as b on a.id=b.author_id
         where a.name=$1 order by b.words_count desc limit 10`
 
         let parameters = [author_name]
-        client.query(query, parameters, (err, res) => {
-            if(err != null)
-            {
-                console.log(err)
-            }
-            else
-            {
-                let x_axis_items = []
-                let y_axis_items = []
 
-                res['rows'].forEach(book => {
-                    x_axis_items.push(book['name'])
-                    y_axis_items.push(book['words_count'])
-                })
-                
-                let authors_autocomplete = getAllAuthors()
-                let books_autocomplete = getAllBooks()
-                
-                let plotData = [x_axis_items, y_axis_items]
-
-                response.render('books-plot', {
-                    plotData, authors_autocomplete, books_autocomplete
-                })
-            }
-        })
+        getTop10Books(query, parameters, response)
     }
 });
 
