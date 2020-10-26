@@ -1,5 +1,8 @@
 import socket
 import os
+from email.parser import BytesParser
+import urllib.parse
+
 
 # '' for the host to accept connections on all available interfaces
 SERVER_SOCKET = (HOST, PORT) = ('', 1024) #non-privileged ports are > 1023
@@ -42,14 +45,83 @@ def sendFile(file_path, connection):
     file.close()
     connection.close()
 
+def parseSocket(socket_string):
+    address, port = socket_string.split(':')
+    return (address, port)
+
+def parseEndPoint(request_first_line):
+    if b'GET' in request_first_line:
+        return request_first_line[3:(len(request_first_line) - 8)].strip()
+    elif b'POST' in request_first_line:
+        return request_first_line[4:(len(request_first_line) - 8)].strip()
+
+def parseRequest(request):
+    request_fields = request.split(b'\r\n')
+    first_line = request_fields[0]
+    headers = request_fields[1:]
+
+    parsed_request = []
+
+    for header in headers:
+        header_contents = header.split(b':')
+        parsed_header = []
+        for content in header_contents:
+            parsed_header.append(content)
+        
+        parsed_request.append(parsed_header)
+        #parsed_request[key] = value
+
+    print(parsed_request)
+    return (first_line, parsed_request)
+    
+    # first_line, headers_only = request.split(b'\r\n', 1)
+    # headers = BytesParser().parsebytes(headers_only)
+
+    # for header in headers:
+    #     print("-> " + header)
+    
+    # return (first_line, headers)
+
+def decodeAuthor(author):
+    author_name = urllib.parse.unquote(author)
+    names = author_name.split("+")
+    author_name = ""
+    for name in names:
+        author_name += name + " "
+
+    return author_name.strip()
+
 while True:
     # Establish connection with client.
     connection, address = my_socket.accept()
     print('Got connection from', address)
 
-    connection.recv(1024)
-    # send the initial apache index.html page
-    sendFile("/var/www/html/index.html", connection)
+    connection.settimeout(5)
+    request = connection.recv(1024)    
+    request_type, headers = parseRequest(request)
+
+    #headers = parseRequest(request)
+
+    print(request_type)
+    for header in headers:
+        print(header)
+
+    endpoint = parseEndPoint(request_type)
+    print(b"endpoint: " + endpoint)
+
+    if b'GET' in request_type:
+        if endpoint == b'/':
+            sendFile("./front_end/index.html" , connection)
+        #else:
+    elif b'POST' in request_type:
+        print(b"author " + headers[len(headers) - 1][0][7:74]) # TODO fix this to work for every single author !
+        author_name = decodeAuthor(str(headers[len(headers) - 1][0][7:74]))
+        print("Decoded author: " + author_name)
+        book_name = ""
+        command = "python3 proccess_data.py " + author_name[1:] + " " + book_name
+        print(command)
+        os.system("python3 proccess_data.py " + author_name[1:] + " " + book_name)
+    
     connection.close()
 
 my_socket.close()
