@@ -10,6 +10,11 @@ UNACCEPTED_CONNECTIONS_QUEUE = 1024
 # AF_INTET -> address family for IPv4
 # SOCK_STREAM -> socket type for TCP connections
 my_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+# SOS_SOCKET -> to manipulate options at the socket API level
+# SO_REUSEADDR -> to reuse a local socket in TIME_WAIT state 
+my_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+
 my_socket.bind(SERVER_SOCKET)
 my_socket.listen(UNACCEPTED_CONNECTIONS_QUEUE)
 
