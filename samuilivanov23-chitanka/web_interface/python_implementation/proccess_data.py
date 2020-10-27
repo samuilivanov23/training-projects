@@ -1,12 +1,7 @@
-# import urllib.request
-
-# result = urllib.request.urlopen("http://95.42.214.15:1024/").read()
-# print(result)
-
 import plotly.graph_objects as go
 import psycopg2
 from dbconfig import dbname_, dbuser_, dbpassword_
-import sys
+import sys, os
 
 def getSentencesStats(book, cur):
     sql  = """select '0 - 5 words' as range, sum(sentences_count) from (select s.words_count, count(s.sentence) as sentences_count from books as b join sentences as s on b.id=s.book_id where b.name=%s and s.words_count>=%s and s.words_count<%s group by s.words_count) as a 
@@ -133,9 +128,10 @@ else:
     records = cur.fetchall()
     x_axis, y_axis = getAuthorsBooksStats(records, cur)
 
-if x_axis  and y_axis:
+if x_axis and y_axis:
     fig = go.Figure(
         data=[go.Bar(x=x_axis, y=y_axis)],
         layout_title_text= chart_title
     )
+
     fig.show()

@@ -86,11 +86,12 @@ def parseInputData(input_string):
     input_data = input_string[2:len(input_string) - 15]
     input_data = input_data.split("&")
 
+    print(input_data)
+
     author_name = input_data[0][7:] # [7:] => to skip the author= parth of the string
     book_name = input_data[1][5:] # [5:] => to skip the book= parth of the string
 
     return author_name, book_name
-
 
 
 def decodeAuthor(author, book):
@@ -107,23 +108,20 @@ while True:
     connection, address = my_socket.accept()
     print('Got connection from', address)
 
-    connection.settimeout(5)
-    request = connection.recv(1024)    
+    #connection.settimeout(20)
+    request = connection.recv(1024)
     request_type, headers = parseRequest(request)
 
-    #headers = parseRequest(request)
-
     print(request_type)
-    for header in headers:
-        print(header)
+    #for header in headers:
+        #print(header)
 
     endpoint = parseEndPoint(request_type)
-    print(b"endpoint: " + endpoint)
+    #print(b"endpoint: " + endpoint)
 
     if b'GET' in request_type:
         if endpoint == b'/':
             sendFile("./front_end/index.html" , connection)
-        #else:
     elif b'POST' in request_type:
         # len(headers) - 1 is the author and book names in the request
         author_name, book_name = parseInputData(str(headers[len(headers) - 1][0]))
@@ -132,6 +130,8 @@ while True:
 
         command = "python3 proccess_data.py '" + author_name + "' '" + book_name + "'"
         os.system(command)
+        
+        sendFile("./front_end/index.html" , connection)
     
     connection.close()
 
