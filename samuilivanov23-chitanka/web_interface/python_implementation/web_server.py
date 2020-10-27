@@ -71,7 +71,6 @@ def parseRequest(request):
         parsed_request.append(parsed_header)
         #parsed_request[key] = value
 
-    print(parsed_request)
     return (first_line, parsed_request)
     
     # first_line, headers_only = request.split(b'\r\n', 1)
@@ -82,14 +81,14 @@ def parseRequest(request):
     
     # return (first_line, headers)
 
+
+
 def decodeAuthor(author):
     author_name = urllib.parse.unquote(author)
-    names = author_name.split("+")
-    author_name = ""
-    for name in names:
-        author_name += name + " "
+    author_name = author_name.replace("+", " ")
 
-    return author_name.strip()
+    print(author_name)
+    return author_name
 
 while True:
     # Establish connection with client.
@@ -114,13 +113,13 @@ while True:
             sendFile("./front_end/index.html" , connection)
         #else:
     elif b'POST' in request_type:
+        # len(headers) - 1 is the author and book names in the request
         print(b"author " + headers[len(headers) - 1][0][7:74]) # TODO fix this to work for every single author !
         author_name = decodeAuthor(str(headers[len(headers) - 1][0][7:74]))
         print("Decoded author: " + author_name)
         book_name = ""
         command = "python3 proccess_data.py " + author_name[1:] + " " + book_name
-        print(command)
-        os.system("python3 proccess_data.py " + author_name[1:] + " " + book_name)
+        os.system(command)
     
     connection.close()
 
