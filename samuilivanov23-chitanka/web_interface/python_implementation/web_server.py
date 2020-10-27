@@ -82,13 +82,25 @@ def parseRequest(request):
     # return (first_line, headers)
 
 
+def parseInputData(input_string):
+    input_data = input_string[2:len(input_string) - 15]
+    input_data = input_data.split("&")
 
-def decodeAuthor(author):
+    author_name = input_data[0][7:] # [7:] => to skip the author= parth of the string
+    book_name = input_data[1][5:] # [5:] => to skip the book= parth of the string
+
+    return author_name, book_name
+
+
+
+def decodeAuthor(author, book):
     author_name = urllib.parse.unquote(author)
     author_name = author_name.replace("+", " ")
 
-    print(author_name)
-    return author_name
+    book_name = urllib.parse.unquote(book)
+    book_name = book_name.replace("+", " ")
+
+    return author_name, book_name
 
 while True:
     # Establish connection with client.
@@ -114,11 +126,11 @@ while True:
         #else:
     elif b'POST' in request_type:
         # len(headers) - 1 is the author and book names in the request
-        print(b"author " + headers[len(headers) - 1][0][7:74]) # TODO fix this to work for every single author !
-        author_name = decodeAuthor(str(headers[len(headers) - 1][0][7:74]))
-        print("Decoded author: " + author_name)
-        book_name = ""
-        command = "python3 proccess_data.py " + author_name[1:] + " " + book_name
+        author_name, book_name = parseInputData(str(headers[len(headers) - 1][0]))
+
+        author_name, book_name = decodeAuthor(author_name, book_name)
+
+        command = "python3 proccess_data.py '" + author_name + "' '" + book_name + "'"
         os.system(command)
     
     connection.close()
