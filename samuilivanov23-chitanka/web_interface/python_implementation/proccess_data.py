@@ -4,15 +4,16 @@ from dbconfig import dbname_, dbuser_, dbpassword_
 import sys, os
 
 def getSentencesStats(book, cur):
-    sql  = """select '0 - 5 words' as range, sum(sentences_count) from (select s.words_count, count(s.sentence) as sentences_count from books as b join sentences as s on b.id=s.book_id where b.name=%s and s.words_count>=%s and s.words_count<%s group by s.words_count) as a 
-                            union
-                            select '5 - 10 words' as range, sum(sentences_count) from (select s.words_count, count(s.sentence) as sentences_count from books as b join sentences as s on b.id=s.book_id where b.name=%s and s.words_count>=%s and s.words_count<%s group by s.words_count) as a
-                            union
-                            select '10 - 15 words' as range, sum(sentences_count) from (select s.words_count, count(s.sentence) as sentences_count from books as b join sentences as s on b.id=s.book_id where b.name=%s and s.words_count>=%s and s.words_count<%s group by s.words_count) as a
-                            union
-                            select '15 - 20 words' as range, sum(sentences_count) from (select s.words_count, count(s.sentence) as sentences_count from books as b join sentences as s on b.id=s.book_id where b.name=%s and s.words_count>=%s and s.words_count<%s group by s.words_count) as a
-                            union
-                            select '20 - 70 words' as range, sum(sentences_count) from (select s.words_count, count(s.sentence) as sentences_count from books as b join sentences as s on b.id=s.book_id where b.name=%s and s.words_count>=%s and s.words_count<%s group by s.words_count) as a"""
+    sql  = """select '1' as range, sum(sentences_count) from (select s.words_count, count(s.sentence) as sentences_count from books as b join sentences as s on b.id=s.book_id where b.name=%s and s.words_count>=%s and s.words_count<%s group by s.words_count) as a 
+                union
+                select '2' as range, sum(sentences_count) from (select s.words_count, count(s.sentence) as sentences_count from books as b join sentences as s on b.id=s.book_id where b.name=%s and s.words_count>=%s and s.words_count<%s group by s.words_count) as a
+                union
+                select '3' as range, sum(sentences_count) from (select s.words_count, count(s.sentence) as sentences_count from books as b join sentences as s on b.id=s.book_id where b.name=%s and s.words_count>=%s and s.words_count<%s group by s.words_count) as a
+                union
+                select '4' as range, sum(sentences_count) from (select s.words_count, count(s.sentence) as sentences_count from books as b join sentences as s on b.id=s.book_id where b.name=%s and s.words_count>=%s and s.words_count<%s group by s.words_count) as a
+                union
+                select '5' as range, sum(sentences_count) from (select s.words_count, count(s.sentence) as sentences_count from books as b join sentences as s on b.id=s.book_id where b.name=%s and s.words_count>=%s and s.words_count<%s group by s.words_count) as a
+                order by range asc"""
         
     parameters = [book, 0, 5, book, 5, 10, book, 10, 15, book, 15, 20, book, 20, 70]
     cur.execute(sql, (parameters))
@@ -21,29 +22,19 @@ def getSentencesStats(book, cur):
     x_axis = []
     y_axis = []
 
-    start = 0
-    end = 5
-    i = 0 
-    j = 0
+    ranges_map = {
+        "1" : "0 - 5 words",
+        "2" : "5 - 10 words",
+        "3" : "10 - 15 words",
+        "4" : "15 - 20 words",
+        "5" : "20 - 70 words"
+    }
 
-    while i < len(records):
-        j = 0
-        while j < len(records):
-            if records[j][0] == str(start) + " - " + str(end) + " words":
-                x_axis.append(records[j][0])
-                y_axis.append(int(records[j][1]))
-                start+=5
-                end+=5
-                break
-            j+=1
-        i+=1
-    
+    print(len(records))
     i = 0
     while i < len(records):
-        if records[i][0] == "20 - 70 words":
-            x_axis.append(records[i][0])
-            y_axis.append(records[i][1])
-            break
+        x_axis.append(ranges_map[records[i][0]])
+        y_axis.append(records[i][1])
         i+=1
     
     return x_axis, y_axis
@@ -129,9 +120,9 @@ else:
     x_axis, y_axis = getAuthorsBooksStats(records, cur)
 
 if x_axis and y_axis:
+    print("test plot code block")
     fig = go.Figure(
         data=[go.Bar(x=x_axis, y=y_axis)],
         layout_title_text= chart_title
     )
-
     fig.show()
