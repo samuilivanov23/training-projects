@@ -107,17 +107,14 @@ while True:
     # Establish connection with client.
     connection, address = my_socket.accept()
     print('Got connection from', address)
-
-    #connection.settimeout(20)
+    
     request = connection.recv(1024)
+
     request_type, headers = parseRequest(request)
 
     print(request_type)
-    #for header in headers:
-        #print(header)
 
     endpoint = parseEndPoint(request_type)
-    #print(b"endpoint: " + endpoint)
 
     if b'GET' in request_type:
         if endpoint == b'/':
