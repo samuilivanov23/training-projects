@@ -88,7 +88,7 @@ def parseInputData(input_string):
 
     print(input_data)
 
-    author_name = input_data[0][7:] # [7:] => to skip the author= parth of the string
+    author_name = input_data[0][9:] # [9:] => to skip the author= parth of the string
     book_name = input_data[1][5:] # [5:] => to skip the book= parth of the string
 
     return author_name, book_name
@@ -107,7 +107,7 @@ while True:
     # Establish connection with client.
     connection, address = my_socket.accept()
     print('Got connection from', address)
-    
+
     request = connection.recv(1024)
 
     request_type, headers = parseRequest(request)
@@ -119,16 +119,17 @@ while True:
     if b'GET' in request_type:
         if endpoint == b'/':
             sendFile("./front_end/index.html" , connection)
-    elif b'POST' in request_type:
-        # len(headers) - 1 is the author and book names in the request
-        author_name, book_name = parseInputData(str(headers[len(headers) - 1][0]))
 
-        author_name, book_name = decodeAuthor(author_name, book_name)
+        #check if form is submitted
+        elif b"author" in endpoint:
+            # len(headers) - 1 is the author and book names in the request
+            author_name, book_name = parseInputData(str(endpoint))
+            author_name, book_name = decodeAuthor(author_name, book_name)
 
-        command = "python3 proccess_data.py '" + author_name + "' '" + book_name + "'"
-        os.system(command)
-        
-        sendFile("./front_end/index.html" , connection)
+            command = "python3 proccess_data.py '" + author_name + "' '" + book_name + "'"
+            os.system(command)
+
+            sendFile("./front_end/index.html" , connection)
     
     connection.close()
 

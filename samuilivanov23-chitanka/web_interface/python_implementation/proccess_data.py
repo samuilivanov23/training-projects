@@ -120,7 +120,6 @@ else:
     x_axis, y_axis = getAuthorsBooksStats(records, cur)
 
 if x_axis and y_axis:
-    print("test plot code block")
     fig = go.Figure(
         data=[go.Bar(x=x_axis, y=y_axis)],
         layout_title_text= chart_title
