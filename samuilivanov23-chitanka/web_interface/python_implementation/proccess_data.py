@@ -1,4 +1,4 @@
-import plotly.graph_objects as go
+import plotly.graph_objects as plotter
 import psycopg2
 from dbconfig import dbname_, dbuser_, dbpassword_
 import sys, os
@@ -85,7 +85,7 @@ if (not author == "") or (not book == ""):
         records = cur.fetchall()
 
         if not records:
-            print("empty")
+            print("Author and book dont match")
         else:
             chart_title = "Sentences count in the specified ranges"
             x_axis, y_axis = getSentencesStats(book, cur)
@@ -120,8 +120,8 @@ else:
     x_axis, y_axis = getAuthorsBooksStats(records, cur)
 
 if x_axis and y_axis:
-    fig = go.Figure(
-        data=[go.Bar(x=x_axis, y=y_axis)],
+    fig = plotter.Figure(
+        data=[plotter.Bar(x=x_axis, y=y_axis)],
         layout_title_text= chart_title
     )
     fig.show()

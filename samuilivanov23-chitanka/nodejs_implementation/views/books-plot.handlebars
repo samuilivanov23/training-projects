@@ -20,9 +20,12 @@
     let inputData = ['{{plotData}}'];
     let formatedData = SplitInputData(inputData[0]);
 
+    inputData = ['{{author_name}}'];
+    let author_name = inputData[0];
+
     let x_axis = []
     let y_axis = []
-    chart_title = "Top 10 books with most unique words";
+    chart_title = author_name + " - Top 10 books with most unique words";
 
     for(let i = 0; i < formatedData.length/2; i++)
     {

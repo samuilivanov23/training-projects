@@ -55,9 +55,8 @@ getTop10Authors = function (response)
     })
 }
 
-getTop10Books = function (query, parameters, response)
+getTop10Books = function (query, parameters, response, author_name)
 {
-
     client.query(query, parameters, (err, res) => {
         if(err != null)
         {
@@ -79,13 +78,13 @@ getTop10Books = function (query, parameters, response)
             let plotData = [x_axis_items, y_axis_items]
 
             response.render('books-plot', {
-                plotData, authors_autocomplete, books_autocomplete
+                plotData, authors_autocomplete, books_autocomplete, author_name
             })
         }
     })
 }
 
-getTopSentences = function (query, parameters, response)
+getTopSentences = function (query, parameters, response, book_name)
 {
     client.query(query, parameters, (err, res) => {
         if(err != null)
@@ -101,13 +100,13 @@ getTopSentences = function (query, parameters, response)
             }
             else
             {
-                sentencesRanges(res['rows'], response)
+                sentencesRanges(res['rows'], response, book_name)
             }
         }
     })
 }
 
-sentencesRanges = function (resultSentences, response)
+sentencesRanges = function (resultSentences, response, book_name)
 {
     let x_axis_items = []
     let y_axis_items = []
@@ -131,7 +130,7 @@ sentencesRanges = function (resultSentences, response)
     let plotData = [x_axis_items, y_axis_items]
 
     response.render('sentences-plot', {
-        plotData, authors_autocomplete, books_autocomplete
+        plotData, authors_autocomplete, books_autocomplete, book_name
     })
 }
 
@@ -224,7 +223,7 @@ app.post('/plot', function(request, response) {
                               author_id, book_name, third_end, fourth_end, 
                               author_id, book_name, fourth_end, fifth_end]
 
-                getTopSentences(query, parameters, response)
+                getTopSentences(query, parameters, response, book_name)
             }
         })
     }
@@ -250,7 +249,7 @@ app.post('/plot', function(request, response) {
                           book_name, fourth_end, fifth_end]
 
         
-        getTopSentences(query, parameters, response)
+        getTopSentences(query, parameters, response, book_name)
     }
     else if(author_name != "")
     {
@@ -260,7 +259,7 @@ app.post('/plot', function(request, response) {
 
         let parameters = [author_name]
 
-        getTop10Books(query, parameters, response)
+        getTop10Books(query, parameters, response, author_name)
     }
 });
 

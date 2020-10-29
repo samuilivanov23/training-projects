@@ -20,9 +20,12 @@
     let inputData = ['{{plotData}}'];
     let formatedData = inputData[0].split(',');
 
+    inputData = ['{{book_name}}'];
+    let book_name = inputData[0];
+
     let x_axis = []
     let y_axis = []
-    chart_title = "Sentences count in the specified ranges";
+    chart_title = book_name + " - Sentences count in the specified ranges";
 
     for(let i = 0; i < formatedData.length/2; i++)
     {

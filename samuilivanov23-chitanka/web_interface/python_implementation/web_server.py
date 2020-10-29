@@ -118,6 +118,9 @@ while True:
 
     if b'GET' in request_type:
         if endpoint == b'/':
+            command = "python3 proccess_data.py"
+            os.system(command)
+
             sendFile("./front_end/index.html" , connection)
 
         #check if form is submitted
