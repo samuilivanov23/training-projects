@@ -122,6 +122,7 @@ else:
 if x_axis and y_axis:
     fig = plotter.Figure(
         data=[plotter.Bar(x=x_axis, y=y_axis)],
-        layout_title_text= chart_title
+        layout_title_text= chart_title,
     )
+
     fig.show()

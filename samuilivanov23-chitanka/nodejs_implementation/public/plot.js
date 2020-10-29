@@ -15,6 +15,26 @@ var data = [ books_words_chart ];
 
 var layout = {
     title: chart_title,
+    xaxis: {
+        title: {
+            text: x_label,
+            font: {
+                family: 'Courier New, monospace',
+                size: 25,
+                color: '#000000'
+            }
+        },
+    },
+    yaxis: {
+        title: {
+            text: y_label,
+            font: {
+                family: 'Courier New, monospace',
+                size: 25,
+                color: '#000000'
+            }
+        },
+    },
     font: {size: 14},
     height: 700,
     margin: {
