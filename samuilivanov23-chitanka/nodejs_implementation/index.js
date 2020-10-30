@@ -46,12 +46,11 @@ getTop10Authors = function (response)
             })
 
             let authors_autocomplete = getAllAuthors()
-            let books_autocomplete = getAllBooks()
             
             let plotData = [x_axis_items, y_axis_items]
 
             response.render('home', {
-                plotData, authors_autocomplete, books_autocomplete
+                plotData, authors_autocomplete
             })
         }
     })
@@ -75,12 +74,11 @@ getTop10Books = function (query, parameters, response, author_name)
             })
             
             let authors_autocomplete = getAllAuthors()
-            let books_autocomplete = getAllBooks()
             
             let plotData = [x_axis_items, y_axis_items]
 
             response.render('books-plot', {
-                plotData, authors_autocomplete, books_autocomplete, author_name
+                plotData, authors_autocomplete, author_name
             })
         }
     })
@@ -127,12 +125,11 @@ sentencesRanges = function (resultSentences, response, book_name)
     })
 
     let authors_autocomplete = getAllAuthors()
-    let books_autocomplete = getAllBooks()
     
     let plotData = [x_axis_items, y_axis_items]
 
     response.render('sentences-plot', {
-        plotData, authors_autocomplete, books_autocomplete, book_name
+        plotData, authors_autocomplete, book_name
     })
 }
 
@@ -156,11 +153,13 @@ getAllAuthors = function()
     return authors_autocomplete
 }
 
-getAllBooks = function()
+getAllBooksFromAuthor = function(author_name, response)
 {
     var books_autocomplete = []
-    let query = `select name from books`
-    client.query(query, (err, res) => {
+    let query = `select b.name from books as b join authors as a on b.author_id=a.id where a.name=$1`
+    let parameters = [author_name]
+
+    client.query(query, parameters, (err, res) => {
         if(err != null)
         {
             console.log(err)
@@ -170,6 +169,18 @@ getAllBooks = function()
             res['rows'].forEach(book => {
                 books_autocomplete.push(book["name"])
             })
+
+            let authors = []; //x_data
+            let words_count = []; //y_data
+
+            for (let i = 0; i < 3; i++) {
+                authors.push({name: i})
+                words_count.push({wordsCount: i*10})
+            }
+
+            response.contentType('application/json')
+            books_from_author = {books: books_autocomplete}
+            response.send(books_from_author)
         }
     })
 
@@ -185,8 +196,10 @@ app.get('/', function(request, response) {
 app.get('/plot', function(request, response) {
     console.log(request)
 
-    let author_name = request.body.author
-    let book_name = request.body.book
+    const queryObject = url.parse(request.url, true).query
+
+    let author_name = queryObject['author']
+    let book_name = queryObject['book']
     let query = ""
     let parameters = []
 
@@ -271,43 +284,7 @@ app.get('/plot', function(request, response) {
 
 app.get('/proccess_author', function(request, response){
     const queryObject = url.parse(request.url, true).query
-    console.log(queryObject)
-
-    let myData = 
-    {
-        "data":{"children": [{"data":{"domain":"some.url"}}, {"data":{"domain":"another.url"}}]}    
-    }
-
-    // let result = "authors:["
-
-    // for(let i = 0; i<5; i++)
-    // {
-    //     result += '{name:' + i + '},'
-    // }
-    
-    // console.log(result)
-
-    // result = result.substring(0, result.length - 1)
-    // result += ']'
-
-    // console.log(result)
-
-    // response.contentType('application/json')
-    // myJSONstring = JSON.stringify(result)
-
-    response.contentType('application/json')
-    myJSONstring = JSON.stringify(myData)
-
-    console.log(myJSONstring)
-    
-    response.send(myJSONstring)
-
-    //response.writeHead(200, {'Content-Type': 'text/html'})
-    // response.json({
-    //     data1: ['test1', 'test2', 'test3'],
-    //     data2: ['test4', 'test5', 'test6']
-    // })
-    //response.end
+    getAllBooksFromAuthor(queryObject['author'], response)
 });
 
 app.listen(port, () => {
