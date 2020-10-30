@@ -1,10 +1,12 @@
 const express = require('express')
-const app = express();
-const { Client } = require('pg');
-const data = require('./db_config');
+const app = express()
+const { Client } = require('pg')
+const data = require('./db_config')
 const expressHandlebars = require('express-handlebars')
-const bodyParser = require('body-parser');
-const { request, response, query } = require('express');
+const bodyParser = require('body-parser')
+const { request, response, query } = require('express')
+const url = require('url')
+const { createBrotliCompress } = require('zlib')
 const port = 8000;
 
 //set main.handlebars as the main template
@@ -175,10 +177,14 @@ getAllBooks = function()
 }
 
 app.get('/', function(request, response) {
+    console.log(request)
+
     getTop10Authors(response)
 });
 
-app.post('/plot', function(request, response) {
+app.get('/plot', function(request, response) {
+    console.log(request)
+
     let author_name = request.body.author
     let book_name = request.body.book
     let query = ""
@@ -261,6 +267,47 @@ app.post('/plot', function(request, response) {
 
         getTop10Books(query, parameters, response, author_name)
     }
+});
+
+app.get('/proccess_author', function(request, response){
+    const queryObject = url.parse(request.url, true).query
+    console.log(queryObject)
+
+    let myData = 
+    {
+        "data":{"children": [{"data":{"domain":"some.url"}}, {"data":{"domain":"another.url"}}]}    
+    }
+
+    // let result = "authors:["
+
+    // for(let i = 0; i<5; i++)
+    // {
+    //     result += '{name:' + i + '},'
+    // }
+    
+    // console.log(result)
+
+    // result = result.substring(0, result.length - 1)
+    // result += ']'
+
+    // console.log(result)
+
+    // response.contentType('application/json')
+    // myJSONstring = JSON.stringify(result)
+
+    response.contentType('application/json')
+    myJSONstring = JSON.stringify(myData)
+
+    console.log(myJSONstring)
+    
+    response.send(myJSONstring)
+
+    //response.writeHead(200, {'Content-Type': 'text/html'})
+    // response.json({
+    //     data1: ['test1', 'test2', 'test3'],
+    //     data2: ['test4', 'test5', 'test6']
+    // })
+    //response.end
 });
 
 app.listen(port, () => {

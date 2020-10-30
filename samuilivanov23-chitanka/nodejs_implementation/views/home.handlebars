@@ -1,13 +1,13 @@
 <div class="container">
-    <form action="/plot" autocomplete="off" class="margin_style" method="post">
+    <form action="/proccess_author" autocomplete="off" class="margin_style" method="get">
         <div class="autocomplete" style="width:300px">
             <label for="author"> Author </label><br>
-            <input id = "myAuthor" type="text" name="author" placeholder="Enter author name" value=""><br><br>
+            <input id = "myAuthor" type="text" name="author" placeholder="Enter author name" value="" onchange="inputChange(this.form)"><br><br>
         </div>
 
         <div class="autocomplete" style="width:300px">
             <label for="author"> Book </label><br>
-            <input id="myBook" type="text" name="book" placeholder="Enter book name" value=""><br><br>
+            <input id="myBook" type="text" name="book" placeholder="Enter book name" value="" onchange="inputChange(this.form)"><br><br>
         </div>
 
         <input class="button button_style" type="submit" value="submit"><br>
@@ -15,6 +15,26 @@
 </div>
 
 <div id="chart">
+
+<script>
+    function inputChange(myForm)
+    {
+        let form_data = new FormData(myForm);
+
+        $.ajax({
+            data: {'author' : form_data.get('author'), 'book' : form_data.get('book')},
+            type: $(myForm).attr('method'),
+            url: $(myForm).attr('action'),
+            success: function (response) {
+                console.log("response:")
+                console.log(response.data.children[0].data.domain)
+                console.log(response.data.children[1].data.domain)
+                //console.log(response['author'])
+                alert("successful ajax call");
+            }
+        });
+    }
+</script>
 
 <script type="text/javascript">
     //get data for the plot.js script that draws the plot
