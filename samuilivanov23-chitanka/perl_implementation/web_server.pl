@@ -3,6 +3,8 @@ use Socket;
 use IO::Socket;
 use DBI;
 require './dbconfig.pl';
+binmode(STDOUT, "encoding(UTF-8)");
+
 
 sub parse_form 
 {
@@ -93,9 +95,21 @@ while (my $client = $server->accept()) {
             my $database_connection = DBI -> connect("dbi:Pg:dbname=$dbname;host=$dbhost;port=$dbport",  
                                                     $dbusername,
                                                     $dbpassword,
-                                                    {AutoCommit => 0, RaiseError => 1}
+                                                    {AutoCommit => 1, RaiseError => 1}
                                                 ) or die $DBI::errstr;
 
+            my $sql = "select id, name, words_count from authors where id=?;";
+            my $sth = $database_connection->prepare($sql);
+            $sth->execute($data{'author'});
+
+            while(my @row = $sth->fetchrow_array())
+            {
+                print "ID = ". $row[0] . "\n";
+                print "NAME = ". $row[1] ."\n";
+                print "WORDS_COUNT = ". $row[2] ."\n\n";
+            }
+
+            $sth->finish();
         }
         else
         {
@@ -106,6 +120,32 @@ while (my $client = $server->accept()) {
     else 
     {
         $data{"_method"} = "ERROR";
+    }
+
+    #connect to database
+    my $database_connection = DBI -> connect("dbi:Pg:dbname=$dbname;host=$dbhost;port=$dbport",  
+                                                    $dbusername,
+                                                    $dbpassword,
+                                                    {AutoCommit => 1, RaiseError => 1}
+                                                ) or die $DBI::errstr;
+
+    my $sql = 'select name, words_count from authors order by words_count desc limit 10';
+    my $sth = $database_connection->prepare($sql);
+    $sth->execute();
+
+    my @x_axis = ();
+    my @y_axis = ();
+
+    while(my @row = $sth->fetchrow_array())
+    {
+        push @x_axis, $row[0];
+        push @y_axis, $row[1];
+    }
+
+    for (my $counter = 0; $counter < 10; $counter++)
+    {
+        print $x_axis[$counter] . "\n";
+        print $y_axis[$counter] . "\n";
     }
 
     #Serve file
@@ -119,7 +159,7 @@ while (my $client = $server->accept()) {
         print $client "Content-type: text/html", Socket::CRLF;
         print $client Socket::CRLF;
         my $buffer;
-        while (read(FILE, $buffer, 8192)) 
+        while (read(FILE, $buffer, 8192))
         {
             print $client $buffer;
         }
