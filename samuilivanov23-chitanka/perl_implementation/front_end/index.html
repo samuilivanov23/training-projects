@@ -11,6 +11,8 @@
     </head>
 
     <body>
+        <button id="top10AuthorsButton" type="button">Get top 10 authors</button><br><br>
+
         <form id='myForm' name="Form" class="margin_style" method="get" accept-charset="UTF-8">
             <div style="width:300px">
                 <label for="author">Author</label><br>
@@ -27,36 +29,136 @@
     </body>
 </html>
 
+<div id="chart">
+</div>
+
 <script>
     $("#myForm").submit(function(e){
         e.preventDefault();
-        alert("testing");
+        let form_data = $('form').serializeArray();
+        form_data.push({name : "diagram", value: null});
+
+        //console.log(form_data[0]['value']);
+        console.log(form_data);
 
         $.ajax({
-            data: $("#registerSubmit").serialize(),
+            data: form_data,
             type: $(myForm).attr('method'),
             url: '/',
             success: function (response) {
-                
+                console.log(response);
+
+                if(form_data[1]['value'] != "")
+                {
+                    console.log("here");
+                    drawDiagram(response["x_axis"], response["y_axis"], form_data[0]['value'], form_data[1]['value'], 2); // 1 -> second type diagram
+                }
+                else if(form_data[0]['value'] != "")
+                {
+                    drawDiagram(response["x_axis"], response["y_axis"], form_data[0]['value'], form_data[1]['value'], 1); // 1 -> second type diagram
+                }
+            },
+            error: function(error){
+                console.log(error);
             }
         });
     });
-    
-    // function inputChange(myForm)
-    // {
-    //     myForm.preventDefault();
-    //     alert("testing");
-        
-    //     // let form_data = new FormData(myForm);
-        
-    //     // $.ajax({
-    //     //     data: {'author' : form_data.get('author'), 'book' : form_data.get('book')},
-    //     //     type: $(myForm).attr('method'),
-    //     //     url: '/proccess_author',
-    //     //     success: function (response) {
-    //     //         console.log(response);
-    //     //         AutoComplete(document.getElementById("myBook"), response['books']);
-    //     //     }
-    //     // });
-    // }
+
+    $("#top10AuthorsButton").click(function(e){
+        e.preventDefault();
+        alert("test");
+
+        $.ajax({
+            data: {"author" : null, "book" : null, "diagram" : "topAuthors"},
+            type: $(myForm).attr('method'),
+            url: '/',
+            success: function (response) {
+                console.log(response);
+
+                drawDiagram(response["x_axis"], response["y_axis"], "", "", 0); // 0 -> first type diagram
+            },
+            error: function(error){
+                console.log(error);
+            }
+        });
+    });
+
+    function drawDiagram(x_axis, y_axis, author, book, diagram_type)
+    {
+        let chart_title = "";
+        let x_label;
+        let y_label;
+
+        console.log(author);
+        console.log(book);
+
+        if(diagram_type == 0)
+        {
+            chart_title = "Top 10 authors with most unique words";
+            x_label = "Author";
+            y_label = "Number of unique words";
+
+        }
+        else if(diagram_type == 1)
+        {
+            chart_title = author + " - Top 10 books with most unique words";
+            x_label = "Book";
+            y_label = "Number of unique words";
+        }
+        else if (diagram_type == 2)
+        {
+            chart_title = book + " - Sentences count in the specified ranges";
+            x_label = "Book";
+            y_label = "Number of unique words";
+        }
+
+        var books_words_chart = {
+            type: 'bar',
+            name: chart_title,
+            x: x_axis,
+            y: y_axis,
+            marker: {
+                color: '#C8A2C8',
+                line: {
+                    width: 2.5
+                },
+            }
+        };
+
+        var data = [ books_words_chart ];
+
+        var layout = {
+            title: chart_title,
+            xaxis: {
+                title: {
+                    text: x_label,
+                    font: {
+                        family: 'Courier New, monospace',
+                        size: 25,
+                        color: '#000000'
+                    }
+                },
+            },
+            yaxis: {
+                title: {
+                    text: y_label,
+                    font: {
+                        family: 'Courier New, monospace',
+                        size: 25,
+                        color: '#000000'
+                    }
+                },
+            },
+            font: {size: 14},
+            height: 700,
+            margin: {
+                b: 300,
+            },
+        };
+
+        var config = {responsive: true}
+
+        Plotly.newPlot('chart', data, layout, config);
+
+    }
 </script>
