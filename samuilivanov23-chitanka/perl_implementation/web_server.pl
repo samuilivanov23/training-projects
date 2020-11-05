@@ -1,29 +1,30 @@
 use strict;
 use Socket;
 use IO::Socket;
-use DBI;
+use DBI qw(:sql_types);
 use JSON;
 use CGI qw(:standard);
+use Encode;
+use URI::Encode qw(uri_encode uri_decode);
 require './dbconfig.pl';
 binmode(STDOUT, "encoding(UTF-8)");
 
 
-sub parse_form 
+sub parse_form
 {
     my $data = $_[0];
     my %data;
 
-    foreach (split /&/, $data) 
+    foreach (split /&/, $data)
     {
         my ($key, $val) = split /=/;
-        #substitute "+" with whitespace
-        $val =~ s/\+/ /g;
+
         #convert hex to chars
-        $val =~ s/%(..)/chr(hex($1))/eg;
-        $data{$key} = $val;
+        my $decoded_data = Encode::decode('utf8', uri_decode($val));
+        $data{$key} = $decoded_data;
     }
 
-    return %data; 
+    return %data;
 }
 
 sub send_ajax_response
@@ -60,8 +61,6 @@ my $server = new IO::Socket::INET->new (
     Reuse => 1,
     Listen => SOMAXCONN
 );
-
-$server or die "Unable to create server socket: $!";
 
 while (my $client = $server->accept()) {
     $client->autoflush(1);
@@ -115,16 +114,16 @@ while (my $client = $server->accept()) {
             my @x_axis = ();
             my @y_axis = ();
 
+             #connect to database
+            my $database_connection = DBI -> connect("dbi:Pg:dbname=$dbname;host=$dbhost;port=$dbport",  
+                                                            $dbusername,
+                                                            $dbpassword,
+                                                            {AutoCommit => 1, RaiseError => 1}
+                                                        ) or die $DBI::errstr;
+
             # return data for top 10 authors diagram
             if($data{"diagram"} ne "")
             {
-                #connect to database
-                my $database_connection = DBI -> connect("dbi:Pg:dbname=$dbname;host=$dbhost;port=$dbport",  
-                                                                $dbusername,
-                                                                $dbpassword,
-                                                                {AutoCommit => 1, RaiseError => 1}
-                                                            ) or die $DBI::errstr;
-
                 my $sql = 'select name, words_count from authors order by words_count desc limit 10';
                 my $sth = $database_connection->prepare($sql);
                 $sth->execute();
@@ -135,20 +134,11 @@ while (my $client = $server->accept()) {
                     push @y_axis, $row[1];
                 }
 
-                $database_connection.close();
-
                 send_ajax_response(\@x_axis, \@y_axis, $client);
             }
             # return data for top 10 books/sentences ranges diagrams
             elsif($data{"author"} ne "" || $data{"book"} ne "")
             {
-                my $first_start = '0';
-                my $first_end = '5';
-                my $second_end = '10';
-                my $third_end = '15';
-                my $fourth_end = '20';
-                my $fifth_end = '70';
-
                 # check if either author and book are typed
                 if($data{"author"} ne "" && $data{"book"} ne "")
                 {
@@ -157,56 +147,55 @@ while (my $client = $server->accept()) {
                 #check if only book is typed
                 if($data{"book"} ne "")
                 {
-
-                    my $database_connection = DBI -> connect("dbi:Pg:dbname=$dbname;host=$dbhost;port=$dbport",  
-                                                            $dbusername,
-                                                            $dbpassword,
-                                                            {AutoCommit => 1, RaiseError => 1}
-                                                        ) or die $DBI::errstr;
-
                     my $sql = "select '1' as range, sum(sentences_count) from (select s.words_count, count(s.sentence) as sentences_count from books as b join sentences as s on
-                    b.id=s.book_id where b.id=? and s.words_count>=? and s.words_count<? group by s.words_count) as a 
+                    b.id=s.book_id where b.name=? and s.words_count>=0 and s.words_count<5 group by s.words_count) as a 
                     union
-                    select '2' as range, sum(sentences_count) from (select s.words_count, count(s.sentence) as sentences_count from books as b join sentences as s on b.id=s.book_id where b.id=? and s.words_count>=? and s.words_count<? group by s.words_count) as a
+                    select '2' as range, sum(sentences_count) from (select s.words_count, count(s.sentence) as sentences_count from books as b join sentences as s on b.id=s.book_id where b.name=? and s.words_count>=5 and s.words_count<10 group by s.words_count) as a
                     union
-                    select '3' as range, sum(sentences_count) from (select s.words_count, count(s.sentence) as sentences_count from books as b join sentences as s on b.id=s.book_id where b.id=? and s.words_count>=? and s.words_count<? group by s.words_count) as a
+                    select '3' as range, sum(sentences_count) from (select s.words_count, count(s.sentence) as sentences_count from books as b join sentences as s on b.id=s.book_id where b.name=? and s.words_count>=10 and s.words_count<15 group by s.words_count) as a
                     union
-                    select '4' as range, sum(sentences_count) from (select s.words_count, count(s.sentence) as sentences_count from books as b join sentences as s on b.id=s.book_id where b.id=? and s.words_count>=? and s.words_count<? group by s.words_count) as a                                                                   
+                    select '4' as range, sum(sentences_count) from (select s.words_count, count(s.sentence) as sentences_count from books as b join sentences as s on b.id=s.book_id where b.name=? and s.words_count>=15 and s.words_count<20 group by s.words_count) as a                                                                   
                     union
-                    select '5' as range, sum(sentences_count) from (select s.words_count, count(s.sentence) as sentences_count from books as b join sentences as s on b.id=s.book_id where b.id=? and s.words_count>=? and s.words_count<? group by s.words_count) as a
+                    select '5' as range, sum(sentences_count) from (select s.words_count, count(s.sentence) as sentences_count from books as b join sentences as s on b.id=s.book_id where b.name=? and s.words_count>=20 and s.words_count<70 group by s.words_count) as a
                     order by range asc;";
 
                     my $sth = $database_connection->prepare($sql);
-                    $sth->execute($data{'book'}, $first_start, $first_end,
-                                    $data{'book'}, $first_end, $second_end,
-                                    $data{'book'}, $second_end, $third_end,
-                                    $data{'book'}, $third_end, $fourth_end,
-                                    $data{'book'}, $fourth_end, $fifth_end);
+
+                    $sth->bind_param(1, $data{"book"}, { TYPE => SQL_VARCHAR });
+                    $sth->bind_param(2, $data{"book"}, { TYPE => SQL_VARCHAR });
+                    $sth->bind_param(3, $data{"book"}, { TYPE => SQL_VARCHAR });
+                    $sth->bind_param(4, $data{"book"}, { TYPE => SQL_VARCHAR });
+                    $sth->bind_param(5, $data{"book"}, { TYPE => SQL_VARCHAR });
+
+                    print "book: " . $data{'book'} . "\n";
+
+                    $sth->execute();
+
+                    my %map_ranges = (
+                        '1' => '0 - 5 words',
+                        '2' => '5 - 10 words',
+                        '3' => '10 - 15 words',
+                        '4' => '15 - 20 words',
+                        '5' => '20 - 70 words',
+                    );
 
                     while(my @row = $sth->fetchrow_array())
                     {
-                        print "test\n";
-                        print "range = ". $row[0] . "\n";
-                        print "sentences_count = ". $row[1] ."\n\n";
+                        push @x_axis, $map_ranges{$row[0]};
+                        push @y_axis, $row[1];
                     }
-                    
-                    $database_connection.close();
+
+                    send_ajax_response(\@x_axis, \@y_axis, $client);
                 }
                 #check if only author is typed
                 if($data{"author"} ne "")
                 {
-                    my $database_connection = DBI -> connect("dbi:Pg:dbname=$dbname;host=$dbhost;port=$dbport",  
-                                                            $dbusername,
-                                                            $dbpassword,
-                                                            {AutoCommit => 1, RaiseError => 1}
-                                                        ) or die $DBI::errstr;
-
                     my $sql = "select b.name, b.words_count from authors as a
                                 join books as b on a.id=b.author_id
-                                where a.id=? order by b.words_count desc limit 10;";
+                                where a.name=? order by b.words_count desc limit 10;";
                     my $sth = $database_connection->prepare($sql);
-                    $sth->execute($data{'author'});                    $database_connection.close();
-
+                    $sth->bind_param(1, $data{"author"}, { TYPE => SQL_VARCHAR });
+                    $sth->execute();             
 
                     while(my @row = $sth->fetchrow_array())
                     {
@@ -214,12 +203,14 @@ while (my $client = $server->accept()) {
                         push @y_axis, $row[1];
                     }
 
-                    $database_connection.close();
+                    # $database_connection.close();
 
                     send_ajax_response(\@x_axis, \@y_axis, $client);
                 }
                 
             }
+
+            $database_connection.close();
         }
         else
         {
@@ -260,9 +251,5 @@ while (my $client = $server->accept()) {
             #close connection
             close $client;
         }
-    }
-    else 
-    {
-        $data{"_method"} = "ERROR";
     }
 }

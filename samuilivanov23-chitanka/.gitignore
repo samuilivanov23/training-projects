@@ -2,3 +2,4 @@
 dbconfig.py
 __pycache__/
 /perl_implementation/dbconfig.pl
+/perl_implementation/.vscode

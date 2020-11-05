@@ -66,7 +66,6 @@
 
     $("#top10AuthorsButton").click(function(e){
         e.preventDefault();
-        alert("test");
 
         $.ajax({
             data: {"author" : null, "book" : null, "diagram" : "topAuthors"},
@@ -108,8 +107,8 @@
         else if (diagram_type == 2)
         {
             chart_title = book + " - Sentences count in the specified ranges";
-            x_label = "Book";
-            y_label = "Number of unique words";
+            x_label = "range";
+            y_label = "Number of sentences";
         }
 
         var books_words_chart = {
