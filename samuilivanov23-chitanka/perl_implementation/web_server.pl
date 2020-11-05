@@ -32,6 +32,7 @@ sub send_ajax_response
     my @x_axis = @{$_[0]};
     my @y_axis = @{$_[1]};
     my $client = $_[2];
+    my $error_code = $_[3];
 
     print $client "HTTP/1.0 200 OK", Socket::CRLF;
     print $client "Content-type: application/json", Socket::CRLF;
@@ -40,6 +41,7 @@ sub send_ajax_response
     #print header('application/json');
     my $json->{"x_axis"} = \@x_axis;
     $json->{"y_axis"} = \@y_axis;
+    $json->{"error_code"} = $error_code;
     my $json_text = to_json($json);
     print $client $json_text;
 }
@@ -113,6 +115,7 @@ while (my $client = $server->accept()) {
 
             my @x_axis = ();
             my @y_axis = ();
+            my $error_code;
 
              #connect to database
             my $database_connection = DBI -> connect("dbi:Pg:dbname=$dbname;host=$dbhost;port=$dbport",  
@@ -134,7 +137,8 @@ while (my $client = $server->accept()) {
                     push @y_axis, $row[1];
                 }
 
-                send_ajax_response(\@x_axis, \@y_axis, $client);
+                $error_code = "";
+                send_ajax_response(\@x_axis, \@y_axis, $client, $error_code);
             }
             # return data for top 10 books/sentences ranges diagrams
             elsif($data{"author"} ne "" || $data{"book"} ne "")
@@ -143,9 +147,75 @@ while (my $client = $server->accept()) {
                 if($data{"author"} ne "" && $data{"book"} ne "")
                 {
                     # TODO
+                    my $sql = "select id from authors where name=?";
+                    my $sth = $database_connection->prepare($sql);
+                    $sth->bind_param(1, $data{"author"}, { TYPE => SQL_VARCHAR });
+                    $sth->execute();
+
+                    my @row = $sth->fetchrow_array();
+                    my $author_id = $row[0];
+
+                    print "author_id: " . $author_id . "\n";
+
+                    $sql = "select '1' as range, sum(sentences_count) from (select s.words_count, count(s.sentence) as sentences_count from books as b join sentences as s on
+                    b.id=s.book_id where b.name=? and b.author_id=? and s.words_count>=0 and s.words_count<5 group by s.words_count) as a 
+                    union
+                    select '2' as range, sum(sentences_count) from (select s.words_count, count(s.sentence) as sentences_count from books as b join sentences as s on b.id=s.book_id where b.name=? and b.author_id=? and s.words_count>=5 and s.words_count<10 group by s.words_count) as a
+                    union
+                    select '3' as range, sum(sentences_count) from (select s.words_count, count(s.sentence) as sentences_count from books as b join sentences as s on b.id=s.book_id where b.name=? and b.author_id=? and s.words_count>=10 and s.words_count<15 group by s.words_count) as a
+                    union
+                    select '4' as range, sum(sentences_count) from (select s.words_count, count(s.sentence) as sentences_count from books as b join sentences as s on b.id=s.book_id where b.name=? and b.author_id=? and s.words_count>=15 and s.words_count<20 group by s.words_count) as a                                                                   
+                    union
+                    select '5' as range, sum(sentences_count) from (select s.words_count, count(s.sentence) as sentences_count from books as b join sentences as s on b.id=s.book_id where b.name=? and b.author_id=? and s.words_count>=20 and s.words_count<70 group by s.words_count) as a
+                    order by range asc;";
+
+                    my $sth = $database_connection->prepare($sql);
+
+                    $sth->bind_param(1, $data{"book"}, { TYPE => SQL_VARCHAR });
+                    $sth->bind_param(2, $author_id, { TYPE => SQL_INTEGER });
+                    $sth->bind_param(3, $data{"book"}, { TYPE => SQL_VARCHAR });
+                    $sth->bind_param(4, $author_id, { TYPE => SQL_INTEGER });
+                    $sth->bind_param(5, $data{"book"}, { TYPE => SQL_VARCHAR });
+                    $sth->bind_param(6, $author_id, { TYPE => SQL_INTEGER });
+                    $sth->bind_param(7, $data{"book"}, { TYPE => SQL_VARCHAR });
+                    $sth->bind_param(8, $author_id, { TYPE => SQL_INTEGER });
+                    $sth->bind_param(9, $data{"book"}, { TYPE => SQL_VARCHAR });
+                    $sth->bind_param(10, $author_id, { TYPE => SQL_INTEGER });
+
+                    print "book: " . $data{'book'} . "\n";
+
+                    $sth->execute();
+
+                    my %map_ranges = (
+                        '1' => '0 - 5 words',
+                        '2' => '5 - 10 words',
+                        '3' => '10 - 15 words',
+                        '4' => '15 - 20 words',
+                        '5' => '20 - 70 words',
+                    );
+
+                    while(my @row = $sth->fetchrow_array())
+                    {
+                        print $map_ranges{$row[0]} . "\n";
+                        print $row[1] . "\n";
+                        push @x_axis, $map_ranges{$row[0]};
+                        push @y_axis, $row[1];
+                    }
+                    
+                    print "x_axis: " . @y_axis . "\n";
+                    if($y_axis[0] eq $y_axis[1] && $y_axis[1] eq $y_axis[2] && $y_axis[0] eq "")
+                    {
+                        $error_code = "Author and book tuple not matching"; # error caused by not matching author and book tuple
+                        send_ajax_response(\@x_axis, \@y_axis, $client, $error_code);
+                    }
+                    else
+                    {
+                        $error_code = ""; # no error
+                        send_ajax_response(\@x_axis, \@y_axis, $client, $error_code);
+                    }
                 }
                 #check if only book is typed
-                if($data{"book"} ne "")
+                elsif($data{"book"} ne "")
                 {
                     my $sql = "select '1' as range, sum(sentences_count) from (select s.words_count, count(s.sentence) as sentences_count from books as b join sentences as s on
                     b.id=s.book_id where b.name=? and s.words_count>=0 and s.words_count<5 group by s.words_count) as a 
@@ -185,10 +255,11 @@ while (my $client = $server->accept()) {
                         push @y_axis, $row[1];
                     }
 
-                    send_ajax_response(\@x_axis, \@y_axis, $client);
+                    $error_code = "";
+                    send_ajax_response(\@x_axis, \@y_axis, $client, $error_code);
                 }
                 #check if only author is typed
-                if($data{"author"} ne "")
+                elsif($data{"author"} ne "")
                 {
                     my $sql = "select b.name, b.words_count from authors as a
                                 join books as b on a.id=b.author_id
@@ -203,9 +274,8 @@ while (my $client = $server->accept()) {
                         push @y_axis, $row[1];
                     }
 
-                    # $database_connection.close();
-
-                    send_ajax_response(\@x_axis, \@y_axis, $client);
+                    $error_code = "";
+                    send_ajax_response(\@x_axis, \@y_axis, $client, $error_code);
                 }
                 
             }

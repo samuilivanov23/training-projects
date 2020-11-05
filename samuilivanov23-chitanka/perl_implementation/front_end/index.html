@@ -48,14 +48,21 @@
             success: function (response) {
                 console.log(response);
 
-                if(form_data[1]['value'] != "")
+                if(response["error_code"] != "")
                 {
-                    console.log("here");
-                    drawDiagram(response["x_axis"], response["y_axis"], form_data[0]['value'], form_data[1]['value'], 2); // 1 -> second type diagram
+                    alert(response["error_code"]);
                 }
-                else if(form_data[0]['value'] != "")
+                else
                 {
-                    drawDiagram(response["x_axis"], response["y_axis"], form_data[0]['value'], form_data[1]['value'], 1); // 1 -> second type diagram
+                    if(form_data[1]['value'] != "")
+                    {
+                        console.log("here");
+                        drawDiagram(response["x_axis"], response["y_axis"], form_data[0]['value'], form_data[1]['value'], 2); // 1 -> second type diagram
+                    }
+                    else if(form_data[0]['value'] != "")
+                    {
+                        drawDiagram(response["x_axis"], response["y_axis"], form_data[0]['value'], form_data[1]['value'], 1); // 1 -> second type diagram
+                    }
                 }
             },
             error: function(error){
