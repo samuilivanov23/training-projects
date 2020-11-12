@@ -151,11 +151,6 @@ def loadData(cur, connection):
     products_names = generateRandomNames(rows_count)
     descriptions = generateRandomDescriptions(rows_count)
 
-    # for i in range(20):
-    #     print(manufacturers_names[i])
-    #     print(products_names[i])
-    #     print(descriptions[i])
-
     for i in range(rows_count):
         try:
             sql = 'insert into manufacturers (name) values(%s) RETURNING id'
@@ -195,5 +190,4 @@ if __name__ == '__main__':
     cur = connection.cursor()
 
     #createTables(cur, connection)
-
     loadData(cur, connection)

@@ -11,8 +11,6 @@ https://docs.djangoproject.com/en/3.1/ref/settings/
 """
 
 from pathlib import Path
-#from dbconfig import onlineShop_dbname, onlineShop_dbuser, onlineShop_dbpassword, onlineShop_dbport
-
 from internet_shop import dbconfig
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -39,6 +37,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'modernrpc',
 ]
 
 MIDDLEWARE = [
@@ -71,6 +70,9 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'internet_shop.wsgi.application'
 
+MODERNRPC_METHODS_MODULES = [
+    'shop.rpc_methods',
+]
 
 # Database
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
