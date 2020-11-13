@@ -15,7 +15,13 @@ def GenerateJsonFromQueryResult(records):
         product_count = records[i][4]
         product_price = float(records[i][5])
 
-        products['data'].append({'id' : product_id, 'name' : product_name, 'description': product_description, 'count' : product_count, 'price' : product_price})
+        products['data'].append({
+            'id' : product_id, 
+            'name' : product_name, 
+            'description': product_description, 
+            'count' : product_count, 
+            'price' : product_price
+        })
 
         i+=1
     
@@ -26,7 +32,7 @@ def Add(a, b):
     return a + b
 
 @rpc_method
-def GetProducts():
+def GetProducts(offset):
     #Connect to database
     connection = psycopg2.connect("dbname='" + onlineShop_dbname + 
                                   "' user='" + onlineShop_dbuser + 
@@ -35,8 +41,10 @@ def GetProducts():
     connection.autocommit = True
     cur = connection.cursor()
 
+    limit_products_per_page = 15
+
     sql = 'select * from products order by id offset %s limit %s'
-    cur.execute(sql, (0, 9,))
+    cur.execute(sql, (offset, limit_products_per_page,))
     records = cur.fetchall()
 
     response_data = GenerateJsonFromQueryResult(records)
