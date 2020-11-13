@@ -69,16 +69,21 @@ class App extends React.Component{
         </div>
         
         <ReactPaginate
-            previousLabel={'previous'}
-            nextLabel={'next'}
+            previousLabel={'← Previous'}
+            nextLabel={'Next →'}
             breakLabel={'...'}
-            breakClassName={'break-me'}
             pageCount={this.state.pageCount}
-            marginPagesDisplayed={2}
             pageRangeDisplayed={5}
             onPageChange={this.handlePageClick}
+            breakClassName={'page-item'}
+            breakLinkClassName={'page-link'}
             containerClassName={'pagination'}
-            subContainerClassName={'pages pagination'}
+            pageClassName={'page-item'}
+            pageLinkClassName={'page-link'}
+            previousClassName={'page-item'}
+            previousLinkClassName={'page-link'}
+            nextClassName={'page-item'}
+            nextLinkClassName={'page-link'}
             activeClassName={'active'}
         />
       </div>
