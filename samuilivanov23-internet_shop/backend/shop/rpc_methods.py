@@ -32,7 +32,7 @@ def Add(a, b):
     return a + b
 
 @rpc_method
-def GetProducts(offset):
+def GetProducts(offset, products_per_page):
     #Connect to database
     connection = psycopg2.connect("dbname='" + onlineShop_dbname + 
                                   "' user='" + onlineShop_dbuser + 
@@ -41,10 +41,8 @@ def GetProducts(offset):
     connection.autocommit = True
     cur = connection.cursor()
 
-    limit_products_per_page = 15
-
     sql = 'select * from products order by id offset %s limit %s'
-    cur.execute(sql, (offset, limit_products_per_page,))
+    cur.execute(sql, (offset, products_per_page,))
     records = cur.fetchall()
 
     response_data = GenerateJsonFromQueryResult(records)
