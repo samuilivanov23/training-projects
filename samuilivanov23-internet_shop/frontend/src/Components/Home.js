@@ -42,6 +42,8 @@ class Home extends React.Component{
 
       console.log("state:");
       console.log(home_component.state);
+    }).catch(function(error){
+      console.log(error);
     });
   }
 

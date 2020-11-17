@@ -28,24 +28,68 @@ def GenerateJsonFromQueryResult(records):
     return products
 
 @rpc_method
-def Add(a, b):
-    return a + b
-
-@rpc_method
 def GetProducts(offset, products_per_page):
     #Connect to database
-    connection = psycopg2.connect("dbname='" + onlineShop_dbname + 
-                                  "' user='" + onlineShop_dbuser + 
-                                  "' password='" + onlineShop_dbpassword + "'")
+    try:
+        connection = psycopg2.connect("dbname='" + onlineShop_dbname + 
+                                    "' user='" + onlineShop_dbuser + 
+                                    "' password='" + onlineShop_dbpassword + "'")
 
-    connection.autocommit = True
-    cur = connection.cursor()
+        connection.autocommit = True
+        cur = connection.cursor()
+    except Exception as e:
+        print(e)
+    
+    #Fetch products from database
+    try:
+        sql = 'select * from products order by id offset %s limit %s'
+        cur.execute(sql, (offset, products_per_page,))
+        records = cur.fetchall()
 
-    sql = 'select * from products order by id offset %s limit %s'
-    cur.execute(sql, (offset, products_per_page,))
-    records = cur.fetchall()
-
-    response_data = GenerateJsonFromQueryResult(records)
-    data_json = json.dumps(response_data)
+        response_data = GenerateJsonFromQueryResult(records)
+        data_json = json.dumps(response_data)
+    except Exception as e:
+        print(e)
+    
+    if(connection):
+        cur.close()
+        connection.close()
     
     return data_json
+
+@rpc_method
+def AddProductToCart(product_id, selectedCount):
+    #Connect to database
+    try:
+        connection = psycopg2.connect("dbname='" + onlineShop_dbname + 
+                                    "' user='" + onlineShop_dbuser + 
+                                    "' password='" + onlineShop_dbpassword + "'")
+
+        connection.autocommit = True
+        cur = connection.cursor()
+    except Exception as e:
+        print(e)
+    
+    #Add product to cart
+    try:
+        sql = 'insert into carts default values RETURNING id'
+        cur.execute(sql,)
+        cart_id = cur.fetchone()[0]
+        connection.commit()
+
+        sql = 'insert into carts_products (cart_id, product_id, count) values(%s, %s, %s)'
+        cur.execute(sql, (cart_id, product_id, selectedCount))
+        connection.commit()
+
+        response = {'status': 'OK', 'msg' : 'Successful'}
+        response = json.dumps(response)
+    except Exception as e:
+        print(e)
+        response = {'status': 'Fail', 'msg' : 'Unable to add product to cart'}
+        response = json.dumps(response)
+    
+    if(connection):
+        cur.close()
+        connection.close()
+    
+    return response
