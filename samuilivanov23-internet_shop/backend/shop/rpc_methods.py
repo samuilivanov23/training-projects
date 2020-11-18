@@ -58,38 +58,41 @@ def GetProducts(offset, products_per_page):
     return data_json
 
 @rpc_method
-def AddProductToCart(product_id, selectedCount):
-    #Connect to database
-    try:
-        connection = psycopg2.connect("dbname='" + onlineShop_dbname + 
-                                    "' user='" + onlineShop_dbuser + 
-                                    "' password='" + onlineShop_dbpassword + "'")
+def AddProductToCart(product_id, selected_count, product_count):
+    if selected_count < product_count:
+        #Connect to database
+        try:
+            connection = psycopg2.connect("dbname='" + onlineShop_dbname + 
+                                        "' user='" + onlineShop_dbuser + 
+                                        "' password='" + onlineShop_dbpassword + "'")
 
-        connection.autocommit = True
-        cur = connection.cursor()
-    except Exception as e:
-        print(e)
-    
-    #Add product to cart
-    try:
-        sql = 'insert into carts default values RETURNING id'
-        cur.execute(sql,)
-        cart_id = cur.fetchone()[0]
-        connection.commit()
+            connection.autocommit = True
+            cur = connection.cursor()
+        except Exception as e:
+            print(e)
+        
+        #Add product to cart
+        try:
+            sql = 'insert into carts default values RETURNING id'
+            cur.execute(sql,)
+            cart_id = cur.fetchone()[0]
+            connection.commit()
 
-        sql = 'insert into carts_products (cart_id, product_id, count) values(%s, %s, %s)'
-        cur.execute(sql, (cart_id, product_id, selectedCount))
-        connection.commit()
+            sql = 'insert into carts_products (cart_id, product_id, count) values(%s, %s, %s)'
+            cur.execute(sql, (cart_id, product_id, selected_count))
+            connection.commit()
 
-        response = {'status': 'OK', 'msg' : 'Successful'}
-        response = json.dumps(response)
-    except Exception as e:
-        print(e)
-        response = {'status': 'Fail', 'msg' : 'Unable to add product to cart'}
-        response = json.dumps(response)
-    
-    if(connection):
-        cur.close()
-        connection.close()
+            response = {'status': 'OK', 'msg' : 'Successful'}
+            response = json.dumps(response)
+        except Exception as e:
+            print(e)
+            response = {'status': 'Fail', 'msg' : 'Unable to add product to cart'}
+            response = json.dumps(response)
+        
+        if(connection):
+            cur.close()
+            connection.close()
+    else: 
+        response = {'status' : 'Fail', 'msg' : 'Select lesser count'}
     
     return response

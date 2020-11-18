@@ -5,7 +5,8 @@
 .product-card{
   margin-top: 4em;
   margin-bottom: 4em;
-  margin-right: 10em;
+  margin-right: 4em;
+  margin-left: 5em;
 }
 
 .pagination {

@@ -16,7 +16,7 @@ class ProductDetails extends React.Component {
 
         this.state = {
             in_stock : '',
-            selectedCount : 1,
+            selected_count : 1,
         }
     }
 
@@ -50,14 +50,14 @@ class ProductDetails extends React.Component {
 
     changeProductSelectCount = (event) => {
         this.setState({ 
-            selectedCount: event.target.value
+            selected_count: event.target.value
         });
     }
 
-    addProductToCart = (product_id, selectedCount) => {
+    addProductToCart = (product_id, selected_count, product_count) => {
         console.log('current product');
         console.log(product_id);
-        console.log(selectedCount);
+        console.log(selected_count);
 
         var django_rpc = new JsonRpcClient({
             endpoint: 'http://127.0.0.1:8000/shop/rpc/',
@@ -66,7 +66,8 @@ class ProductDetails extends React.Component {
         django_rpc.request(
             "AddProductToCart",
             product_id,
-            selectedCount,
+            selected_count,
+            product_count,
         ).then(function(response){
             let json_response = JSON.parse(response);
             console.log(json_response);
@@ -87,11 +88,11 @@ class ProductDetails extends React.Component {
                         <Card.Text>Price: {this.props.product['price']} lv.</Card.Text>
                         <Card.Text>{this.state.in_stock}</Card.Text>
                         
-                        <select style={{marginRight : '1em'}} name={'selected_count'} value={this.state.selectedCount} onChange={this.changeProductSelectCount}>
+                        <select style={{marginRight : '1em'}} name={'selected_count'} value={this.state.selected_count} onChange={this.changeProductSelectCount}>
                             {options}
                         </select>
                         
-                        <Button onClick={() => this.addProductToCart(this.props.product['id'], this.state.selectedCount)}>
+                        <Button onClick={() => this.addProductToCart(this.props.product['id'], this.state.selected_count, this.props.product['count'])}>
                             Add to cart
                         </Button>
                     </Card.Body>
