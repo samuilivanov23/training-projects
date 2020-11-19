@@ -111,13 +111,13 @@ def RegisterUser(first_name, last_name, email_address, password):
         print(e)
     
     try:
-        print(first_name)
-        print(last_name)
-        print(email_address)
-        print(password)
+        sql = 'insert into carts default values RETURNING id'
+        cur.execute(sql,)
+        cart_id = cur.fetchone()[0]
+        connection.commit()
 
-        sql = 'insert into users (first_name, last_name, email_address, password) values(%s, %s, %s, %s)'
-        cur.execute(sql, (str(first_name), str(last_name), str(email_address), str(password)))
+        sql = 'insert into users (first_name, last_name, email_address, password, cart_id) values(%s, %s, %s, %s, %s)'
+        cur.execute(sql, (first_name, last_name, email_address, password, cart_id))
         connection.commit()
 
         response = {'status': 'OK', 'msg' : 'Successful'}

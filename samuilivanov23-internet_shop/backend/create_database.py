@@ -9,8 +9,8 @@ def createTables(cur, connection):
         "id" bigserial PRIMARY KEY,
         "first_name" text,
         "last_name" text,
-        "email_address" text,
-        "password" text,
+        "email_address" text UNIQUE,
+        "password" text UNIQUE,
         "cart_id" bigserial UNIQUE
     );
 
