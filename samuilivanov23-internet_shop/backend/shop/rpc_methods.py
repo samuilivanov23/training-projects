@@ -116,7 +116,7 @@ def RegisterUser(first_name, last_name, email_address, password):
         cart_id = cur.fetchone()[0]
         connection.commit()
 
-        sql = 'insert into users (first_name, last_name, email_address, password, cart_id) values(%s, %s, %s, %s, %s)'
+        sql = 'insert into users (first_name, last_namee, email_address, password, cart_id) values(%s, %s, %s, %s, %s)'
         cur.execute(sql, (first_name, last_name, email_address, password, cart_id))
         connection.commit()
 
