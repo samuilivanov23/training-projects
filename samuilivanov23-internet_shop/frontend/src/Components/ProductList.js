@@ -4,7 +4,6 @@ import { Card, Button } from '../../node_modules/react-bootstrap';
 import PropTypes from '../../node_modules/prop-types';
 import { BrowserRouter as Router, Switch, Route, Link } from '../../node_modules/react-router-dom'
 import ProductDetails from './ProductDetails'
-import Home from './Home'
 
 class ProductList extends React.Component {
 

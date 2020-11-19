@@ -10,7 +10,8 @@ def createTables(cur, connection):
         "first_name" text,
         "last_name" text,
         "email_address" text,
-        "password" text
+        "password" text,
+        "cart_id" bigserial UNIQUE
     );
 
     CREATE TABLE IF NOT EXISTS products (
@@ -192,4 +193,4 @@ if __name__ == '__main__':
     cur = connection.cursor()
 
     createTables(cur, connection)
-    #loadData(cur, connection)
+    loadData(cur, connection)

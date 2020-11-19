@@ -93,24 +93,6 @@ class Home extends React.Component{
         <div className={"App"} style={{display : 'flex', flexDirection : 'row', flex : 1, flexWrap : 'wrap'}}>
           <ProductList products={this.state.products}/>
         </div>
-
-        <ReactPaginate
-            previousLabel={'← Previous'}
-            nextLabel={'Next →'}
-            pageCount={this.state.page_count}
-            pageRangeDisplayed={5}
-            onPageChange={this.handlePageClick}
-            breakClassName={'page-item'}
-            breakLinkClassName={'page-link'}
-            containerClassName={'pagination'}
-            pageClassName={'page-item'}
-            pageLinkClassName={'page-link'}
-            previousClassName={'page-item'}
-            previousLinkClassName={'page-link'}
-            nextClassName={'page-item'}
-            nextLinkClassName={'page-link'}
-            activeClassName={'active'}
-        />
       </div>
     );
   }

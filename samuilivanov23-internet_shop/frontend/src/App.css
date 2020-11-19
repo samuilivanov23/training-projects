@@ -2,7 +2,7 @@
   text-align: center;
 }
 
-.product-card{
+.product-card {
   margin-top: 4em;
   margin-bottom: 4em;
   margin-right: 4em;
@@ -12,6 +12,23 @@
 .pagination {
   margin-top: 1em;
   justify-content: center;
+}
+
+.form-width {
+  width: 50%;
+  text-align: center;
+}
+
+.form-container {
+  text-align: center;
+  position: relative;
+  margin-top: 2em;
+}
+
+.form-center {
+  margin: 0;
+  position: absolute;
+  left: 35%;
 }
 
 .App-logo {
