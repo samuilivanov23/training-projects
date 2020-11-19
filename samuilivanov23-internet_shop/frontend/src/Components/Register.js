@@ -2,8 +2,7 @@ import '../App.css';
 import React from 'react';
 import { useState } from 'react';
 import { Form, InputGroup, Button } from '../../node_modules/react-bootstrap';
-
-
+import JsonRpcClient from '../../node_modules/react-jsonrpc-client/jsonrpcclient';
 
 function Register () {
 
@@ -20,23 +19,43 @@ function Register () {
         }
         else{
             console.log('Allowing to register');
-
-            console.log(form_data.password.value);
-            console.log(form_data.confirm_password.value);
             
             if(form_data.password.value === form_data.confirm_password.value){
                 //ADD user
                 console.log('Adding user');
+                insertUser(form_data.first_name.value,
+                           form_data.last_name.value,
+                           form_data.email_address.value,
+                           form_data.password.value);
             }
             else {
                 event.preventDefault();
-                event.stopPropagation();    
+                event.stopPropagation();
                 alert('Passwords must match');
             }
         }
 
         setValidated(true);  
     };
+
+    const insertUser = (first_name, last_name, email_address, password) => {
+        var django_rpc = new JsonRpcClient({
+            endpoint: 'http://127.0.0.1:8000/shop/rpc/',
+        });
+      
+        django_rpc.request(
+            "RegisterUser",
+            first_name,
+            last_name,
+            email_address,
+            password,
+        ).then(function(response){
+            let json_response = JSON.parse(response);
+            alert(json_response['msg'])
+        }).catch(function(error){
+            alert(error['msg'])
+        });
+    }
 
     return (
         <div className={'form-container'}>

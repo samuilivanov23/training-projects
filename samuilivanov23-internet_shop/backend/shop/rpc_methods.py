@@ -96,3 +96,40 @@ def AddProductToCart(product_id, selected_count, product_count):
         response = {'status' : 'Fail', 'msg' : 'Select lesser count'}
     
     return response
+
+@rpc_method
+def RegisterUser(first_name, last_name, email_address, password):
+    #Connect to database
+    try:
+        connection = psycopg2.connect("dbname='" + onlineShop_dbname + 
+                                    "' user='" + onlineShop_dbuser + 
+                                    "' password='" + onlineShop_dbpassword + "'")
+
+        connection.autocommit = True
+        cur = connection.cursor()
+    except Exception as e:
+        print(e)
+    
+    try:
+        print(first_name)
+        print(last_name)
+        print(email_address)
+        print(password)
+
+        sql = 'insert into users (first_name, last_name, email_address, password) values(%s, %s, %s, %s)'
+        cur.execute(sql, (str(first_name), str(last_name), str(email_address), str(password)))
+        connection.commit()
+
+        response = {'status': 'OK', 'msg' : 'Successful'}
+        response = json.dumps(response)
+    except Exception as e:
+        print(e)
+        response = {'status': 'Fail', 'msg' : 'Unable to register user'}
+        response = json.dumps(response)
+    
+    if(connection):
+        cur.close()
+        connection.close()
+    
+    print(response)
+    return response

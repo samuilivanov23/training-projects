@@ -3,7 +3,6 @@ import React from 'react';
 import {Card, Button } from '../../node_modules/react-bootstrap';
 import PropTypes from '../../node_modules/prop-types';
 import JsonRpcClient from '../../node_modules/react-jsonrpc-client/jsonrpcclient'
-import {BrowserRouter as Router, Switch, Route, Link} from '../../node_modules/react-router-dom'
 
 class ProductDetails extends React.Component {
 
@@ -55,10 +54,6 @@ class ProductDetails extends React.Component {
     }
 
     addProductToCart = (product_id, selected_count, product_count) => {
-        console.log('current product');
-        console.log(product_id);
-        console.log(selected_count);
-
         var django_rpc = new JsonRpcClient({
             endpoint: 'http://127.0.0.1:8000/shop/rpc/',
         });

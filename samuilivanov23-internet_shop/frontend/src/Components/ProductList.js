@@ -20,9 +20,6 @@ class ProductList extends React.Component {
     }
 
     getCurrentProduct = (current_product) => {
-        console.log('current product');
-        console.log(current_product);
-
         this.setState({ product: current_product })
     }
 
