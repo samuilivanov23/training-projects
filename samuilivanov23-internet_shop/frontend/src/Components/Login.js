@@ -35,9 +35,6 @@ function Login (props) {
             //TODO: ADD email/password data validation 
             logInUser(form_data.email_address.value, form_data.password.value);
             console.log(userInfo);
-            console.log(props.history.location);
-            props.history.push("/products");
-            console.log(props.history.location);
         }
 
         setValidated(true);
@@ -47,24 +44,31 @@ function Login (props) {
         var django_rpc = new JsonRpcClient({
             endpoint: 'http://127.0.0.1:8000/shop/rpc/',
         });
+
+        console.log('email: ' + email_address);
+        console.log('pass: ' + [password]);
       
         django_rpc.request(
             "LoginUser",
             email_address,
             password,
         ).then(function(response){
-            let json_response = JSON.parse(response);
-            
-            let username = json_response.userInfo.username;
-            let user_email_address = json_response.userInfo.email_address;
-            let user_cart_id = json_response.userInfo.cart_id;
-            let cart_products_data = json_response.cart_products;
+            let username = response.userInfo.username;
+            let user_email_address = response.userInfo.email_address;
+            let user_cart_id = response.userInfo.cart_id;
+            let cart_products_data = response.cart_products;
 
             dispatch(SignIn(username, user_email_address, user_cart_id));
             dispatch(AllCartProducts(user_cart_id, cart_products_data));
-            alert(json_response['msg'])
+
+            console.log(props.history.location);
+            if(username != 'init'){
+                props.history.push("/products");
+            }
+            console.log(props.history.location);
+
+            alert(response['msg'])
         }).catch(function(error){
-            console.log(error);
             alert(error['msg'])
         });
     }

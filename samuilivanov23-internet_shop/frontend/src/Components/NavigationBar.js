@@ -20,13 +20,13 @@ function NavigationBar() {
     }
 
     const generateLoginLink = () => {
-        if(userInfo.username === 'init'){
+        if(userInfo.username === 'init' || typeof(userInfo.username) === 'undefined'){
             return <Link className={'nav-link'} to="/login">Login</Link>;
         }
     }
 
     const generateCartLink = () => {
-        if(userInfo.username !== 'init'){
+        if(userInfo.username !== 'init' && typeof(userInfo.username) != 'undefined'){
             const elements = []
             elements.push(<Link key={1} className={'nav-link'} to="/cart">Cart</Link>);
             elements.push(<p key={0} style={{'color' : 'white', 'marginTop' : '0.5em'}}> Hello {userInfo.username} </p>);

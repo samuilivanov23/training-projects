@@ -34,12 +34,12 @@ def GetCartProductsJSON(records):
     cart_products = []
 
     while i < len(records):
-        product_id = records[i][0]
-        selected_count = records[i][1]
-
         cart_products.append({
-            'product_id' : product_id,
-            'selected_count' : selected_count
+            'id' : records[i][0],
+            'name' : records[i][1],
+            'description' : records[i][2],
+            'price' : records[i][3],
+            'selected_count' : records[i][4]
         })
         
         i+=1
@@ -160,7 +160,19 @@ def LoginUser(email_address, password):
     except Exception as e:
         print(e)
     
+    init_user_info = {
+        'username' : 'init',
+        'email_address' : 'init',
+        'cart_id' : 0,
+    };
+
+    init_cart_info = {
+        'cart_id' : 0,
+        'cart_products_data' : [],
+    }
+    
     try:
+        print(email_address, password)
         sql = 'select username, cart_id from users where email_address=%s and password=%s'
         cur.execute(sql, (email_address, password))
 
@@ -176,7 +188,9 @@ def LoginUser(email_address, password):
                 'cart_id' : user_cart_id
             }
 
-            sql = 'select product_id, count from carts_products where cart_id=%s'
+            sql ='''select cp.product_id, p.name, p.description, p.price, cp.count from carts_products as cp 
+                    join products as p on cp.product_id=p.id where cp.cart_id=%s'''
+
             cur.execute(sql, (user_cart_id, ))
             records = cur.fetchall()
 
@@ -184,18 +198,19 @@ def LoginUser(email_address, password):
                 cart_products_data = GetCartProductsJSON(records);
                 response = {'status': 'OK', 'msg' : 'Successful', 'userInfo' : sign_in_user, 'cart_products' : cart_products_data}
             else:
-                response = {'status': 'OK', 'msg' : 'Successful', 'userInfo' : sign_in_user, 'cart_products' : ''}
+                response = {'status': 'OK', 'msg' : 'Successful', 'userInfo' : sign_in_user, 'cart_products' : c}
         else:
-            response = {'status': 'Fail', 'msg' : 'User does not exist', 'userInfo' : '', 'cart_products' : ''}
+            response = {'status': 'Fail', 'msg' : 'User does not exist', 'userInfo' : init_user_info, 'cart_products' : init_cart_info}
 
     except Exception as e:
         print(e)
-        response = {'status': 'Fail', 'msg' : 'Unable to login user', 'userInfo' : '', 'cart_products' : ''}
-
+        response = {'status': 'Fail', 'msg' : 'Unable to login user', 'userInfo' : init_user_info, 'cart_products' : init_cart_info}
+    
     if(connection):
         cur.close()
         connection.close()
     
-    response = json.dumps(response)
+    print(response)
+    #response = json.dumps(response)
     print(response)
     return response
