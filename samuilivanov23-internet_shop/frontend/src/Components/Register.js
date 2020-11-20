@@ -32,12 +32,12 @@ function Register () {
             console.log('Allowing to register');
             
             if(form_data.password.value === form_data.confirm_password.value){
-                //ADD user
                 console.log('Adding user');
                 insertUser(form_data.first_name.value,
-                                        form_data.last_name.value,
-                                        form_data.email_address.value,
-                                        form_data.password.value);
+                           form_data.last_name.value,
+                           form_data.username.value,
+                           form_data.email_address.value,
+                           form_data.password.value);
             }
             else {
                 event.preventDefault();
@@ -49,7 +49,7 @@ function Register () {
         setValidated(true);  
     };
 
-    const insertUser = (first_name, last_name, email_address, password) => {
+    const insertUser = (first_name, last_name, username, email_address, password) => {
         var django_rpc = new JsonRpcClient({
             endpoint: 'http://127.0.0.1:8000/shop/rpc/',
         });
@@ -58,6 +58,7 @@ function Register () {
             "RegisterUser",
             first_name,
             last_name,
+            username,
             email_address,
             password,
         ).then(function(response){

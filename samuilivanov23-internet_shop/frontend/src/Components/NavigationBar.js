@@ -11,7 +11,8 @@ function NavigationBar() {
                 <Nav.Link href="#tags">Categories</Nav.Link>
             </Nav>
             <Nav className="ml-auto">
-            <Nav.Link href="/register">Register</Nav.Link>
+                <Nav.Link href="/register">Register</Nav.Link>
+                <Nav.Link href="/login">Login</Nav.Link>
                 <Nav.Link href="#cart">Cart</Nav.Link>
             </Nav>
         </Navbar>

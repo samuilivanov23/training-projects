@@ -5,7 +5,7 @@ from internet_shop.dbconfig import onlineShop_dbname, onlineShop_dbuser, onlineS
 
 def GenerateJsonFromQueryResult(records):
     i = 0
-    products = {'data':[]}
+    products = {'status' : 'OK', 'msg' : 'Successful', 'data':[]}
     print('PRODUCTS LEN: ' + str(len(records)))
 
     while i < len(records):
@@ -47,19 +47,20 @@ def GetProducts(offset, products_per_page):
         records = cur.fetchall()
 
         response_data = GenerateJsonFromQueryResult(records)
-        data_json = json.dumps(response_data)
     except Exception as e:
+        response_data = {'status' : 'Fail', 'msg' : 'Unable to get products', 'data':[]}
         print(e)
     
     if(connection):
         cur.close()
         connection.close()
     
+    data_json = json.dumps(response_data)
     return data_json
 
 @rpc_method
-def AddProductToCart(product_id, selected_count, product_count):
-    if selected_count < product_count:
+def AddProductToCart(product_id, selected_count, product_count, cart_id):
+    if int(selected_count) < int(product_count):
         #Connect to database
         try:
             connection = psycopg2.connect("dbname='" + onlineShop_dbname + 
@@ -73,32 +74,26 @@ def AddProductToCart(product_id, selected_count, product_count):
         
         #Add product to cart
         try:
-            sql = 'insert into carts default values RETURNING id'
-            cur.execute(sql,)
-            cart_id = cur.fetchone()[0]
-            connection.commit()
-
             sql = 'insert into carts_products (cart_id, product_id, count) values(%s, %s, %s)'
             cur.execute(sql, (cart_id, product_id, selected_count))
             connection.commit()
 
             response = {'status': 'OK', 'msg' : 'Successful'}
-            response = json.dumps(response)
         except Exception as e:
             print(e)
             response = {'status': 'Fail', 'msg' : 'Unable to add product to cart'}
-            response = json.dumps(response)
         
         if(connection):
             cur.close()
             connection.close()
-    else: 
+    else:
         response = {'status' : 'Fail', 'msg' : 'Select lesser count'}
     
+    response = json.dumps(response)
     return response
 
 @rpc_method
-def RegisterUser(first_name, last_name, email_address, password):
+def RegisterUser(first_name, last_name, username, email_address, password):
     #Connect to database
     try:
         connection = psycopg2.connect("dbname='" + onlineShop_dbname + 
@@ -116,20 +111,64 @@ def RegisterUser(first_name, last_name, email_address, password):
         cart_id = cur.fetchone()[0]
         connection.commit()
 
-        sql = 'insert into users (first_name, last_namee, email_address, password, cart_id) values(%s, %s, %s, %s, %s)'
-        cur.execute(sql, (first_name, last_name, email_address, password, cart_id))
+        sql = 'insert into users (first_name, last_name, username, email_address, password, cart_id) values(%s, %s, %s, %s, %s, %s)'
+        cur.execute(sql, (first_name, last_name, username, email_address, password, cart_id))
         connection.commit()
 
         response = {'status': 'OK', 'msg' : 'Successful'}
-        response = json.dumps(response)
     except Exception as e:
         print(e)
         response = {'status': 'Fail', 'msg' : 'Unable to register user'}
-        response = json.dumps(response)
     
     if(connection):
         cur.close()
         connection.close()
     
+    response = json.dumps(response)
+    print(response)
+    return response
+
+
+@rpc_method
+def LoginUser(email_address, password):
+    #Connect to database
+    try:
+        connection = psycopg2.connect("dbname='" + onlineShop_dbname + 
+                                    "' user='" + onlineShop_dbuser + 
+                                    "' password='" + onlineShop_dbpassword + "'")
+
+        connection.autocommit = True
+        cur = connection.cursor()
+    except Exception as e:
+        print(e)
+    
+    try:
+        sql = 'select * from users where email_address=%s and password=%s'
+        cur.execute(sql, (email_address, password))
+
+        user_record = cur.fetchone()
+        username = user_record[3]
+
+        if not username == '':
+            user_cart_id = user_record[6]
+
+            singInUser = {
+                'username' : username,
+                'email_address' : email_address,
+                'cart_id' : user_cart_id
+            }
+            response = {'status': 'OK', 'msg' : 'Successful', 'userInfo' : singInUser}
+        else:
+            response = {'status': 'Fail', 'msg' : 'User does not exist', 'userInfo' : ''}
+
+    except Exception as e:
+        print(e)
+        response = {'status': 'Fail', 'msg' : 'Unable to login user', 'userInfo' : ''}
+
+    if(connection):
+        cur.close()
+        connection.close()
+    
+    response = json.dumps(response)
     print(response)
     return response
