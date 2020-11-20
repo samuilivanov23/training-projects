@@ -4,6 +4,9 @@ import { signInUserReducer } from './reducers/UserReducers';
 
 //Set initial redux state
 const userInfo = {
+    // id : '',
+    // first_name : 'Adam',
+    // last_name : 'Nagaiti',
     username : 'init',
     email_address : 'init',
     cart_id : 0,

@@ -1,7 +1,6 @@
 import '../App.css';
 import React from 'react';
 import {Card, Button } from '../../node_modules/react-bootstrap';
-import PropTypes from '../../node_modules/prop-types';
 import JsonRpcClient from '../../node_modules/react-jsonrpc-client/jsonrpcclient';
 import { useSelector } from 'react-redux';
 import { useState, useEffect } from 'react';
@@ -14,6 +13,8 @@ function ProductDetails (props) {
     const signInUser = useSelector(state=>state.signInUser);
     const { userInfo } = signInUser;
     console.log(userInfo);
+
+    console.log(props);
 
     const checkProductInStock = (product) => {
         if(product['count'] > 0){
@@ -71,7 +72,7 @@ function ProductDetails (props) {
                 <Card.Body>
                     <Card.Title>Name: {props.product['name']}</Card.Title>
                     <Card.Text>Description: {props.product['description']}</Card.Text>
-                    <Card.Text>Price: {props.product['price']} lv.</Card.Text>
+                    <Card.Text>Price: {props.product['price']} BGN.</Card.Text>
                     <Card.Text>{in_stock}</Card.Text>
                     
                     <select style={{marginRight : '1em'}} name={'selected_count'} value={selected_count} onChange={changeProductSelectCount}>

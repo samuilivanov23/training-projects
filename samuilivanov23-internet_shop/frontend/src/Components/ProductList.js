@@ -38,7 +38,7 @@ class ProductList extends React.Component {
                                     <Card.Title>Name: {product['name']}</Card.Title>
 
                                     <Card.Text>Description: {product['description']}</Card.Text>
-                                    <Card.Text>Price: {product['price']} lv.</Card.Text>
+                                    <Card.Text>Price: {product['price']} BGN.</Card.Text>
 
                                     <Button>
                                         <Link style={{color:'white'}} to={`/products/${product['id']}`} onClick={() => this.getCurrentProduct(product)}>

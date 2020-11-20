@@ -53,10 +53,13 @@ function Login (props) {
             password,
         ).then(function(response){
             let json_response = JSON.parse(response);
-
+            
             let username = json_response.userInfo.username;
             let user_email_address = json_response.userInfo.email_address;
             let user_cart_id = json_response.userInfo.cart_id;
+
+            let product_id = Object.keys(json_response.cart_products[0])[0];
+            console.log(product_id);
 
             dispatch(SignIn(username, user_email_address, user_cart_id));
             alert(json_response['msg'])

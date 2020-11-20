@@ -72,6 +72,10 @@ class Home extends React.Component{
 
     return (
       <div>
+        <div className={"App"} style={{display : 'flex', flexDirection : 'row', flex : 1, flexWrap : 'wrap'}}>
+          <ProductList products={this.state.products}/>
+        </div>
+
         <ReactPaginate
             previousLabel={'← Previous'}
             nextLabel={'Next →'}
@@ -89,10 +93,6 @@ class Home extends React.Component{
             nextLinkClassName={'page-link'}
             activeClassName={'active'}
         />
-
-        <div className={"App"} style={{display : 'flex', flexDirection : 'row', flex : 1, flexWrap : 'wrap'}}>
-          <ProductList products={this.state.products}/>
-        </div>
       </div>
     );
   }

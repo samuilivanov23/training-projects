@@ -3,7 +3,7 @@ import json
 import psycopg2
 from internet_shop.dbconfig import onlineShop_dbname, onlineShop_dbuser, onlineShop_dbpassword
 
-def GenerateJsonFromQueryResult(records):
+def GetAllProductsJSON(records):
     i = 0
     products = {'status' : 'OK', 'msg' : 'Successful', 'data':[]}
     print('PRODUCTS LEN: ' + str(len(records)))
@@ -27,6 +27,23 @@ def GenerateJsonFromQueryResult(records):
     
     return products
 
+# This method takes the records from the carts_products table for a specific car
+# and returns a dictionary list with product_id as key and selected product count as value 
+def GetCartProductsJSON(records):
+    i = 0
+    cart_products = []
+
+    while i < len(records):
+        product_id = records[i][0]
+        selected_count = records[i][1]
+
+        cart_products.append({
+            str(product_id) : selected_count
+        })
+        
+        i+=1
+    return cart_products
+
 @rpc_method
 def GetProducts(offset, products_per_page):
     #Connect to database
@@ -46,17 +63,17 @@ def GetProducts(offset, products_per_page):
         cur.execute(sql, (offset, products_per_page,))
         records = cur.fetchall()
 
-        response_data = GenerateJsonFromQueryResult(records)
+        response = GetAllProductsJSON(records) #this function returns the response
     except Exception as e:
-        response_data = {'status' : 'Fail', 'msg' : 'Unable to get products', 'data':[]}
+        response = {'status' : 'Fail', 'msg' : 'Unable to get products', 'data':[]}
         print(e)
     
     if(connection):
         cur.close()
         connection.close()
     
-    data_json = json.dumps(response_data)
-    return data_json
+    response = json.dumps(response)
+    return response
 
 @rpc_method
 def AddProductToCart(product_id, selected_count, product_count, cart_id):
@@ -143,27 +160,36 @@ def LoginUser(email_address, password):
         print(e)
     
     try:
-        sql = 'select * from users where email_address=%s and password=%s'
+        sql = 'select username, cart_id from users where email_address=%s and password=%s'
         cur.execute(sql, (email_address, password))
 
         user_record = cur.fetchone()
-        username = user_record[3]
+        username = user_record[0]
 
         if not username == '':
-            user_cart_id = user_record[6]
+            user_cart_id = user_record[1]
 
-            singInUser = {
+            sign_in_user = {
                 'username' : username,
                 'email_address' : email_address,
                 'cart_id' : user_cart_id
             }
-            response = {'status': 'OK', 'msg' : 'Successful', 'userInfo' : singInUser}
+
+            sql = 'select product_id, count from carts_products where cart_id=%s'
+            cur.execute(sql, (user_cart_id, ))
+            records = cur.fetchall()
+
+            if len(records) > 0:
+                cart_products_data = GetCartProductsJSON(records);
+                response = {'status': 'OK', 'msg' : 'Successful', 'userInfo' : sign_in_user, 'cart_products' : cart_products_data}
+            else:
+                response = {'status': 'OK', 'msg' : 'Successful', 'userInfo' : sign_in_user, 'cart_products' : ''}
         else:
-            response = {'status': 'Fail', 'msg' : 'User does not exist', 'userInfo' : ''}
+            response = {'status': 'Fail', 'msg' : 'User does not exist', 'userInfo' : '', 'cart_products' : ''}
 
     except Exception as e:
         print(e)
-        response = {'status': 'Fail', 'msg' : 'Unable to login user', 'userInfo' : ''}
+        response = {'status': 'Fail', 'msg' : 'Unable to login user', 'userInfo' : '', 'cart_products' : ''}
 
     if(connection):
         cur.close()
