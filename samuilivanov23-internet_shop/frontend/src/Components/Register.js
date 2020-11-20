@@ -153,7 +153,7 @@ function Register () {
                 <Form.Label>Password</Form.Label>
                 <Form.Control
                     required
-                    type="text"
+                    type="password"
                     name="password"
                     placeholder="Password"
                     defaultValue=""
@@ -170,7 +170,7 @@ function Register () {
                 <Form.Label>Confirm password</Form.Label>
                 <Form.Control
                     required
-                    type="text"
+                    type="password"
                     name="confirm_password"
                     placeholder="Confirm password"
                     defaultValue=""
