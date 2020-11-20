@@ -6,6 +6,7 @@ import NavigationBar from './Components/NavigationBar';
 import Register from './Components/Register';
 import Login from './Components/Login';
 import { Route, BrowserRouter as Router } from '../node_modules/react-router-dom';
+import CartProductList from './Components/CartProductList';
 
 function App (props) {
   return(
@@ -15,6 +16,7 @@ function App (props) {
         <Route path={"/products"} render={(props) => <Home per_page={20}/>} />
         <Route path={"/register"} render={(props) => <Register/>} />
         <Route path={"/login"} render={(props) => <Login {...props} />} />
+        <Route path={"/cart"} render={(props) => <CartProductList {...props} />} />
       </Router>      
     </div>
   );

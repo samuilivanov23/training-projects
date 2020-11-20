@@ -44,9 +44,6 @@ function Login (props) {
         var django_rpc = new JsonRpcClient({
             endpoint: 'http://127.0.0.1:8000/shop/rpc/',
         });
-
-        console.log('email: ' + email_address);
-        console.log('pass: ' + [password]);
       
         django_rpc.request(
             "LoginUser",
