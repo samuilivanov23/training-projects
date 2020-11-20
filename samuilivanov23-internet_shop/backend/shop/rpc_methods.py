@@ -170,7 +170,7 @@ def LoginUser(email_address, password):
         'cart_id' : 0,
         'cart_products_data' : [],
     }
-    
+
     try:
         print(email_address, password)
         sql = 'select username, cart_id from users where email_address=%s and password=%s'
@@ -188,7 +188,7 @@ def LoginUser(email_address, password):
                 'cart_id' : user_cart_id
             }
 
-            sql ='''select cp.product_id, p.name, p.description, p.price, cp.count from carts_products as cp 
+            sql ='''select cp.product_id, p.name, p.description, p.price, cp.count from carts_products as cp
                     join products as p on cp.product_id=p.id where cp.cart_id=%s'''
 
             cur.execute(sql, (user_cart_id, ))
@@ -198,7 +198,7 @@ def LoginUser(email_address, password):
                 cart_products_data = GetCartProductsJSON(records);
                 response = {'status': 'OK', 'msg' : 'Successful', 'userInfo' : sign_in_user, 'cart_products' : cart_products_data}
             else:
-                response = {'status': 'OK', 'msg' : 'Successful', 'userInfo' : sign_in_user, 'cart_products' : c}
+                response = {'status': 'OK', 'msg' : 'Successful', 'userInfo' : sign_in_user, 'cart_products' : init_cart_info}
         else:
             response = {'status': 'Fail', 'msg' : 'User does not exist', 'userInfo' : init_user_info, 'cart_products' : init_cart_info}
 
