@@ -38,7 +38,8 @@ def GetCartProductsJSON(records):
         selected_count = records[i][1]
 
         cart_products.append({
-            str(product_id) : selected_count
+            'product_id' : product_id,
+            'selected_count' : selected_count
         })
         
         i+=1

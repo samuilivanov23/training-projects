@@ -10,11 +10,12 @@ function ProductDetails (props) {
     const [in_stock, set_in_stock] = useState('');
     const [selected_count, set_selected_count] = useState(1);
 
-    const signInUser = useSelector(state=>state.signInUser);
-    const { userInfo } = signInUser;
+    // const signInUser = useSelector(state=>state.signInUser);
+    const { userInfo } = useSelector(state=>state.signInUser);
     console.log(userInfo);
 
-    console.log(props);
+    const { cartInfo } = useSelector(state=>state.cartProducts);
+    console.log(cartInfo);
 
     const checkProductInStock = (product) => {
         if(product['count'] > 0){

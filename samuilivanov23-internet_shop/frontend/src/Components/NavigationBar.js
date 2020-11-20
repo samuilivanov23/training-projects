@@ -29,7 +29,7 @@ function NavigationBar() {
         if(userInfo.username !== 'init'){
             const elements = []
             elements.push(<Link key={1} className={'nav-link'} to="/cart">Cart</Link>);
-            elements.push(<p key={0} style={{'color' : 'white', 'margin-top' : '0.5em'}}> Hello {userInfo.username} </p>);
+            elements.push(<p key={0} style={{'color' : 'white', 'marginTop' : '0.5em'}}> Hello {userInfo.username} </p>);
 
             return elements;
         }

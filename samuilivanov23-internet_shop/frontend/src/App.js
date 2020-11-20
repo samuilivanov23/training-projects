@@ -8,12 +8,6 @@ import Login from './Components/Login';
 import { Route, BrowserRouter as Router } from '../node_modules/react-router-dom';
 
 function App (props) {
-
-  const signInUser = useSelector(state => state.signInUser);
-  const { userInfo } = signInUser;
-
-  
-
   return(
     <div>
       <Router>

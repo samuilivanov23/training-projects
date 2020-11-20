@@ -6,6 +6,7 @@ import { Form, Button } from '../../node_modules/react-bootstrap';
 import { Link } from '../../node_modules/react-router-dom';
 import JsonRpcClient from '../../node_modules/react-jsonrpc-client/jsonrpcclient';
 import { SignIn } from './actions/UserActions';
+import { AllCartProducts } from './actions/CartActions';
 
 
 function Login (props) {
@@ -57,11 +58,10 @@ function Login (props) {
             let username = json_response.userInfo.username;
             let user_email_address = json_response.userInfo.email_address;
             let user_cart_id = json_response.userInfo.cart_id;
-
-            let product_id = Object.keys(json_response.cart_products[0])[0];
-            console.log(product_id);
+            let cart_products_data = json_response.cart_products;
 
             dispatch(SignIn(username, user_email_address, user_cart_id));
+            dispatch(AllCartProducts(user_cart_id, cart_products_data));
             alert(json_response['msg'])
         }).catch(function(error){
             console.log(error);

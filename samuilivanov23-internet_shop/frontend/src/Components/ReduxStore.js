@@ -1,21 +1,25 @@
 import { createStore, combineReducers, applyMiddleware } from 'redux';
 import thunk from 'redux-thunk';
 import { signInUserReducer } from './reducers/UserReducers';
+import { AllCartProductsReducer } from './reducers/CartReducers';
 
 //Set initial redux state
 const userInfo = {
-    // id : '',
-    // first_name : 'Adam',
-    // last_name : 'Nagaiti',
     username : 'init',
     email_address : 'init',
     cart_id : 0,
 };
 
-const initial_state = { signInUser : {userInfo} };
+const cartInfo = {
+    cart_id : 0,
+    cart_products_data : [],
+}
+
+const initial_state = { signInUser : {userInfo}, cartProducts : {cartInfo}};
 
 const reducer = combineReducers({
     signInUser : signInUserReducer,
+    cartProducts : AllCartProductsReducer,
 });
 
 const store = createStore(
