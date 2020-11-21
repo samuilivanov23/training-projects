@@ -2,6 +2,7 @@ from modernrpc.core import rpc_method
 import json
 import psycopg2
 from internet_shop.dbconfig import onlineShop_dbname, onlineShop_dbuser, onlineShop_dbpassword
+import traceback
 
 def GetAllProductsJSON(records):
     i = 0
@@ -89,25 +90,40 @@ def AddProductToCart(product_id, selected_count, product_count, cart_id):
             cur = connection.cursor()
         except Exception as e:
             print(e)
-        
+
         #Add product to cart
         try:
             sql = 'insert into carts_products (cart_id, product_id, count) values(%s, %s, %s)'
             cur.execute(sql, (cart_id, product_id, selected_count))
             connection.commit()
 
-            response = {'status': 'OK', 'msg' : 'Successful'}
+            sql = 'select name, description, price from products where id=%s'
+            cur.execute(sql, (product_id, ))
+            product_record = cur.fetchone()
+            product_name = product_record[0]
+            product_description = product_record[1]
+            product_price = product_record[2]
+
+            product_to_add_data = {
+                'id' : product_id,
+                'name' : product_name,
+                'description' : product_description,
+                'price' : product_price,
+                'selected_count' : selected_count
+            }
+
+            response = {'status': 'OK', 'msg' : 'Successful', 'product_to_add' : product_to_add_data}
         except Exception as e:
-            print(e)
-            response = {'status': 'Fail', 'msg' : 'Unable to add product to cart'}
+            print(traceback.format_exc())
+            response = {'status': 'Fail', 'msg' : 'Unable to add product to cart', 'product_to_add' : {}}
         
         if(connection):
             cur.close()
             connection.close()
     else:
-        response = {'status' : 'Fail', 'msg' : 'Select lesser count'}
-    
-    response = json.dumps(response)
+        response = {'status' : 'Fail', 'msg' : 'Select lesser count', 'product_to_add' : {}}
+
+    print(response)
     return response
 
 @rpc_method
@@ -167,10 +183,7 @@ def LoginUser(email_address, password):
         'cart_id' : 0,
     }
 
-    init_cart_info = {
-        'cart_id' : 0,
-        'cart_products_data' : [],
-    }
+    init_cart_info = []
 
     try:
         print(email_address, password)

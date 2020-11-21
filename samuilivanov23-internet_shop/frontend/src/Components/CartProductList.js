@@ -12,7 +12,7 @@ function CartProductList (props) {
     return(
         <Card style={{ width: '70rem', margin: '0.5em' }}>
             {cartInfo.cart_products_data.map(product => (
-                <CartProduct key={product.product_id}product={product}/>    
+                <CartProduct key={product.product_id} product={product}/>    
             ))}
         </Card>
     );

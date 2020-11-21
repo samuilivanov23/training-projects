@@ -2,8 +2,9 @@ import '../App.css';
 import React from 'react';
 import {Card, Button } from '../../node_modules/react-bootstrap';
 import JsonRpcClient from '../../node_modules/react-jsonrpc-client/jsonrpcclient';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { useState, useEffect } from 'react';
+import { AddProductToCart } from './actions/CartActions';
 
 function ProductDetails (props) {
 
@@ -16,6 +17,8 @@ function ProductDetails (props) {
 
     const { cartInfo } = useSelector(state=>state.cartProducts);
     console.log(cartInfo);
+
+    const dispatch = useDispatch();
 
     const checkProductInStock = (product) => {
         if(product['count'] > 0){
@@ -44,8 +47,16 @@ function ProductDetails (props) {
             product_count,
             userInfo.cart_id,
         ).then(function(response){
-            let json_response = JSON.parse(response);
-            console.log(json_response);
+            console.log(response);
+
+            if(response.msg === 'Successful'){
+                let product_name = response.product_to_add.name;
+                let product_description = response.product_to_add.description;
+                let product_price = response.product_to_add.price;
+
+                dispatch(AddProductToCart(product_id, product_name, product_description, product_price, parseInt(selected_count)));
+            }
+
         }).catch(function(error){
             console.log(error);
         });

@@ -10,10 +10,7 @@ const userInfo = {
     cart_id : 0,
 };
 
-const cartInfo = {
-    cart_id : 0,
-    cart_products_data : [],
-}
+const cartInfo = []
 
 const initial_state = { signInUser : {userInfo}, cartProducts : {cartInfo}};
 

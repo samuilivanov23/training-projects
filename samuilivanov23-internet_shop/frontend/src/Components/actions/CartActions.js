@@ -1,8 +1,20 @@
-const AllCartProducts = (cart_id, cart_products_data) => async (dispatch) => {
+const AllCartProducts = (cart_products_data) => async (dispatch) => {
     console.log('AllCartProducts action');
-    console.log(cart_id);
-    console.log(cart_products_data);
-    dispatch({type : 'ADD_ALL_PRODUCTS_TO_CART', data: {cart_id, cart_products_data}});
+    dispatch({type : 'ADD_ALL_PRODUCTS_TO_CART', data: cart_products_data});
 }
 
-export {AllCartProducts}
+const AddProductToCart = (id, name, description, price, selected_count) => async (dispatch) => {
+    console.log('AddProductToCart action');
+
+    dispatch( { type : 'ADD_PRODUCT_TO_CART', 
+                data: {
+                    id, 
+                    name, 
+                    description, 
+                    price, 
+                    selected_count
+                }
+    });
+}
+
+export { AllCartProducts, AddProductToCart }
