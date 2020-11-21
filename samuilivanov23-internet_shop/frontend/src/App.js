@@ -14,7 +14,7 @@ function App (props) {
       <Router>
         <Route path={"/"} render={(props) => <NavigationBar/>} />
         <Route path={"/products"} render={(props) => <Home per_page={20}/>} />
-        <Route path={"/register"} render={(props) => <Register/>} />
+        <Route path={"/register"} render={(props) => <Register {...props}/>} />
         <Route path={"/login"} render={(props) => <Login {...props} />} />
         <Route path={"/cart"} render={(props) => <CartProductList {...props} />} />
       </Router>      

@@ -112,6 +112,7 @@ def AddProductToCart(product_id, selected_count, product_count, cart_id):
 
 @rpc_method
 def RegisterUser(first_name, last_name, username, email_address, password):
+    DEFAULT_AUTHENTICATION_STATE = False
     #Connect to database
     try:
         connection = psycopg2.connect("dbname='" + onlineShop_dbname + 
@@ -129,8 +130,8 @@ def RegisterUser(first_name, last_name, username, email_address, password):
         cart_id = cur.fetchone()[0]
         connection.commit()
 
-        sql = 'insert into users (first_name, last_name, username, email_address, password, cart_id) values(%s, %s, %s, %s, %s, %s)'
-        cur.execute(sql, (first_name, last_name, username, email_address, password, cart_id))
+        sql = 'insert into users (first_name, last_name, username, email_address, password, authenticated, cart_id) values(%s, %s, %s, %s, %s, %s, %s)'
+        cur.execute(sql, (first_name, last_name, username, email_address, password, DEFAULT_AUTHENTICATION_STATE, cart_id))
         connection.commit()
 
         response = {'status': 'OK', 'msg' : 'Successful'}
@@ -164,7 +165,7 @@ def LoginUser(email_address, password):
         'username' : 'init',
         'email_address' : 'init',
         'cart_id' : 0,
-    };
+    }
 
     init_cart_info = {
         'cart_id' : 0,
@@ -195,7 +196,7 @@ def LoginUser(email_address, password):
             records = cur.fetchall()
 
             if len(records) > 0:
-                cart_products_data = GetCartProductsJSON(records);
+                cart_products_data = GetCartProductsJSON(records)
                 response = {'status': 'OK', 'msg' : 'Successful', 'userInfo' : sign_in_user, 'cart_products' : cart_products_data}
             else:
                 response = {'status': 'OK', 'msg' : 'Successful', 'userInfo' : sign_in_user, 'cart_products' : init_cart_info}
@@ -210,7 +211,5 @@ def LoginUser(email_address, password):
         cur.close()
         connection.close()
     
-    print(response)
-    #response = json.dumps(response)
     print(response)
     return response

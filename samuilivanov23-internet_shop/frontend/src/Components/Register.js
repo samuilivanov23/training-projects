@@ -6,7 +6,7 @@ import { Form, InputGroup, Button } from '../../node_modules/react-bootstrap';
 import JsonRpcClient from '../../node_modules/react-jsonrpc-client/jsonrpcclient';
 import { SignIn } from './actions/UserActions';
 
-function Register () {
+function Register (props) {
 
     const [validated, setValidated] = useState(false);
     const signInUser = useSelector(state=>state.signInUser);
@@ -20,13 +20,13 @@ function Register () {
     }
 
     const handleSubmit = (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        
         const form_data = event.currentTarget;
 
         if (form_data.checkValidity() === false) {
-            event.preventDefault();
-            event.stopPropagation();
-
-            console.log('Not allowing to register');
+            alert('Plese fill all input fileds!');
         }
         else{
             console.log('Allowing to register');
@@ -40,8 +40,6 @@ function Register () {
                            form_data.password.value);
             }
             else {
-                event.preventDefault();
-                event.stopPropagation();
                 alert('Passwords must match');
             }
         }
@@ -64,6 +62,9 @@ function Register () {
         ).then(function(response){
             let json_response = JSON.parse(response);
             alert(json_response['msg'])
+            if(json_response['msg'] === 'Successful'){
+                props.history.push('/login');
+            }
         }).catch(function(error){
             alert(error['msg'])
         });

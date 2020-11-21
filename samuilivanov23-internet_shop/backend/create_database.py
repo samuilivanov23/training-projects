@@ -11,7 +11,8 @@ def createTables(cur, connection):
         "last_name" text,
         "username" text,
         "email_address" text UNIQUE,
-        "password" text UNIQUE,
+        "password" text,
+        "authenticated" boolean,
         "cart_id" bigserial UNIQUE
     );
 
@@ -131,7 +132,7 @@ def createTables(cur, connection):
 def generateRandomNames(count):
     import random, string
     names = []
-    for i in range(count):
+    for _ in range(count):
         letters = string.ascii_lowercase
         name_length = random.randint(5, 10)
         name = ''.join(random.choice(letters) for i in range(name_length))
@@ -141,7 +142,7 @@ def generateRandomNames(count):
 
 def generateRandomDescriptions(count):
     descriptions = []
-    for i in range(count):
+    for _ in range(count):
         letters = string.ascii_lowercase + ' '
         description_length = random.randint(30, 40)
         description = ''.join(random.choice(letters) for i in range(description_length))

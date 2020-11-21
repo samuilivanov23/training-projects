@@ -60,7 +60,7 @@ function Login (props) {
 
             console.log(props.history.location);
             if(username != 'init'){
-                props.history.push("/products");
+                props.history.push('/products');
             }
             console.log(props.history.location);
 
