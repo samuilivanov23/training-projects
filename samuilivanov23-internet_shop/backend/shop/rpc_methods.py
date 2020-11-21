@@ -137,7 +137,7 @@ def RegisterUser(first_name, last_name, username, email_address, password):
         response = {'status': 'OK', 'msg' : 'Successful'}
     except Exception as e:
         print(e)
-        response = {'status': 'Fail', 'msg' : 'Unable to register user'}
+        response = {'status': 'Fail', 'msg' : 'Unable to register user - exception'}
     
     if(connection):
         cur.close()
@@ -178,9 +178,9 @@ def LoginUser(email_address, password):
         cur.execute(sql, (email_address, password))
 
         user_record = cur.fetchone()
-        username = user_record[0]
 
-        if not username == '':
+        if user_record:
+            username = user_record[0]
             user_cart_id = user_record[1]
 
             sign_in_user = {
@@ -201,11 +201,11 @@ def LoginUser(email_address, password):
             else:
                 response = {'status': 'OK', 'msg' : 'Successful', 'userInfo' : sign_in_user, 'cart_products' : init_cart_info}
         else:
-            response = {'status': 'Fail', 'msg' : 'User does not exist', 'userInfo' : init_user_info, 'cart_products' : init_cart_info}
+            response = {'status': 'Fail', 'msg' : 'User does not exist. Change Email/password.', 'userInfo' : init_user_info, 'cart_products' : init_cart_info}
 
     except Exception as e:
         print(e)
-        response = {'status': 'Fail', 'msg' : 'Unable to login user', 'userInfo' : init_user_info, 'cart_products' : init_cart_info}
+        response = {'status': 'Fail', 'msg' : 'Unable to login user - exception', 'userInfo' : init_user_info, 'cart_products' : init_cart_info}
     
     if(connection):
         cur.close()
