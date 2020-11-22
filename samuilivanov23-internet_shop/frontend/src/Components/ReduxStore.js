@@ -1,7 +1,8 @@
 import { createStore, combineReducers, applyMiddleware } from 'redux';
 import thunk from 'redux-thunk';
 import { signInUserReducer } from './reducers/UserReducers';
-import { AllCartProductsReducer } from './reducers/CartReducers';
+import { cartReducer } from './reducers/CartReducers';
+import { productReducer } from './reducers/ProductReducers';
 
 //Set initial redux state
 const userInfo = {
@@ -10,13 +11,23 @@ const userInfo = {
     cart_id : 0,
 };
 
-const cartInfo = []
+const cartInfo = [];
 
-const initial_state = { signInUser : {userInfo}, cartProducts : {cartInfo}};
+const productInfo = {
+    id : 0,
+    name : 'init',
+    description : 'init',
+    price : 0,
+    selected_count : 0,
+    count : 0,
+}
+
+const initial_state = { signInUser : {userInfo}, cartProducts : {cartInfo}, productDetails : {productInfo}};
 
 const reducer = combineReducers({
     signInUser : signInUserReducer,
-    cartProducts : AllCartProductsReducer,
+    cartProducts : cartReducer,
+    productDetails : productReducer,
 });
 
 const store = createStore(

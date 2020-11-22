@@ -19,7 +19,7 @@ class Home extends React.Component{
       offset : 0,
       page_count : 50, // ISSUE (hardcoded for testing purposes) : must not be hardcoded
     }
-  }
+  };
 
   loadProductsList(offset, products_per_page){
     var django_rpc = new JsonRpcClient({
@@ -52,7 +52,9 @@ class Home extends React.Component{
   }
 
   componentDidMount(){
+    console.log("state:");
     this.loadProductsList(0, this.props.per_page);
+    console.log(this.state)
   }
 
   handlePageClick = (products) => {
@@ -73,7 +75,7 @@ class Home extends React.Component{
     return (
       <div>
         <div className={"App"} style={{display : 'flex', flexDirection : 'row', flex : 1, flexWrap : 'wrap'}}>
-          <ProductList products={this.state.products}/>
+          <ProductList {...this.props} products={this.state.products}/>
         </div>
 
         <ReactPaginate

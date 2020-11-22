@@ -18,10 +18,13 @@ function ProductDetails (props) {
     const { cartInfo } = useSelector(state=>state.cartProducts);
     console.log(cartInfo);
 
+    const { productInfo } = useSelector(state=>state.productDetails);
+    console.log(productInfo);
+
     const dispatch = useDispatch();
 
-    const checkProductInStock = (product) => {
-        if(product['count'] > 0){
+    const checkProductInStock = () => {
+        if(productInfo.count > 0){
             set_in_stock('In stock');
         }
         else{
@@ -30,7 +33,7 @@ function ProductDetails (props) {
     }
 
     useEffect(() => {
-        checkProductInStock(props.product);
+        checkProductInStock();
     });
 
     const addProductToCart = (product_id, selected_count, product_count) => {
@@ -63,7 +66,8 @@ function ProductDetails (props) {
     }
 
     const changeProductSelectCount = (event) => {
-        set_selected_count(event.target.value);
+        console.log('Dispatch changeProductSelectedCount action');
+        //set_selected_count(event.target.value);
     }
 
     const generateCountSelectElements = (product_count) => {
@@ -76,15 +80,15 @@ function ProductDetails (props) {
         return options;
     }
 
-    const options = generateCountSelectElements(props.product['count']);
+    const options = generateCountSelectElements(productInfo.selected_count);
 
     return (
         <div>
-            <Card style={{ width: '36rem' }}>
+            <Card className={'product-details-card'} style={{ width: '36rem' }}>
                 <Card.Body>
-                    <Card.Title>Name: {props.product['name']}</Card.Title>
-                    <Card.Text>Description: {props.product['description']}</Card.Text>
-                    <Card.Text>Price: {props.product['price']} BGN.</Card.Text>
+                    <Card.Title>Name: {productInfo.name}</Card.Title>
+                    <Card.Text>Description: {productInfo.description}</Card.Text>
+                    <Card.Text>Price: {productInfo.price} BGN.</Card.Text>
                     <Card.Text>{in_stock}</Card.Text>
                     
                     <select style={{marginRight : '1em'}} name={'selected_count'} value={selected_count} onChange={changeProductSelectCount}>
