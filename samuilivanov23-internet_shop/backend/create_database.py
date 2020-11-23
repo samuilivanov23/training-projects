@@ -1,6 +1,8 @@
 import psycopg2
 from internet_shop.dbconfig import onlineShop_dbname, onlineShop_dbuser, onlineShop_dbpassword
 import random, string
+import custom_modules.modules as modules
+dbOperator = modules.DbOperations()
 
 def createTables(cur, connection):    
     command = ('''
@@ -22,7 +24,8 @@ def createTables(cur, connection):
         "description" text,
         "manufacturer_id" bigserial,
         "count" int,
-        "price" numeric
+        "price" numeric,
+        "image_path" text
     );
 
     CREATE TABLE IF NOT EXISTS carts(
@@ -132,6 +135,7 @@ def createTables(cur, connection):
 def generateRandomNames(count):
     import random, string
     names = []
+
     for _ in range(count):
         letters = string.ascii_lowercase
         name_length = random.randint(5, 10)
@@ -142,6 +146,7 @@ def generateRandomNames(count):
 
 def generateRandomDescriptions(count):
     descriptions = []
+
     for _ in range(count):
         letters = string.ascii_lowercase + ' '
         description_length = random.randint(30, 40)
@@ -152,9 +157,16 @@ def generateRandomDescriptions(count):
 
 def loadData(cur, connection):
     rows_count = 1000
-    manufacturers_names = generateRandomNames(rows_count)
-    products_names = generateRandomNames(rows_count)
-    descriptions = generateRandomDescriptions(rows_count)
+    #manufacturers_names = generateRandomNames(rows_count)
+    manufacturers_names = dbOperator.GenerateRandomNames(rows_count)
+
+    #products_names = generateRandomNames(rows_count)
+    products_names = dbOperator.GenerateRandomNames(rows_count)
+
+    #descriptions = generateRandomDescriptions(rows_count)
+    descriptions = dbOperator.GenerateRandomDescriptions(rows_count)
+
+    image_paths = dbOperator.GenerateImages(rows_count, 200, 300)
 
     for i in range(rows_count):
         try:
@@ -165,14 +177,15 @@ def loadData(cur, connection):
             print(e)
         
         try:
-            sql = 'insert into products (name, description, manufacturer_id, count, price) values(%s, %s, %s, %s, %s)'
+            sql = 'insert into products (name, description, manufacturer_id, count, price, image_path) values(%s, %s, %s, %s, %s, %s)'
             
             product_name = products_names[i]
             product_description = descriptions[i]
             product_count = random.randint(1, 20)
             product_price = round(random.uniform(50, 500), 2)
-            
-            cur.execute(sql, (product_name, product_description, manufacturer_id, product_count, product_price, ))
+            image_path = image_paths[i]
+
+            cur.execute(sql, (product_name, product_description, manufacturer_id, product_count, product_price, image_path, ))
         except Exception as e:
             print(e)
 
