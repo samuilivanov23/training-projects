@@ -10,7 +10,6 @@ import { SetSelectedCount } from './actions/ProductActions';
 function ProductDetails (props) {
 
     const [in_stock, set_in_stock] = useState('');
-    const [selected_count, set_selected_count] = useState(1);
 
     // const signInUser = useSelector(state=>state.signInUser);
     const { userInfo } = useSelector(state=>state.signInUser);
