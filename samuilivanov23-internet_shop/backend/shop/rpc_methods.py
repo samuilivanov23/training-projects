@@ -3,9 +3,10 @@ import json
 import psycopg2
 from internet_shop.dbconfig import onlineShop_dbname, onlineShop_dbuser, onlineShop_dbpassword
 import traceback
-import custom_modules.ProductsJSONServer as ProductsJSONServer
+import custom_modules.modules as modules
 
-productsJSONServer = ProductsJSONServer.ProductJSON()
+productsJSONServer = modules.ProductJSON()
+dbOperator = modules.DbOperations()
 
 @rpc_method
 def GetProducts(offset, products_per_page):
@@ -108,8 +109,9 @@ def RegisterUser(first_name, last_name, username, email_address, password):
         cart_id = cur.fetchone()[0]
         connection.commit()
 
+        hashed_password = dbOperator.MakePasswordHash(password)
         sql = 'insert into users (first_name, last_name, username, email_address, password, authenticated, cart_id) values(%s, %s, %s, %s, %s, %s, %s)'
-        cur.execute(sql, (first_name, last_name, username, email_address, password, DEFAULT_AUTHENTICATION_STATE, cart_id))
+        cur.execute(sql, (first_name, last_name, username, email_address, hashed_password, DEFAULT_AUTHENTICATION_STATE, cart_id))
         connection.commit()
 
         response = {'status': 'OK', 'msg' : 'Successful'}
@@ -148,9 +150,10 @@ def LoginUser(email_address, password):
     init_cart_info = []
 
     try:
-        print(email_address, password)
+        hashed_password = dbOperator.MakePasswordHash(password)
+        print(email_address, hashed_password)
         sql = 'select username, cart_id from users where email_address=%s and password=%s'
-        cur.execute(sql, (email_address, password))
+        cur.execute(sql, (email_address, hashed_password))
 
         user_record = cur.fetchone()
 
