@@ -5,6 +5,7 @@ import { useSelect, useDispatch } from 'react-redux';
 import { Card, Button } from '../../node_modules/react-bootstrap';
 import { Link } from '../../node_modules/react-router-dom';
 import { ChangeSelectedCount } from './actions/CartActions';
+import { SetProductDetails } from './actions/ProductActions';
 
 function CartProduct(props){
 
@@ -14,6 +15,17 @@ function CartProduct(props){
         let selected_count = event.target.value;
         dispatch(ChangeSelectedCount(props.product.id, props.product.name, props.product.description, props.product.price, selected_count, props.product.count));
         props.history.push('/cart');
+    }
+
+    const getCurrentProduct = (current_product) => {
+        dispatch(SetProductDetails(current_product['id'], 
+                                    current_product['name'], 
+                                    current_product['description'], 
+                                    current_product['price'], 
+                                    current_product['selected_count'],
+                                    current_product['count']));
+        
+        props.history.push(`/products/${current_product['id']}`);
     }
 
     const generateCountSelectElements = (product_count) => {
@@ -40,7 +52,7 @@ function CartProduct(props){
                 </select>
                 
                 <Button>
-                    <Link style={{'color' : 'white'}} to={`/products/${props.product.id}`} href="#">
+                    <Link style={{'color' : 'white'}} to={`/products/${props.product.id}`} onClick={() => getCurrentProduct(props.product)}>
                         View details
                     </Link>
                 </Button>
