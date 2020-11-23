@@ -6,11 +6,11 @@ class ProductJSON:
     def __init__(self):
         pass
 
-    def GetAllProductsJSON(self, records):
-        i = 0
-        products = {'status' : 'OK', 'msg' : 'Successful', 'data':[]}
+    def GetAllProductsJSON(self, records, product_records_count): 
+        response = {'status' : 'OK', 'msg' : 'Successful', 'data': [], 'pages_count' : product_records_count}
         print('PRODUCTS LEN: ' + str(len(records)))
 
+        i = 0
         while i < len(records):
             product_id = records[i][0]
             product_name = records[i][1]
@@ -18,7 +18,7 @@ class ProductJSON:
             product_count = records[i][4]
             product_price = float(records[i][5])
 
-            products['data'].append({
+            response['data'].append({
                 'id' : product_id,
                 'name' : product_name,
                 'description': product_description,
@@ -28,7 +28,7 @@ class ProductJSON:
 
             i+=1
         
-        return products
+        return response
 
     # This method takes the records from the carts_products table for a specific car
     # and returns a dictionary list with product_id as key and selected product count as value 

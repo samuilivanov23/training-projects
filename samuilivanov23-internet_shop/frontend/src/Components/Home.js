@@ -17,7 +17,7 @@ class Home extends React.Component{
     this.state = {
       products: [],
       offset : 0,
-      page_count : 50, // ISSUE (hardcoded for testing purposes) : must not be hardcoded
+      pages_count : 50, // ISSUE (hardcoded for testing purposes) : must not be hardcoded
     }
   };
 
@@ -37,7 +37,8 @@ class Home extends React.Component{
       console.log(products_list['data']);
       
       home_component.setState({
-        products : products_list['data']
+        products : products_list['data'],
+        pages_count : products_list['pages_count']
       });
 
       console.log("state:");
@@ -81,7 +82,7 @@ class Home extends React.Component{
         <ReactPaginate
             previousLabel={'← Previous'}
             nextLabel={'Next →'}
-            pageCount={this.state.page_count}
+            pageCount={this.state.pages_count}
             pageRangeDisplayed={5}
             onPageChange={this.handlePageClick}
             breakClassName={'page-item'}

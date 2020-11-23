@@ -27,10 +27,13 @@ def GetProducts(offset, products_per_page):
         cur.execute(sql, (offset, products_per_page,))
         records = cur.fetchall()
 
-        response = productsJSONServer.GetAllProductsJSON(records)
-        #response = GetAllProductsJSON(records) #this function returns the response
+        sql = 'select count(*) from products'
+        cur.execute(sql,)
+        product_records_count = cur.fetchone()[0] / products_per_page
+
+        response = productsJSONServer.GetAllProductsJSON(records, product_records_count)
     except Exception as e:
-        response = {'status' : 'Fail', 'msg' : 'Unable to get products', 'data':[]}
+        response = {'status' : 'Fail', 'msg' : 'Unable to get products', 'data':[], 'pages_count' : 0}
         print(e)
     
     if(connection):
