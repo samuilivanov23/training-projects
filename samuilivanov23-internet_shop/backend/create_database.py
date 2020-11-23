@@ -132,40 +132,11 @@ def createTables(cur, connection):
         if connection is not None:
             connection.close()
 
-def generateRandomNames(count):
-    import random, string
-    names = []
-
-    for _ in range(count):
-        letters = string.ascii_lowercase
-        name_length = random.randint(5, 10)
-        name = ''.join(random.choice(letters) for i in range(name_length))
-        names.append(name)
-    
-    return names
-
-def generateRandomDescriptions(count):
-    descriptions = []
-
-    for _ in range(count):
-        letters = string.ascii_lowercase + ' '
-        description_length = random.randint(30, 40)
-        description = ''.join(random.choice(letters) for i in range(description_length))
-        descriptions.append(description)
-    
-    return descriptions
-
 def loadData(cur, connection):
     rows_count = 1000
-    #manufacturers_names = generateRandomNames(rows_count)
     manufacturers_names = dbOperator.GenerateRandomNames(rows_count)
-
-    #products_names = generateRandomNames(rows_count)
     products_names = dbOperator.GenerateRandomNames(rows_count)
-
-    #descriptions = generateRandomDescriptions(rows_count)
     descriptions = dbOperator.GenerateRandomDescriptions(rows_count)
-
     image_paths = dbOperator.GenerateImages(rows_count, 200, 300)
 
     for i in range(rows_count):
