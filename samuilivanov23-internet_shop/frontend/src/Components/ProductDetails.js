@@ -5,6 +5,7 @@ import JsonRpcClient from '../../node_modules/react-jsonrpc-client/jsonrpcclient
 import { useSelector, useDispatch } from 'react-redux';
 import { useState, useEffect } from 'react';
 import { AddProductToCart } from './actions/CartActions';
+import { SetSelectedCount } from './actions/ProductActions';
 
 function ProductDetails (props) {
 
@@ -66,8 +67,7 @@ function ProductDetails (props) {
     }
 
     const changeProductSelectCount = (event) => {
-        console.log('Dispatch changeProductSelectedCount action');
-        //set_selected_count(event.target.value);
+        dispatch(SetSelectedCount(event.target.value));
     }
 
     const generateCountSelectElements = (product_count) => {
@@ -80,7 +80,7 @@ function ProductDetails (props) {
         return options;
     }
 
-    const options = generateCountSelectElements(productInfo.selected_count);
+    const options = generateCountSelectElements(productInfo.count);
 
     return (
         <div>
@@ -91,11 +91,11 @@ function ProductDetails (props) {
                     <Card.Text>Price: {productInfo.price} BGN.</Card.Text>
                     <Card.Text>{in_stock}</Card.Text>
                     
-                    <select style={{marginRight : '1em'}} name={'selected_count'} value={selected_count} onChange={changeProductSelectCount}>
+                    <select style={{marginRight : '1em'}} name={'selected_count'} value={productInfo.selected_count} onChange={changeProductSelectCount}>
                         {options}
                     </select>
                     
-                    <Button onClick={() => addProductToCart(props.product['id'], selected_count, props.product['count'])}>
+                    <Button onClick={() => addProductToCart(props.product['id'], productInfo.selected_count, props.product['count'])}>
                         Add to cart
                     </Button>
                 </Card.Body>

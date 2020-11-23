@@ -3,6 +3,9 @@ import json
 import psycopg2
 from internet_shop.dbconfig import onlineShop_dbname, onlineShop_dbuser, onlineShop_dbpassword
 import traceback
+import custom_modules.ProductsJSONServer as ProductsJSONServer
+
+productsJSONServer = ProductsJSONServer.ProductJSON()
 
 def GetAllProductsJSON(records):
     i = 0
@@ -17,10 +20,10 @@ def GetAllProductsJSON(records):
         product_price = float(records[i][5])
 
         products['data'].append({
-            'id' : product_id, 
-            'name' : product_name, 
-            'description': product_description, 
-            'count' : product_count, 
+            'id' : product_id,
+            'name' : product_name,
+            'description': product_description,
+            'count' : product_count,
             'price' : product_price
         })
 
@@ -65,7 +68,8 @@ def GetProducts(offset, products_per_page):
         cur.execute(sql, (offset, products_per_page,))
         records = cur.fetchall()
 
-        response = GetAllProductsJSON(records) #this function returns the response
+        response = productsJSONServer.GetAllProductsJSON(records)
+        #response = GetAllProductsJSON(records) #this function returns the response
     except Exception as e:
         response = {'status' : 'Fail', 'msg' : 'Unable to get products', 'data':[]}
         print(e)
@@ -209,7 +213,8 @@ def LoginUser(email_address, password):
             records = cur.fetchall()
 
             if len(records) > 0:
-                cart_products_data = GetCartProductsJSON(records)
+                cart_products_data = productsJSONServer.GetCartProductsJSON(records)
+                #cart_products_data = GetCartProductsJSON(records)
                 response = {'status': 'OK', 'msg' : 'Successful', 'userInfo' : sign_in_user, 'cart_products' : cart_products_data}
             else:
                 response = {'status': 'OK', 'msg' : 'Successful', 'userInfo' : sign_in_user, 'cart_products' : init_cart_info}
