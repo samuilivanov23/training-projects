@@ -164,7 +164,7 @@ def LoginUser(email_address, password):
                 'cart_id' : user_cart_id
             }
 
-            sql ='''select cp.product_id, p.name, p.description, p.price, cp.count from carts_products as cp
+            sql ='''select cp.product_id, p.name, p.description, p.price, cp.count, p.count from carts_products as cp
                     join products as p on cp.product_id=p.id where cp.cart_id=%s'''
 
             cur.execute(sql, (user_cart_id, ))
@@ -172,7 +172,6 @@ def LoginUser(email_address, password):
 
             if len(records) > 0:
                 cart_products_data = productsJSONServer.GetCartProductsJSON(records)
-                #cart_products_data = GetCartProductsJSON(records)
                 response = {'status': 'OK', 'msg' : 'Successful', 'userInfo' : sign_in_user, 'cart_products' : cart_products_data}
             else:
                 response = {'status': 'OK', 'msg' : 'Successful', 'userInfo' : sign_in_user, 'cart_products' : init_cart_info}

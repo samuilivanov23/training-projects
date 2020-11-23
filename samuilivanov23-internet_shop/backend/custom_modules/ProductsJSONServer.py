@@ -37,8 +37,9 @@ class ProductJSON:
                 'id' : records[i][0],
                 'name' : records[i][1],
                 'description' : records[i][2],
-                'price' : records[i][3],
-                'selected_count' : records[i][4]
+                'price' : float(records[i][3]),
+                'selected_count' : records[i][4],
+                'count' : records[i][5]
             })
             
             i+=1

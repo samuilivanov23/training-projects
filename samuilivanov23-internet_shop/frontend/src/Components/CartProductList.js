@@ -7,12 +7,13 @@ import CartProduct from './CartProduct';
 function CartProductList (props) {
 
     const { cartInfo } = useSelector(state=>state.cartProducts);
+    console.log('CartProductsList -------');
     console.log(cartInfo);
 
     return(
         <Card style={{ width: '70rem', margin: '0.5em' }}>
-            {cartInfo.cart_products_data.map(product => (
-                <CartProduct key={product.product_id} product={product}/>    
+            {cartInfo.map(product => (
+                <CartProduct key={product.product_id} {...props} product={product}/>    
             ))}
         </Card>
     );

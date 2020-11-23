@@ -55,17 +55,12 @@ function Login (props) {
             let user_cart_id = response.userInfo.cart_id;
             let cart_products_data = response.cart_products;
 
-            console.log('cart products after login');
-            console.log(cart_products_data);
-
             dispatch(SignIn(username, user_email_address, user_cart_id));
             dispatch(AllCartProducts(cart_products_data));
 
-            console.log(props.history.location);
             if(username !== 'init'){
                 props.history.push('/products');
             }
-            console.log(props.history.location);
 
             alert(response['msg'])
         }).catch(function(error){

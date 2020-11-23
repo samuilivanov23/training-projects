@@ -5,6 +5,7 @@ const SetProductDetails = (id, name, description, price, selected_count, count) 
 
 const SetSelectedCount = (selected_count) => async(dispatch) => {
     console.log('SetSelectedCount action');
+    selected_count = parseInt(selected_count);
     dispatch({type : 'SET_SELECTED_COUNT', data: {selected_count}});
 }
 

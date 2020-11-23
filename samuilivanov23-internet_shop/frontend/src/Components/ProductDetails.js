@@ -57,7 +57,7 @@ function ProductDetails (props) {
                 let product_description = response.product_to_add.description;
                 let product_price = response.product_to_add.price;
 
-                dispatch(AddProductToCart(product_id, product_name, product_description, product_price, parseInt(selected_count)));
+                dispatch(AddProductToCart(product_id, product_name, product_description, product_price, selected_count, product_count));
             }
 
         }).catch(function(error){
