@@ -50,7 +50,8 @@ class ProductJSON:
             })
             
             i+=1
-        return cart_products
+
+        return cart_products        
 
 class DbOperations:
     def __init__(self):
@@ -102,3 +103,57 @@ class DbOperations:
             descriptions.append(description)
         
         return descriptions
+    
+    def CheckProductInStock(self, selected_count, count_in_stock):
+        if selected_count < count_in_stock:
+            return True
+        else:
+            return False
+
+    def AddProductsIntoOrder(self, records, cart_id, user_id, total_price, cur):
+        sql = 'insert into orders (date, total_price, user_id) values(current_timestamp(0), %s, %s) RETURNING id'
+        cur.execute(sql, (total_price, user_id))
+        order_id = cur.fetchone()[0]
+
+        order_info = {
+            'user_id' : user_id,
+            'total_price' : total_price,
+            'products' : []
+        }
+
+        response = {'status' : 'OK', 'msg' : 'Successfull', 'order_data' : order_info}
+
+        for i in range(len(records)):
+            product_id = records[i][0]
+            selected_count = records[i][4]
+            count_in_stock = records[i][5]
+
+            if(self.CheckProductInStock(selected_count, count_in_stock)):
+                try:
+                    sql = 'insert into orders_products (order_id, product_id, count) values(%s, %s, %s)'
+                    cur.execute(sql, (order_id, product_id, selected_count))
+                    
+                    response['order_data']['products'].append({
+                        'id' : records[i][0],
+                        'name' : records[i][1],
+                        'description' : records[i][2],
+                        'price' : float(records[i][3]),
+                        'selected_count' : records[i][4],
+                        'count' : records[i][5],
+                        'image' : records[i][6]
+                    })
+
+                except Exception as e:
+                    print(e)
+            else:
+                init_order_info = {
+                    'user_id' : 0,
+                    'total_price' : 0,
+                    'products' : []
+                }
+
+                msg = 'Select lesser count from: ' + product_id + ' product'
+                response = {'status' : 'Fail', 'msg' : msg, 'order_data' : init_order_info}
+                break
+
+        return response            

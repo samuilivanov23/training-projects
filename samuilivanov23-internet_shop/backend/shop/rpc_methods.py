@@ -149,7 +149,7 @@ def LoginUser(email_address, password):
     init_user_info = {
         'username' : 'init',
         'email_address' : 'init',
-        'cart_id' : 0,
+        'cart_id' : 0
     }
 
     init_cart_info = []
@@ -194,5 +194,45 @@ def LoginUser(email_address, password):
         cur.close()
         connection.close()
     
+    print(response)
+    return response
+
+
+@rpc_method
+def CreateOrder(cart_id, total_price):
+    user_id = cart_id
+
+    #Connect to database
+    try:
+        connection = psycopg2.connect("dbname='" + onlineShop_dbname + 
+                                    "' user='" + onlineShop_dbuser + 
+                                    "' password='" + onlineShop_dbpassword + "'")
+
+        connection.autocommit = True
+        cur = connection.cursor()
+    except Exception as e:
+        print(e)
+
+    try:
+        sql ='''select cp.product_id, p.name, p.description, p.price, cp.count, p.count, p.image_name from carts_products as cp
+                    join products as p on cp.product_id=p.id where cp.cart_id=%s'''
+
+        cur.execute(sql, (cart_id, ))
+        records = cur.fetchall()
+
+        response = dbOperator.AddProductsIntoOrder(records, cart_id, user_id, total_price, cur)
+    except Exception as e:
+        print(traceback.format_exc())
+        init_order_info = {
+            'user_id' : 0,
+            'total_price' : 0,
+            'products' : []
+        }
+
+        msg = 'Unable to execute code'
+        response = {'status' : 'Fail', 'msg' : msg, 'order_data' : init_order_info}
+
+    print(response)
+    response = json.dumps(response)
     print(response)
     return response

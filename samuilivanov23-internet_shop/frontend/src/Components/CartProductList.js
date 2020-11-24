@@ -2,8 +2,10 @@ import '../App.css';
 import React from 'react';
 import { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
-import { Card } from '../../node_modules/react-bootstrap';
+import { Link } from '../../node_modules/react-router-dom';
+import { Card, Container, Row, Col, Button } from '../../node_modules/react-bootstrap';
 import CartProduct from './CartProduct';
+import JsonRpcClient from '../../node_modules/react-jsonrpc-client/jsonrpcclient';
 
 function CartProductList (props) {
 
@@ -12,6 +14,10 @@ function CartProductList (props) {
     const { cartInfo } = useSelector(state=>state.cartProducts);
     console.log('CartProductsList -------');
     console.log(cartInfo);
+
+    const { userInfo } = useSelector(state=>state.signInUser);
+    console.log('Userinfo -------');
+    console.log(userInfo);
 
     const calculateTotalPrice = () => {
         let total_price = 0;
@@ -23,19 +29,68 @@ function CartProductList (props) {
         set_total_price(total_price);
     }
 
+    //takse the signed in user cart_id as argument
+    const createOrder = (cart_id) => {
+        var django_rpc = new JsonRpcClient({
+            endpoint: 'http://127.0.0.1:8000/shop/rpc/',
+        })
+
+        django_rpc.request(
+            'CreateOrder',
+            cart_id,
+            total_price,
+        ).then(function(response){
+            response = JSON.parse(response);
+            console.log('Create Order res ----');
+            console.log(response);
+
+            props.history.push('/products');
+        }).catch(function(error){
+            console.log(error['msg']);
+        });
+    }
+
     useEffect(() => {
         calculateTotalPrice();
     });
 
     return(
-        <Card className={'outer-card'} style={{ width: '70rem', margin: '0.5em' }}>
-            {cartInfo.map((product, idx) => (
-                <CartProduct key={idx} {...props} product={product}/>    
-            ))}
-            <h5 className="ml-auto" style={{'marginRight' : '5em' }}>
-                Total: {total_price.toFixed(2)}
-            </h5>
-        </Card>
+        <Container fluid>
+            <Row>
+                <Col>
+                    <Card className={'outer-card'} style={{ width: '55rem', margin: '0.5em' }}>
+                        {cartInfo.map((product, idx) => (
+                            <CartProduct key={idx} {...props} product={product}/>    
+                        ))}
+                        <h5 className="ml-auto" style={{'marginRight' : '5em' }}>
+                            Total: {total_price.toFixed(2)} BGN.
+                        </h5>
+                    </Card>
+                </Col>
+
+                <Col>
+                    <Card className={'outer-card'} style={{ width: '20em', margin: '1em', padding : '1em' }}>
+                        <Card.Header className="text-center outer-card font-weight-bold">
+                            Order information
+                        </Card.Header>
+
+                        <Card.Body>
+                            Products total price : {total_price.toFixed(2)} BGN.
+                            Delivery taxes: 0 BGN.
+                        </Card.Body>
+
+                        <Card.Footer className="text-center outer-card font-weight-bold">
+                            TOTAL: {total_price.toFixed(2)} BGN.
+                            <Button>
+                                <Link style={{color:'white'}} to={'/products'} onClick={() => createOrder(userInfo.cart_id)}>
+                                    Checkout
+                                </Link>
+                            </Button>
+                        </Card.Footer>
+                    </Card>
+                </Col>
+            </Row>
+        </Container>
     );
 }
 

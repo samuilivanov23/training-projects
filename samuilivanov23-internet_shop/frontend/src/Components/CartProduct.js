@@ -48,8 +48,8 @@ function CartProduct(props){
     const options = generateCountSelectElements(props.product.count);
 
     return (
-        <Card style={{ width: '60rem', margin: '1em' }}>
-            <Container style={{ width: '60rem', margin: '1em' }}>
+        <Card style={{ width: '50rem', margin: '1em' }}>
+            <Container style={{ width: '50rem', margin: '1em' }}>
                 <Row>
                     <Col>
                         <Card.Img variant="left" src={`/images/${props.product.image}`} alt={`${props.product.name}`} />
@@ -73,7 +73,7 @@ function CartProduct(props){
                     </Col>
 
                     <Col>
-                        <p>Total product price: {(props.product.selected_count*props.product.price).toFixed(2)} BGN.</p>
+                        <p style={{'marginRight' : '1em', 'width' : '10em'}}>Total product price: {(props.product.selected_count*props.product.price).toFixed(2)} BGN.</p>
                     </Col>
                 </Row>
             </Container>

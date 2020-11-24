@@ -14,10 +14,6 @@ function Register (props) {
     console.log(userInfo);
 
     const dispatch = useDispatch();
-    if(userInfo.first_name === 'Adam'){
-        dispatch(SignIn('2', 'Pol', 'Dano', 'pol.dano@gmail.com'));
-        console.log(userInfo);    
-    }
 
     const handleSubmit = (event) => {
         event.preventDefault();
