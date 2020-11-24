@@ -146,6 +146,12 @@ class DbOperations:
                 except Exception as e:
                     print(e)
             else:
+                sql = 'delete from orders_products where order_id=%s'
+                cur.execute(sql, (order_id))
+                
+                sql = 'delete from orders where id=%s'
+                cur.execute(sql, (order_id))
+                
                 init_order_info = {
                     'user_id' : 0,
                     'total_price' : 0,
