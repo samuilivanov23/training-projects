@@ -20,11 +20,11 @@ const AddProductToCart = (id, name, description, price, selected_count, count, i
     });
 }
 
-const ChangeSelectedCount = (id, name, description, price, selected_count, count) => async(dispatch) => {
+const ChangeSelectedCount = (id, name, description, price, selected_count, count, image) => async(dispatch) => {
     console.log('ChangeSelectedCount action');
 
     selected_count = parseInt(selected_count);
-    dispatch({type : 'CHANGE_SELECTED_COUNT', data : {id, name, description, price, selected_count, count}});
+    dispatch({type : 'CHANGE_SELECTED_COUNT', data : {id, name, description, price, selected_count, count, image}});
 }
 
 export { AllCartProducts, AddProductToCart, ChangeSelectedCount }

@@ -84,7 +84,7 @@ function ProductDetails (props) {
     return (
         <div>
             <Card className={'product-details-card'} style={{ width: '36rem' }}>
-                <Card.Img variant="top" src={`/images/${productInfo.image_name}`} alt={`${productInfo.name}`}/>
+                <Card.Img variant="top" src={`/images/${productInfo.image}`} alt={`${productInfo.name}`}/>
                 <Card.Body>
                     <Card.Title>Name: {productInfo.name}</Card.Title>
                     <Card.Text>Description: {productInfo.description}</Card.Text>

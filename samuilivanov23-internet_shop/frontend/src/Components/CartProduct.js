@@ -13,19 +13,24 @@ function CartProduct(props){
 
     const changeProductSelectCount = (event) => {
         let selected_count = event.target.value;
-        dispatch(ChangeSelectedCount(props.product.id, props.product.name, props.product.description, props.product.price, selected_count, props.product.count));
+        dispatch(ChangeSelectedCount(props.product.id, 
+                                        props.product.name, 
+                                        props.product.description, 
+                                        props.product.price, 
+                                        selected_count, 
+                                        props.product.count, 
+                                        props.product.image));
         props.history.push('/cart');
     }
 
     const getCurrentProduct = (current_product) => {
-        console.log(current_product.image);
-        dispatch(SetProductDetails(current_product.id, 
-                                    current_product.name, 
-                                    current_product.description, 
-                                    current_product.price, 
-                                    current_product.selected_count,
-                                    current_product.count),
-                                    current_product.image);
+        dispatch(SetProductDetails(props.product.id, 
+                                    props.product.name, 
+                                    props.product.description, 
+                                    props.product.price, 
+                                    props.product.selected_count,
+                                    props.product.count,
+                                    props.product.image));
         
         props.history.push(`/products/${current_product['id']}`);
     }

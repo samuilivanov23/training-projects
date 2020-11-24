@@ -20,7 +20,6 @@ function CartProductList (props) {
             total_price += (cartInfo[i].price * cartInfo[i].selected_count);
         }
 
-        console.log(total_price);
         set_total_price(total_price);
     }
 
