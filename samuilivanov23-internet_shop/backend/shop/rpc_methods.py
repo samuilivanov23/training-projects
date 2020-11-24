@@ -63,19 +63,21 @@ def AddProductToCart(product_id, selected_count, product_count, cart_id):
             cur.execute(sql, (cart_id, product_id, selected_count))
             connection.commit()
 
-            sql = 'select name, description, price from products where id=%s'
+            sql = 'select name, description, price, image_name from products where id=%s'
             cur.execute(sql, (product_id, ))
             product_record = cur.fetchone()
             product_name = product_record[0]
             product_description = product_record[1]
             product_price = product_record[2]
+            product_image_name = product_record[3]
 
             product_to_add_data = {
                 'id' : product_id,
                 'name' : product_name,
                 'description' : product_description,
                 'price' : product_price,
-                'selected_count' : selected_count
+                'selected_count' : selected_count,
+                'image_name' : product_image_name
             }
 
             response = {'status': 'OK', 'msg' : 'Successful', 'product_to_add' : product_to_add_data}
@@ -170,7 +172,7 @@ def LoginUser(email_address, password):
                 'cart_id' : user_cart_id
             }
 
-            sql ='''select cp.product_id, p.name, p.description, p.price, cp.count, p.count from carts_products as cp
+            sql ='''select cp.product_id, p.name, p.description, p.price, cp.count, p.count, p.image_name from carts_products as cp
                     join products as p on cp.product_id=p.id where cp.cart_id=%s'''
 
             cur.execute(sql, (user_cart_id, ))

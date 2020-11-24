@@ -11,7 +11,6 @@ function ProductDetails (props) {
 
     const [in_stock, set_in_stock] = useState('');
 
-    // const signInUser = useSelector(state=>state.signInUser);
     const { userInfo } = useSelector(state=>state.signInUser);
     console.log(userInfo);
 
@@ -56,8 +55,9 @@ function ProductDetails (props) {
                 let product_name = response.product_to_add.name;
                 let product_description = response.product_to_add.description;
                 let product_price = response.product_to_add.price;
+                let product_image = response.product_to_add.image;
 
-                dispatch(AddProductToCart(product_id, product_name, product_description, product_price, selected_count, product_count));
+                dispatch(AddProductToCart(product_id, product_name, product_description, product_price, selected_count, product_count, product_image));
             }
 
         }).catch(function(error){
@@ -84,6 +84,7 @@ function ProductDetails (props) {
     return (
         <div>
             <Card className={'product-details-card'} style={{ width: '36rem' }}>
+                <Card.Img variant="top" src={`/images/${productInfo.image_name}`} alt={`${productInfo.name}`}/>
                 <Card.Body>
                     <Card.Title>Name: {productInfo.name}</Card.Title>
                     <Card.Text>Description: {productInfo.description}</Card.Text>
@@ -94,7 +95,7 @@ function ProductDetails (props) {
                         {options}
                     </select>
                     
-                    <Button onClick={() => addProductToCart(props.product['id'], productInfo.selected_count, props.product['count'])}>
+                    <Button onClick={() => addProductToCart(productInfo.id, productInfo.selected_count, productInfo.count)}>
                         Add to cart
                     </Button>
                 </Card.Body>

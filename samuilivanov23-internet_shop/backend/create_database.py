@@ -25,7 +25,7 @@ def createTables(cur, connection):
         "manufacturer_id" bigserial,
         "count" int,
         "price" numeric,
-        "image_path" text
+        "image_name" text
     );
 
     CREATE TABLE IF NOT EXISTS carts(
@@ -133,11 +133,11 @@ def createTables(cur, connection):
             connection.close()
 
 def loadData(cur, connection):
-    rows_count = 1000
+    rows_count = 100
     manufacturers_names = dbOperator.GenerateRandomNames(rows_count)
     products_names = dbOperator.GenerateRandomNames(rows_count)
     descriptions = dbOperator.GenerateRandomDescriptions(rows_count)
-    image_paths = dbOperator.GenerateImages(rows_count, 200, 300)
+    image_names = dbOperator.GenerateImages(rows_count, 280, 180)
 
     for i in range(rows_count):
         try:
@@ -148,15 +148,15 @@ def loadData(cur, connection):
             print(e)
         
         try:
-            sql = 'insert into products (name, description, manufacturer_id, count, price, image_path) values(%s, %s, %s, %s, %s, %s)'
+            sql = 'insert into products (name, description, manufacturer_id, count, price, image_name) values(%s, %s, %s, %s, %s, %s)'
             
             product_name = products_names[i]
             product_description = descriptions[i]
             product_count = random.randint(1, 20)
             product_price = round(random.uniform(50, 500), 2)
-            image_path = image_paths[i]
+            image_name = image_names[i]
 
-            cur.execute(sql, (product_name, product_description, manufacturer_id, product_count, product_price, image_path, ))
+            cur.execute(sql, (product_name, product_description, manufacturer_id, product_count, product_price, image_name, ))
         except Exception as e:
             print(e)
 

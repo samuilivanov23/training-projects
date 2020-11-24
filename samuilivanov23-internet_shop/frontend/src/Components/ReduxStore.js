@@ -20,6 +20,7 @@ const productInfo = {
     price : 0,
     selected_count : 0,
     count : 0,
+    image : 'init'
 }
 
 const initial_state = { signInUser : {userInfo}, cartProducts : {cartInfo}, productDetails : {productInfo}};

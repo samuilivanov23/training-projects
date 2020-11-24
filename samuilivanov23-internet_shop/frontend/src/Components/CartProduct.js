@@ -18,12 +18,14 @@ function CartProduct(props){
     }
 
     const getCurrentProduct = (current_product) => {
-        dispatch(SetProductDetails(current_product['id'], 
-                                    current_product['name'], 
-                                    current_product['description'], 
-                                    current_product['price'], 
-                                    current_product['selected_count'],
-                                    current_product['count']));
+        console.log(current_product.image);
+        dispatch(SetProductDetails(current_product.id, 
+                                    current_product.name, 
+                                    current_product.description, 
+                                    current_product.price, 
+                                    current_product.selected_count,
+                                    current_product.count),
+                                    current_product.image);
         
         props.history.push(`/products/${current_product['id']}`);
     }
@@ -43,6 +45,7 @@ function CartProduct(props){
     return (
         <Card style={{ width: '50rem', margin: '2em' }}>
             <Card.Body>
+                <Card.Img variant="top" src={`/images/${props.product.image}`} alt={`${props.product.name}`} />
                 <Card.Title>Name: {props.product.name}</Card.Title>
                 <Card.Text> Price: {props.product.price} </Card.Text>
                 <Card.Text> Quantity: {props.product.selected_count} </Card.Text>

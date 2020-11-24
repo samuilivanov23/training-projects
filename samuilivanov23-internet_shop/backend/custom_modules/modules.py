@@ -17,13 +17,15 @@ class ProductJSON:
             product_description = records[i][2]
             product_count = records[i][4]
             product_price = float(records[i][5])
+            image_name = records[i][6]
 
             response['data'].append({
                 'id' : product_id,
                 'name' : product_name,
                 'description': product_description,
                 'count' : product_count,
-                'price' : product_price
+                'price' : product_price,
+                'image' : image_name
             })
 
             i+=1
@@ -43,7 +45,8 @@ class ProductJSON:
                 'description' : records[i][2],
                 'price' : float(records[i][3]),
                 'selected_count' : records[i][4],
-                'count' : records[i][5]
+                'count' : records[i][5],
+                'image' : records[i][6]
             })
             
             i+=1
@@ -65,16 +68,17 @@ class DbOperations:
     
     def GenerateImages(self, count, sizeX, sizeY):
         color = '#34a1eb' #skyblue
-        image_paths = []
+        image_names = []
         
         for i in range(count):
             img = Image.new("RGB", (sizeX, sizeY), color)
-            folder_location = '/media/samuil2001ivanov/808137c8-9dff-4126-82f4-006ab928a3fc1/django_projects/internet_shop/images/'
-            file_location = folder_location + 'image' + str(i) + '.png'
+            folder_location = '/media/samuil2001ivanov/808137c8-9dff-4126-82f4-006ab928a3fc1/django_projects/internet_shop/frontend/internet_shop/public/images/'
+            image_name = 'image' + str(i) + '.png'
+            file_location = folder_location + image_name
             img.save(file_location, 'PNG')
-            image_paths.append(file_location)
+            image_names.append(image_name)
         
-        return image_paths
+        return image_names
     
     def GenerateRandomNames(self, count):
         import random, string
