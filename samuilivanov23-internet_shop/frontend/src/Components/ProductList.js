@@ -10,10 +10,10 @@ function ProductList (props) {
     const dispatch = useDispatch();
 
     const getCurrentProduct = (current_product) => {
-        dispatch(SetProductDetails(current_product['id'], 
-                                    current_product['name'], 
-                                    current_product['description'], 
-                                    current_product['price'], 
+        dispatch(SetProductDetails(current_product['id'],
+                                    current_product['name'],
+                                    current_product['description'],
+                                    current_product['price'],
                                     current_product['selected_count'],
                                     current_product['count'],
                                     current_product['image']));

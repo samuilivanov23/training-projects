@@ -2,7 +2,7 @@ import '../App.css';
 import React from 'react';
 import { useState } from 'react';
 import { useSelect, useDispatch } from 'react-redux';
-import { Card, Button } from '../../node_modules/react-bootstrap';
+import { Card, Button, Row, Col, Container } from '../../node_modules/react-bootstrap';
 import { Link } from '../../node_modules/react-router-dom';
 import { ChangeSelectedCount } from './actions/CartActions';
 import { SetProductDetails } from './actions/ProductActions';
@@ -32,7 +32,7 @@ function CartProduct(props){
 
     const generateCountSelectElements = (product_count) => {
         const options = [];
-
+    
         for(let i = 1; i <= product_count; i++){
             options.push(<option key={i} value={i}>{i}</option>);
         }
@@ -43,23 +43,35 @@ function CartProduct(props){
     const options = generateCountSelectElements(props.product.count);
 
     return (
-        <Card style={{ width: '50rem', margin: '2em' }}>
-            <Card.Body>
-                <Card.Img variant="top" src={`/images/${props.product.image}`} alt={`${props.product.name}`} />
-                <Card.Title>Name: {props.product.name}</Card.Title>
-                <Card.Text> Price: {props.product.price} </Card.Text>
-                <Card.Text> Quantity: {props.product.selected_count} </Card.Text>
-                
-                <select style={{marginRight : '1em'}} name={'selected_count'} value={props.product.selected_count} onChange={changeProductSelectCount}>
-                    {options}
-                </select>
-                
-                <Button>
-                    <Link style={{'color' : 'white'}} to={`/products/${props.product.id}`} onClick={() => getCurrentProduct(props.product)}>
-                        View details
-                    </Link>
-                </Button>
-            </Card.Body>
+        <Card style={{ width: '60rem', margin: '1em' }}>
+            <Container style={{ width: '60rem', margin: '1em' }}>
+                <Row>
+                    <Col>
+                        <Card.Img variant="left" src={`/images/${props.product.image}`} alt={`${props.product.name}`} />
+                    </Col>
+                    
+                    <Col>
+                        <Card.Title>
+                            <Link style={{'textDecoration' : 'none', 'color' : 'black'}} to={`/products/${props.product.id}`} onClick={() => getCurrentProduct(props.product)}>
+                                {props.product.name}
+                            </Link>
+                        </Card.Title>
+                    </Col>
+
+                    <Col>
+                        <div>
+                            <select className="ml-auto" style={{'marginRight' : '5em' }} name={'selected_count'} value={props.product.selected_count} onChange={changeProductSelectCount}>
+                                {options}
+                            </select>
+                            <p>Quantity</p>
+                        </div>
+                    </Col>
+
+                    <Col>
+                        <p>Total product price: {(props.product.selected_count*props.product.price).toFixed(2)} BGN.</p>
+                    </Col>
+                </Row>
+            </Container>
         </Card>
     );
 }

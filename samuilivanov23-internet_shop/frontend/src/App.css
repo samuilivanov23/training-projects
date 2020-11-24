@@ -40,6 +40,10 @@
   text-decoration: none;
 }
 
+.outer-card {
+  background:#dbf1f6 !important;
+}
+
 .App-logo {
   height: 40vmin;
   pointer-events: none;
