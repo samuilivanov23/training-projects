@@ -64,16 +64,16 @@ function CartProduct(props){
                     </Col>
 
                     <Col>
-                        <div>
-                            <select className="ml-auto" style={{'marginRight' : '5em' }} name={'selected_count'} value={props.product.selected_count} onChange={changeProductSelectCount}>
+                        <div style={{'display': 'inline-block', 'width' : '7em'}}>
+                            <select id="selectedCount" name={'selected_count'} value={props.product.selected_count} onChange={changeProductSelectCount}>
                                 {options}
                             </select>
-                            <p>Quantity</p>
+                            <label for="selectedCount">Quantity</label>
                         </div>
                     </Col>
 
                     <Col>
-                        <p style={{'marginRight' : '1em', 'width' : '10em'}}>Total product price: {(props.product.selected_count*props.product.price).toFixed(2)} BGN.</p>
+                        <p style={{'marginRight' : '1em', 'width' : '12em'}}>Total price: {(props.product.selected_count*props.product.price).toFixed(2)} BGN.</p>
                     </Col>
                 </Row>
             </Container>

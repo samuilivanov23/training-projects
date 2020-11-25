@@ -1,11 +1,12 @@
 import '../App.css';
 import React from 'react';
 import { useState, useEffect } from 'react';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { Link } from '../../node_modules/react-router-dom';
 import { Card, Container, Row, Col, Button } from '../../node_modules/react-bootstrap';
 import CartProduct from './CartProduct';
 import JsonRpcClient from '../../node_modules/react-jsonrpc-client/jsonrpcclient';
+import { AddOrderData } from './actions/OrderActions';
 
 function CartProductList (props) {
 
@@ -18,6 +19,8 @@ function CartProductList (props) {
     const { userInfo } = useSelector(state=>state.signInUser);
     console.log('Userinfo -------');
     console.log(userInfo);
+
+    const dispatch = useDispatch();
 
     const calculateTotalPrice = () => {
         let total_price = 0;
@@ -38,11 +41,15 @@ function CartProductList (props) {
         django_rpc.request(
             'CreateOrder',
             cart_id,
-            total_price,
+            total_price.toFixed(2),
         ).then(function(response){
             response = JSON.parse(response);
             console.log('Create Order res ----');
             console.log(response);
+            console.log()
+
+            dispatch(AddOrderData(response['order_data']))
+            alert(response['msg']);
 
             props.history.push('/products');
         }).catch(function(error){
@@ -75,7 +82,7 @@ function CartProductList (props) {
                         </Card.Header>
 
                         <Card.Body>
-                            Products total price : {total_price.toFixed(2)} BGN.
+                            Products price : {total_price.toFixed(2)} BGN.
                             Delivery taxes: 0 BGN.
                         </Card.Body>
 

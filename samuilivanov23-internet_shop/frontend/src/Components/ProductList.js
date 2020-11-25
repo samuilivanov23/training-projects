@@ -7,6 +7,11 @@ import { SetProductDetails } from './actions/ProductActions';
 
 
 function ProductList (props) {
+
+    const { orderInfo } = useSelector(state=>state.orderProducts);
+    console.log('orderInfo ---!!!---');
+    console.log(orderInfo);
+
     const dispatch = useDispatch();
 
     const getCurrentProduct = (current_product) => {

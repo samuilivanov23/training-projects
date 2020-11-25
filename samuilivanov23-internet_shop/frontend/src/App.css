@@ -44,6 +44,16 @@
   background:#dbf1f6 !important;
 }
 
+.selected-count-section{
+  display: inline-block;
+}
+
+.selected-count-label {
+  display: inline;
+  vertical-align: top;
+  line-height: 28px;
+}
+
 .App-logo {
   height: 40vmin;
   pointer-events: none;

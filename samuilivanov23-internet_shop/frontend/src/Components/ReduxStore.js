@@ -3,6 +3,7 @@ import thunk from 'redux-thunk';
 import { signInUserReducer } from './reducers/UserReducers';
 import { cartReducer } from './reducers/CartReducers';
 import { productReducer } from './reducers/ProductReducers';
+import { orderReducer } from './reducers/OrderReducers';
 
 //Set initial redux state
 const userInfo = {
@@ -23,12 +24,19 @@ const productInfo = {
     image : 'init'
 }
 
-const initial_state = { signInUser : {userInfo}, cartProducts : {cartInfo}, productDetails : {productInfo}};
+const orderInfo = {
+    user_id : 0,
+    total_price : 0,
+    products : []
+}
+
+const initial_state = { signInUser : {userInfo}, cartProducts : {cartInfo}, productDetails : {productInfo}, orderProducts : {orderInfo}};
 
 const reducer = combineReducers({
     signInUser : signInUserReducer,
     cartProducts : cartReducer,
     productDetails : productReducer,
+    orderProducts : orderReducer,
 });
 
 const store = createStore(
