@@ -45,7 +45,7 @@ def GetProducts(offset, products_per_page):
 
 @rpc_method
 def AddProductToCart(product_id, selected_count, product_count, cart_id):
-    if int(selected_count) < int(product_count):
+    if int(selected_count) <= int(product_count):
         #Connect to database
         try:
             connection = psycopg2.connect("dbname='" + onlineShop_dbname + 
@@ -77,7 +77,7 @@ def AddProductToCart(product_id, selected_count, product_count, cart_id):
                 'description' : product_description,
                 'price' : product_price,
                 'selected_count' : selected_count,
-                'image_name' : product_image_name
+                'image' : product_image_name
             }
 
             response = {'status': 'OK', 'msg' : 'Successful', 'product_to_add' : product_to_add_data}
@@ -214,6 +214,7 @@ def CreateOrder(cart_id, total_price):
         print(e)
 
     try:
+        #get products in the given cart from the database
         sql ='''select cp.product_id, p.name, p.description, p.price, cp.count, p.count, p.image_name from carts_products as cp
                     join products as p on cp.product_id=p.id where cp.cart_id=%s'''
 

@@ -105,9 +105,11 @@ class DbOperations:
         return descriptions
     
     def CheckProductInStock(self, selected_count, count_in_stock):
-        if selected_count < count_in_stock:
+        if selected_count <= count_in_stock:
+            print('TRUE')
             return True
         else:
+            print('FALSE')
             return False
 
     def AddProductsIntoOrder(self, records, cart_id, user_id, total_price, cur):
@@ -128,7 +130,14 @@ class DbOperations:
             selected_count = records[i][4]
             count_in_stock = records[i][5]
 
+            print('quantity')
+            print(selected_count)
+            print('in stock')
+            print(count_in_stock)
+
             if(self.CheckProductInStock(selected_count, count_in_stock)):
+                print('IN STOCK')
+                print('------------------------------------------')
                 try:
                     sql = 'insert into orders_products (order_id, product_id, count) values(%s, %s, %s)'
                     cur.execute(sql, (order_id, product_id, selected_count))
@@ -147,10 +156,10 @@ class DbOperations:
                     print(e)
             else:
                 sql = 'delete from orders_products where order_id=%s'
-                cur.execute(sql, (order_id))
+                cur.execute(sql, (order_id, ))
                 
                 sql = 'delete from orders where id=%s'
-                cur.execute(sql, (order_id))
+                cur.execute(sql, (order_id, ))
                 
                 init_order_info = {
                     'user_id' : 0,
@@ -158,7 +167,12 @@ class DbOperations:
                     'products' : []
                 }
 
-                msg = 'Select lesser count from: ' + product_id + ' product'
+                product_name =  records[i][1]
+                if count_in_stock == 0:
+                    msg = 'Product ' + product_name + ' is out of stock'
+                else:
+                    msg = 'Select less than ' + str(count_in_stock) + ' count from: ' + product_name + ' product'
+
                 response = {'status' : 'Fail', 'msg' : msg, 'order_data' : init_order_info}
                 break
 
