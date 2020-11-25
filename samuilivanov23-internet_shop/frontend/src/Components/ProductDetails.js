@@ -52,12 +52,13 @@ function ProductDetails (props) {
             console.log(response);
 
             if(response.msg === 'Successful'){
-                let product_name = response.product_to_add.name;
-                let product_description = response.product_to_add.description;
-                let product_price = response.product_to_add.price;
-                let product_image = response.product_to_add.image;
-
-                dispatch(AddProductToCart(product_id, product_name, product_description, product_price, selected_count, product_count, product_image));
+                dispatch(AddProductToCart(product_id,
+                                            response.product_to_add.name,
+                                            response.product_to_add.description,
+                                            response.product_to_add.price,
+                                            selected_count,
+                                            product_count,
+                                            response.product_to_add.image));
             }
 
         }).catch(function(error){

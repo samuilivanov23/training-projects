@@ -94,6 +94,33 @@ def AddProductToCart(product_id, selected_count, product_count, cart_id):
     print(response)
     return response
 
+
+@rpc_method
+def ChangeProductSelectedCount(product_id, cart_id, selected_count):
+    #Connect to database
+    try:
+        connection = psycopg2.connect("dbname='" + onlineShop_dbname + 
+                                    "' user='" + onlineShop_dbuser + 
+                                    "' password='" + onlineShop_dbpassword + "'")
+
+        connection.autocommit = True
+        cur = connection.cursor()
+    except Exception as e:
+        print(e)
+    
+    try:
+        sql = 'update carts_products set count=%s where cart_id=%s and product_id=%s'
+        cur.execute(sql, (selected_count, cart_id, product_id))
+
+        response = {'status' : 'OK', 'msg' : 'Successful'}
+    except Exception as e:
+        print(traceback.format_exc())
+        response = {'status' : 'Fail', 'msg' : 'Unable to update selected count'}
+    
+    response = json.dumps(response)
+    print(response)
+    return response
+
 @rpc_method
 def RegisterUser(first_name, last_name, username, email_address, password):
     DEFAULT_AUTHENTICATION_STATE = False
@@ -147,6 +174,7 @@ def LoginUser(email_address, password):
         print(e)
     
     init_user_info = {
+        'id' : 0,
         'username' : 'init',
         'email_address' : 'init',
         'cart_id' : 0
@@ -156,17 +184,18 @@ def LoginUser(email_address, password):
 
     try:
         hashed_password = dbOperator.MakePasswordHash(password)
-        print(email_address, hashed_password)
-        sql = 'select username, cart_id from users where email_address=%s and password=%s'
+        sql = 'select id, username, cart_id from users where email_address=%s and password=%s'
         cur.execute(sql, (email_address, hashed_password))
 
         user_record = cur.fetchone()
 
         if user_record:
-            username = user_record[0]
-            user_cart_id = user_record[1]
+            user_id = user_record[0]
+            username = user_record[1]
+            user_cart_id = user_record[2]
 
             sign_in_user = {
+                'id' : user_id,
                 'username' : username,
                 'email_address' : email_address,
                 'cart_id' : user_cart_id
@@ -176,10 +205,10 @@ def LoginUser(email_address, password):
                     join products as p on cp.product_id=p.id where cp.cart_id=%s'''
 
             cur.execute(sql, (user_cart_id, ))
-            records = cur.fetchall()
+            cart_records = cur.fetchall()
 
-            if len(records) > 0:
-                cart_products_data = productsJSONServer.GetCartProductsJSON(records)
+            if len(cart_records) > 0:
+                cart_products_data = productsJSONServer.GetCartProductsJSON(cart_records)
                 response = {'status': 'OK', 'msg' : 'Successful', 'userInfo' : sign_in_user, 'cart_products' : cart_products_data}
             else:
                 response = {'status': 'OK', 'msg' : 'Successful', 'userInfo' : sign_in_user, 'cart_products' : init_cart_info}
@@ -199,9 +228,7 @@ def LoginUser(email_address, password):
 
 
 @rpc_method
-def CreateOrder(cart_id, total_price):
-    user_id = cart_id
-
+def CreateOrder(cart_id, user_id, total_price):
     #Connect to database
     try:
         connection = psycopg2.connect("dbname='" + onlineShop_dbname + 
@@ -232,6 +259,10 @@ def CreateOrder(cart_id, total_price):
 
         msg = 'Unable to execute code'
         response = {'status' : 'Fail', 'msg' : msg, 'order_data' : init_order_info}
+    
+    if(connection):
+        cur.close()
+        connection.close()
 
     print(response)
     response = json.dumps(response)

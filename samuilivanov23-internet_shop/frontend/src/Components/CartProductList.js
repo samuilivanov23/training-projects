@@ -41,6 +41,7 @@ function CartProductList (props) {
         django_rpc.request(
             'CreateOrder',
             cart_id,
+            userInfo.id,
             total_price.toFixed(2),
         ).then(function(response){
             response = JSON.parse(response);

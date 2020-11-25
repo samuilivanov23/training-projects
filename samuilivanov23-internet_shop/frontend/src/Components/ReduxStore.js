@@ -7,6 +7,7 @@ import { orderReducer } from './reducers/OrderReducers';
 
 //Set initial redux state
 const userInfo = {
+    id : 0,
     username : 'init',
     email_address : 'init',
     cart_id : 0,

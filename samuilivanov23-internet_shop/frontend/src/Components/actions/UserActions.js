@@ -1,7 +1,6 @@
-const SignIn = (username, email_address, cart_id) => async (dispatch) => {
+const SignIn = (id, username, email_address, cart_id) => async (dispatch) => {
     console.log('SignIn action');
-    console.log(email_address);
-    dispatch({type : 'USER_SIGNIN', data: {username, email_address, cart_id}});
+    dispatch({type : 'USER_SIGNIN', data: {id, username, email_address, cart_id}});
 }
 
 export {SignIn}

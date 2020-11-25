@@ -1,24 +1,42 @@
 import '../App.css';
 import React from 'react';
-import { useState } from 'react';
-import { useSelect, useDispatch } from 'react-redux';
-import { Card, Button, Row, Col, Container } from '../../node_modules/react-bootstrap';
+import JsonRpcClient from '../../node_modules/react-jsonrpc-client/jsonrpcclient';
+import { useSelector, useDispatch } from 'react-redux';
+import { Card, Row, Col, Container } from '../../node_modules/react-bootstrap';
 import { Link } from '../../node_modules/react-router-dom';
 import { ChangeSelectedCount } from './actions/CartActions';
 import { SetProductDetails } from './actions/ProductActions';
 
 function CartProduct(props){
 
+    const { userInfo } = useSelector(state=>state.signInUser);
     const dispatch = useDispatch();
 
     const changeProductSelectCount = (event) => {
         let selected_count = event.target.value;
+
+        var django_rpc = new JsonRpcClient({
+            endpoint : 'http://127.0.0.1:8000/shop/rpc/',
+        });
+
+        django_rpc.request(
+            'ChangeProductSelectedCount',
+            props.product_id,
+            userInfo.cart_id,
+            selected_count,
+        ).then(function(response){
+            response = JSON.parse(response);
+            alert(response['msg']);
+        }).catch(function(error){
+            alert(error['msg']);
+        });
+
         dispatch(ChangeSelectedCount(props.product.id, 
                                         props.product.name, 
-                                        props.product.description, 
-                                        props.product.price, 
-                                        selected_count, 
-                                        props.product.count, 
+                                        props.product.description,
+                                        props.product.price,
+                                        selected_count,
+                                        props.product.count,
                                         props.product.image));
         props.history.push('/cart');
     }
