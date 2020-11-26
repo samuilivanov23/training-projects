@@ -7,6 +7,7 @@ import { Card, Container, Row, Col, Button } from '../../node_modules/react-boot
 import CartProduct from './CartProduct';
 import JsonRpcClient from '../../node_modules/react-jsonrpc-client/jsonrpcclient';
 import { AddOrderData } from './actions/OrderActions';
+import { EmptyCart } from './actions/CartActions';
 
 function CartProductList (props) {
 
@@ -50,6 +51,7 @@ function CartProductList (props) {
             console.log()
 
             dispatch(AddOrderData(response['order_data']))
+            dispatch(EmptyCart());
             alert(response['msg']);
 
             props.history.push('/products');
@@ -62,44 +64,60 @@ function CartProductList (props) {
         calculateTotalPrice();
     });
 
-    return(
-        <Container fluid>
-            <Row>
-                <Col>
-                    <Card className={'outer-card'} style={{ width: '55rem', margin: '0.5em' }}>
-                        {cartInfo.map((product, idx) => (
-                            <CartProduct key={idx} {...props} product={product}/>    
-                        ))}
-                        <h5 className="ml-auto" style={{'marginRight' : '5em' }}>
-                            Total: {total_price.toFixed(2)} BGN.
-                        </h5>
-                    </Card>
-                </Col>
-
-                <Col>
-                    <Card className={'outer-card'} style={{ width: '20em', margin: '1em', padding : '1em' }}>
-                        <Card.Header className="text-center outer-card font-weight-bold">
-                            Order information
-                        </Card.Header>
-
-                        <Card.Body>
-                            Products price : {total_price.toFixed(2)} BGN.
-                            Delivery taxes: 0 BGN.
-                        </Card.Body>
-
-                        <Card.Footer className="text-center outer-card font-weight-bold">
-                            TOTAL: {total_price.toFixed(2)} BGN.
-                            <Button>
-                                <Link style={{color:'white'}} to={'/products'} onClick={() => createOrder(userInfo.cart_id)}>
-                                    Checkout
-                                </Link>
-                            </Button>
-                        </Card.Footer>
-                    </Card>
-                </Col>
-            </Row>
-        </Container>
-    );
+    if(cartInfo.length > 0){
+        return(
+            <Container fluid>
+                <Row>
+                    <Col>
+                        <Card className={'outer-card'} style={{ width: '55rem', margin: '0.5em' }}>
+                            {cartInfo.map((product, idx) => (
+                                <CartProduct key={idx} {...props} product={product}/>    
+                            ))}
+                            <h5 className="ml-auto" style={{'marginRight' : '5em' }}>
+                                Total: {total_price.toFixed(2)} BGN.
+                            </h5>
+                        </Card>
+                    </Col>
+    
+                    <Col>
+                        <Card className={'outer-card'} style={{ width: '20em', margin: '1em', padding : '1em' }}>
+                            <Card.Header className="text-center outer-card font-weight-bold">
+                                Order information
+                            </Card.Header>
+    
+                            <Card.Body>
+                                Products price : {total_price.toFixed(2)} BGN.
+                                Delivery taxes: 0 BGN.
+                            </Card.Body>
+    
+                            <Card.Footer className="text-center outer-card font-weight-bold">
+                                TOTAL: {total_price.toFixed(2)} BGN.
+                                <Button>
+                                    <Link style={{color:'white'}} to={'/products'} onClick={() => createOrder(userInfo.cart_id)}>
+                                        Checkout
+                                    </Link>
+                                </Button>
+                            </Card.Footer>
+                        </Card>
+                    </Col>
+                </Row>
+            </Container>
+        );
+    }
+    else{
+        return(
+            <div>
+                <h1>
+                    The cart is empty. Please add some products first.
+                </h1>
+                <Button>
+                    <Link style={{color:'white'}} to={'/products'}>
+                        Browse products
+                    </Link>
+                </Button>
+            </div>
+        );
+    }
 }
 
 export default CartProductList;

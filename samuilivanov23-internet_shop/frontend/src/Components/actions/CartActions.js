@@ -27,4 +27,10 @@ const ChangeSelectedCount = (id, name, description, price, selected_count, count
     dispatch({type : 'CHANGE_SELECTED_COUNT', data : {id, name, description, price, selected_count, count, image}});
 }
 
-export { AllCartProducts, AddProductToCart, ChangeSelectedCount }
+//Remove all items from cart on checkout
+const EmptyCart = () => async (dispatch) => {
+    console.log('EmptyCar action');
+    dispatch({type : 'EMPTY_CAR', data : []});
+}
+
+export { AllCartProducts, AddProductToCart, ChangeSelectedCount, EmptyCart }

@@ -12,7 +12,7 @@ function App (props) {
   return(
     <div>
       <Router>
-        <Route path={"/"} render={(props) => <NavigationBar/>} />
+        <Route path={"/"} render={(props) => <NavigationBar {...props}/>} />
         <Route exact path={"/products"} render={(props) => <Home {...props} per_page={20}/>} />
         <Route path={"/products/:id"} render={(props) => <ProductDetails {...props} />} />
         <Route path={"/register"} render={(props) => <Register {...props}/>} />

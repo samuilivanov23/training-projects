@@ -10,6 +10,9 @@ function cartReducer(state = {}, action){
             const changed_product = action.data;
             return {cartInfo : state.cartInfo.map(p => p.id === changed_product.id?changed_product:p)}
 
+        case 'EMPTY_CAR':
+            return {cartInfo : action.data}
+        
         default:
             return state;
     }

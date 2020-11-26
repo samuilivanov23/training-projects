@@ -91,7 +91,7 @@ function CartProduct(props){
                     </Col>
 
                     <Col>
-                        <p style={{'marginRight' : '1em', 'width' : '12em'}}>Total price: {(props.product.selected_count*props.product.price).toFixed(2)} BGN.</p>
+                        <p style={{'marginRight' : '1em', 'width' : '12em'}}>Price: {(props.product.selected_count*props.product.price).toFixed(2)} BGN.</p>
                     </Col>
                 </Row>
             </Container>

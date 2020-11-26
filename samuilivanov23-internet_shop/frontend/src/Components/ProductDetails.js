@@ -4,6 +4,7 @@ import {Card, Button } from '../../node_modules/react-bootstrap';
 import JsonRpcClient from '../../node_modules/react-jsonrpc-client/jsonrpcclient';
 import { useSelector, useDispatch } from 'react-redux';
 import { useState, useEffect } from 'react';
+import { Link } from '../../node_modules/react-router-dom';
 import { AddProductToCart } from './actions/CartActions';
 import { SetSelectedCount } from './actions/ProductActions';
 
@@ -82,27 +83,56 @@ function ProductDetails (props) {
 
     const options = generateCountSelectElements(productInfo.count);
 
-    return (
-        <div>
-            <Card className={'product-details-card'} style={{ width: '36rem' }}>
-                <Card.Img variant="top" src={`/images/${productInfo.image}`} alt={`${productInfo.name}`}/>
-                <Card.Body>
-                    <Card.Title>Name: {productInfo.name}</Card.Title>
-                    <Card.Text>Description: {productInfo.description}</Card.Text>
-                    <Card.Text>Price: {productInfo.price} BGN.</Card.Text>
-                    <Card.Text>{in_stock}</Card.Text>
-                    
-                    <select style={{marginRight : '1em'}} name={'selected_count'} value={productInfo.selected_count} onChange={changeProductSelectCount}>
-                        {options}
-                    </select>
-                    
-                    <Button onClick={() => addProductToCart(productInfo.id, productInfo.selected_count, productInfo.count)}>
-                        Add to cart
-                    </Button>
-                </Card.Body>
-            </Card>
-        </div>
-    );
+    if(productInfo.count > 0){
+        return (
+            <div>
+                <Card className={'product-details-card'} style={{ width: '36rem' }}>
+                    <Card.Img variant="top" src={`/images/${productInfo.image}`} alt={`${productInfo.name}`}/>
+                    <Card.Body>
+                        <Card.Title>Name: {productInfo.name}</Card.Title>
+                        <Card.Text>Description: {productInfo.description}</Card.Text>
+                        <Card.Text>Price: {productInfo.price} BGN.</Card.Text>
+                        <Card.Text>{in_stock}</Card.Text>
+                        
+                        <select style={{marginRight : '1em'}} name={'selected_count'} value={productInfo.selected_count} onChange={changeProductSelectCount}>
+                            {options}
+                        </select>
+                        
+                        <Button onClick={() => addProductToCart(productInfo.id, productInfo.selected_count, productInfo.count)}>
+                            Add to cart
+                        </Button>
+    
+                        <Button style={{'float' : 'right'}}>
+                            <Link style={{color:'white'}} to={'/products'}>
+                                Browse products
+                            </Link>
+                        </Button>
+                    </Card.Body>
+                </Card>
+            </div>
+        );
+    }
+    else{
+        return(
+            <div>
+                <Card className={'product-details-card'} style={{ width: '36rem' }}>
+                    <Card.Img variant="top" src={`/images/${productInfo.image}`} alt={`${productInfo.name}`}/>
+                    <Card.Body>
+                        <Card.Title>Name: {productInfo.name}</Card.Title>
+                        <Card.Text>Description: {productInfo.description}</Card.Text>
+                        <Card.Text>Price: {productInfo.price} BGN.</Card.Text>
+                        <Card.Text>{in_stock}</Card.Text>
+
+                        <Button style={{'float' : 'right'}}>
+                            <Link style={{color:'white'}} to={'/products'}>
+                                Browse products
+                            </Link>
+                        </Button>
+                    </Card.Body>
+                </Card>
+            </div>
+        );
+    }
 }
 
 export default ProductDetails;

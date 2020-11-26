@@ -1,27 +1,28 @@
 import '../App.css';
-import React from 'react';
+import React, { useContext } from 'react';
 import { Navbar, Nav } from '../../node_modules/react-bootstrap';
 import { Link } from '../../node_modules/react-router-dom';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
+import { LogoutUser } from './actions/UserActions';
 
-function NavigationBar() {
+function NavigationBar(props) {
     
     const signInUser = useSelector(state=>state.signInUser);
     const { userInfo } = signInUser;
 
-    const checkUserLoggedIn = () => {
-        console.log(userInfo.username);
-        if(userInfo.username != 'init'){
-            return true;
-        }
-        else{
-            return false;
-        }
+    const dispatch = useDispatch();
+
+    const logoutUser = () => {
+        dispatch(LogoutUser());
+        props.history.push('/login');
     }
 
-    const generateLoginLink = () => {
+    const generateLoginLogoutLink = () => {
         if(userInfo.username === 'init' || typeof(userInfo.username) === 'undefined'){
             return <Link className={'nav-link'} to="/login">Login</Link>;
+        }
+        else{
+            return <Link className={'nav-link'} to="/login" onClick={logoutUser}>Logout</Link>;
         }
     }
 
@@ -35,8 +36,8 @@ function NavigationBar() {
         }
     }
 
-    const logInLink = generateLoginLink();
-    const cartLink = generateCartLink();
+    const LogInLogoutLink = generateLoginLogoutLink();
+    const CartLink = generateCartLink();
 
     return (
         <Navbar bg="dark" variant="dark">
@@ -47,8 +48,8 @@ function NavigationBar() {
             </Nav>
             <Nav className="ml-auto">
                 <Link className={'nav-link'} to="/register">Register</Link>
-                {logInLink}
-                {cartLink}
+                {LogInLogoutLink}
+                {CartLink}
             </Nav>
         </Navbar>
     );

@@ -104,6 +104,17 @@ class DbOperations:
         
         return descriptions
     
+    def UpdateProductsCounts(self, cart_products, cart_id, cur):
+        for i in range(len(cart_products)):
+                    product_id = cart_products[i][0]
+                    count_after_checkout = cart_products[i][5] - cart_products[i][4] #count_in_stock - selected_count
+
+                    sql = 'update products set count=%s where id=%s'
+                    cur.execute(sql, (count_after_checkout, product_id))
+
+                    sql = 'delete from carts_products where cart_id=%s'
+                    cur.execute(sql, (cart_id,))
+    
     def CheckProductInStock(self, selected_count, count_in_stock):
         if selected_count <= count_in_stock:
             print('TRUE')
@@ -112,7 +123,7 @@ class DbOperations:
             print('FALSE')
             return False
 
-    def AddProductsIntoOrder(self, records, cart_id, user_id, total_price, cur):
+    def AddProductsIntoOrder(self, cart_products, cart_id, user_id, total_price, cur):
         sql = 'insert into orders (date, total_price, user_id) values(current_timestamp(0), %s, %s) RETURNING id'
         cur.execute(sql, (total_price, user_id))
         order_id = cur.fetchone()[0]
@@ -125,31 +136,24 @@ class DbOperations:
 
         response = {'status' : 'OK', 'msg' : 'Successfull', 'order_data' : order_info}
 
-        for i in range(len(records)):
-            product_id = records[i][0]
-            selected_count = records[i][4]
-            count_in_stock = records[i][5]
-
-            print('quantity')
-            print(selected_count)
-            print('in stock')
-            print(count_in_stock)
+        for i in range(len(cart_products)):
+            product_id = cart_products[i][0]
+            selected_count = cart_products[i][4]
+            count_in_stock = cart_products[i][5]
 
             if(self.CheckProductInStock(selected_count, count_in_stock)):
-                print('IN STOCK')
-                print('------------------------------------------')
                 try:
                     sql = 'insert into orders_products (order_id, product_id, count) values(%s, %s, %s)'
                     cur.execute(sql, (order_id, product_id, selected_count))
                     
                     response['order_data']['products'].append({
-                        'id' : records[i][0],
-                        'name' : records[i][1],
-                        'description' : records[i][2],
-                        'price' : float(records[i][3]),
-                        'selected_count' : records[i][4],
-                        'count' : records[i][5],
-                        'image' : records[i][6]
+                        'id' : cart_products[i][0],
+                        'name' : cart_products[i][1],
+                        'description' : cart_products[i][2],
+                        'price' : float(cart_products[i][3]),
+                        'selected_count' : cart_products[i][4],
+                        'count' : cart_products[i][5],
+                        'image' : cart_products[i][6]
                     })
 
                 except Exception as e:
@@ -167,13 +171,15 @@ class DbOperations:
                     'products' : []
                 }
 
-                product_name =  records[i][1]
+                product_name =  cart_products[i][1]
                 if count_in_stock == 0:
                     msg = 'Product ' + product_name + ' is out of stock'
                 else:
                     msg = 'Select less than ' + str(count_in_stock) + ' count from: ' + product_name + ' product'
 
                 response = {'status' : 'Fail', 'msg' : msg, 'order_data' : init_order_info}
-                break
+                return response
+        
+        self.UpdateProductsCounts(cart_products, cart_id, cur)
 
         return response            
