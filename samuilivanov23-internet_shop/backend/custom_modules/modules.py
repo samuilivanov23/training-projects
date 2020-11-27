@@ -5,6 +5,7 @@ import uuid, smtplib, ssl
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 import traceback
+import re
 
 class JSONParser:
     def __init__(self):
@@ -280,3 +281,13 @@ class Verifier:
             response = {'status' : 'Fail', 'msg' : 'Unable to send mail to user'}
         
         return response
+
+class FiltersParser:
+    def __init__(self):
+        pass
+
+    def ParseSortFilter(self, filter):
+        filter_words = filter.split(' ')
+        print('here')
+        print(filter_words)
+        return filter_words[2], filter_words[3]
