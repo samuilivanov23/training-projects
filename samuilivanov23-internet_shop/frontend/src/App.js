@@ -7,6 +7,7 @@ import Login from './Components/Login';
 import { Route, BrowserRouter as Router } from '../node_modules/react-router-dom';
 import CartProductList from './Components/CartProductList';
 import ProductDetails from './Components/ProductDetails';
+import Confirm from './Components/Confirm';
 
 function App (props) {
   return(
@@ -18,6 +19,7 @@ function App (props) {
         <Route path={"/register"} render={(props) => <Register {...props}/>} />
         <Route path={"/login"} render={(props) => <Login {...props} />} />
         <Route path={"/cart"} render={(props) => <CartProductList {...props} />} />
+        <Route path={"/confirm/:id"} render={(props) => <Confirm {...props}/>}/>
       </Router>      
     </div>
   );

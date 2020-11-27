@@ -1,19 +1,12 @@
 import '../App.css';
 import React from 'react';
 import { useState } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
 import { Form, InputGroup, Button } from '../../node_modules/react-bootstrap';
 import JsonRpcClient from '../../node_modules/react-jsonrpc-client/jsonrpcclient';
-import { SignIn } from './actions/UserActions';
 
 function Register (props) {
 
     const [validated, setValidated] = useState(false);
-    const signInUser = useSelector(state=>state.signInUser);
-    const { userInfo } = signInUser;
-    console.log(userInfo);
-
-    const dispatch = useDispatch();
 
     const handleSubmit = (event) => {
         event.preventDefault();
@@ -56,9 +49,14 @@ function Register (props) {
             email_address,
             password,
         ).then(function(response){
-            let json_response = JSON.parse(response);
-            alert(json_response['msg'])
-            if(json_response['msg'] === 'Successful'){
+            response = JSON.parse(response);
+            alert(response['msg'])
+            
+            localStorage.setItem('verified', 'false');
+            localStorage.setItem('user_email_address', email_address);
+            
+            if(response['msg'] === 'Email send successfully'){
+                localStorage.setItem('user_token', response['token']);
                 props.history.push('/login');
             }
         }).catch(function(error){

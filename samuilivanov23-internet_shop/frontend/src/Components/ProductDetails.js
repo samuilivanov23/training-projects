@@ -36,9 +36,7 @@ function ProductDetails (props) {
         checkProductInStock();
     });
 
-    const addProductToCart = (product_id, selected_count, product_count) => {
-        console.log('In addProduct');
-        
+    const addProductToCart = (product_id, selected_count, product_count) => {        
         var django_rpc = new JsonRpcClient({
             endpoint: 'http://127.0.0.1:8000/shop/rpc/',
         });

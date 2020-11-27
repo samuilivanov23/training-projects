@@ -1,12 +1,16 @@
+#from modernrpc.core import rpc_method
 from modernrpc.core import rpc_method
 import json
 import psycopg2
 from internet_shop.dbconfig import onlineShop_dbname, onlineShop_dbuser, onlineShop_dbpassword
+from internet_shop.dbconfig import sender_email, sender_password, server_email, server_port
 import traceback
 import custom_modules.modules as modules
+from datetime import datetime, timedelta
 
-productsJSONServer = modules.ProductJSON()
+productsJSONServer = modules.JSONParser()
 dbOperator = modules.DbOperations()
+verifier = modules.Verifier()
 
 @rpc_method
 def GetProducts(offset, products_per_page):
@@ -142,18 +146,100 @@ def RegisterUser(first_name, last_name, username, email_address, password):
         connection.commit()
 
         hashed_password = dbOperator.MakePasswordHash(password)
-        sql = 'insert into users (first_name, last_name, username, email_address, password, authenticated, cart_id) values(%s, %s, %s, %s, %s, %s, %s)'
+        sql = 'insert into users (first_name, last_name, username, email_address, password, authenticated, cart_id) values(%s, %s, %s, %s, %s, %s, %s) RETURNING id'
         cur.execute(sql, (first_name, last_name, username, email_address, hashed_password, DEFAULT_AUTHENTICATION_STATE, cart_id))
+        user_id = cur.fetchone()[0]
         connection.commit()
 
-        response = {'status': 'OK', 'msg' : 'Successful'}
+        print('BEFORE SendEMAIL')
+        response = verifier.SendEmail(user_id,
+                                        first_name,
+                                        email_address,
+                                        cur,
+                                        sender_email,
+                                        sender_password,
+                                        server_email,
+                                        server_port)        
+        
     except Exception as e:
         print(e)
         response = {'status': 'Fail', 'msg' : 'Unable to register user - exception'}
+        dbOperator.DeleteUser(user_id, cur)
     
     if(connection):
         cur.close()
         connection.close()
+    
+    response = json.dumps(response)
+    print(response)
+    return response
+
+@rpc_method
+def CheckEmailValidity(token):
+    #Connect to database
+    try:
+        connection = psycopg2.connect("dbname='" + onlineShop_dbname +
+                                    "' user='" + onlineShop_dbuser +
+                                    "' password='" + onlineShop_dbpassword + "'")
+
+        connection.autocommit = True
+        cur = connection.cursor()
+    except Exception as e:
+        print(e)
+
+    try:
+        sql = 'select user_id, send_date from verification where token=%s'
+        cur.execute(sql, (token, ))
+        result = cur.fetchone()
+        user_id = result[0]
+        send_date = result[1]
+
+        now = datetime.now()
+    except Exception as e:
+        print(e)
+
+    if (send_date + timedelta(hours=1)) < now:
+        response = {'status' : 'Fail', 'msg' : 'Verification link has expired'}
+    else:
+        try:
+            sql = 'update users set authenticated=%s where id=%s'
+            cur.execute(sql, (True, user_id, ))
+            response = {'status' : 'OK', 'msg' : 'Virification successfull'}
+        except Exception as e:
+            print(e)
+            response = {'status' : 'Fail', 'msg' : 'Unable to update user status to verified'}
+
+    response = json.dumps(response)
+    print(response)
+    return response
+
+@rpc_method
+def SendVerificationEmail(user_email_address):
+    #Connect to database
+    try:
+        connection = psycopg2.connect("dbname='" + onlineShop_dbname + 
+                                    "' user='" + onlineShop_dbuser + 
+                                    "' password='" + onlineShop_dbpassword + "'")
+
+        connection.autocommit = True
+        cur = connection.cursor()
+    except Exception as e:
+        print(e)
+
+    sql = 'select id, first_name from users where email_address=%s'
+    cur.execute(sql, (user_email_address, ))
+    result = cur.fetchone()
+    user_id = result[0]
+    first_name = result[1]
+    
+    response = verifier.SendEmail(user_id,
+                                        first_name,
+                                        user_email_address,
+                                        cur,
+                                        sender_email,
+                                        sender_password,
+                                        server_email,
+                                        server_port)
     
     response = json.dumps(response)
     print(response)

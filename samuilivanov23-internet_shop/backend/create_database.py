@@ -88,6 +88,12 @@ def createTables(cur, connection):
         "delete" boolean
     );
 
+    CREATE TABLE IF NOT EXISTS verification(
+        "user_id" bigserial,
+        "token" text,
+        "send_date" timestamp
+    );
+
     ALTER TABLE products ADD FOREIGN KEY (manufacturer_id) REFERENCES manufacturers (id);
 
     ALTER TABLE orders ADD FOREIGN KEY (user_id) REFERENCES users (id);
@@ -179,4 +185,4 @@ if __name__ == '__main__':
     cur = connection.cursor()
 
     createTables(cur, connection)
-    loadData(cur, connection)
+    #loadData(cur, connection)

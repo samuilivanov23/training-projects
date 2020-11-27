@@ -1,8 +1,12 @@
 import hashlib
 from PIL import Image
 import random, string
+import uuid, smtplib, ssl
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+import traceback
 
-class ProductJSON:
+class JSONParser:
     def __init__(self):
         pass
 
@@ -51,7 +55,8 @@ class ProductJSON:
             
             i+=1
 
-        return cart_products        
+        return cart_products
+  
 
 class DbOperations:
     def __init__(self):
@@ -106,14 +111,17 @@ class DbOperations:
     
     def UpdateProductsCounts(self, cart_products, cart_id, cur):
         for i in range(len(cart_products)):
-                    product_id = cart_products[i][0]
-                    count_after_checkout = cart_products[i][5] - cart_products[i][4] #count_in_stock - selected_count
+            product_id = cart_products[i][0]
+            count_after_checkout = cart_products[i][5] - cart_products[i][4] #count_in_stock - selected_count
 
-                    sql = 'update products set count=%s where id=%s'
-                    cur.execute(sql, (count_after_checkout, product_id))
+            try:
+                sql = 'update products set count=%s where id=%s'
+                cur.execute(sql, (count_after_checkout, product_id))
 
-                    sql = 'delete from carts_products where cart_id=%s'
-                    cur.execute(sql, (cart_id,))
+                sql = 'delete from carts_products where cart_id=%s'
+                cur.execute(sql, (cart_id,))
+            except Exception as e:
+                print(e)
     
     def CheckProductInStock(self, selected_count, count_in_stock):
         if selected_count <= count_in_stock:
@@ -124,7 +132,7 @@ class DbOperations:
             return False
 
     def AddProductsIntoOrder(self, cart_products, cart_id, user_id, total_price, cur):
-        sql = 'insert into orders (date, total_price, user_id) values(current_timestamp(0), %s, %s) RETURNING id'
+        sql = 'insert into orders (date, total_price, user_id) values(current_timestamp(6), %s, %s) RETURNING id'
         cur.execute(sql, (total_price, user_id))
         order_id = cur.fetchone()[0]
 
@@ -159,11 +167,14 @@ class DbOperations:
                 except Exception as e:
                     print(e)
             else:
-                sql = 'delete from orders_products where order_id=%s'
-                cur.execute(sql, (order_id, ))
-                
-                sql = 'delete from orders where id=%s'
-                cur.execute(sql, (order_id, ))
+                try:
+                    sql = 'delete from orders_products where order_id=%s'
+                    cur.execute(sql, (order_id, ))
+                    
+                    sql = 'delete from orders where id=%s'
+                    cur.execute(sql, (order_id, ))
+                except Exception as e:
+                    print(e)
                 
                 init_order_info = {
                     'user_id' : 0,
@@ -171,7 +182,7 @@ class DbOperations:
                     'products' : []
                 }
 
-                product_name =  cart_products[i][1]
+                product_name = cart_products[i][1]
                 if count_in_stock == 0:
                     msg = 'Product ' + product_name + ' is out of stock'
                 else:
@@ -182,4 +193,83 @@ class DbOperations:
         
         self.UpdateProductsCounts(cart_products, cart_id, cur)
 
-        return response            
+        return response
+
+    def DeleteUser(self, user_id, cur):
+        try:
+            sql = 'delete from users where id=%s'
+            cur.execute(sql, (user_id, ))
+        except Exception as e:
+            print(e)
+
+    def AddTokenToVerification(self, user_id, token, cur):
+        try:
+            sql = 'insert into verification (user_id, token, send_date) values(%s, %s, current_timestamp(6))'
+            cur.execute(sql, (user_id, token, ))
+        except Exception as e:
+            print(e)
+
+
+class Verifier:
+    def __init__(self):
+        pass
+    
+    def SendEmail(self, user_id, 
+                        first_name, 
+                        receiver_email, 
+                        cur, 
+                        sender_email, 
+                        sender_password, 
+                        server_email, 
+                        server_port):
+
+        print('Start SendEmail')
+
+        message = MIMEMultipart()
+        message['Subject'] = 'Verification mail'
+        message['From'] = sender_email
+        message['To'] = receiver_email
+
+        token = str(uuid.uuid4())
+        dbOperator = DbOperations()
+        dbOperator.AddTokenToVerification(user_id, token, cur)
+
+        email_content = """\
+        <html>
+            <body>
+                <p>Hi, """ + first_name + """. <br>
+                If you registered in our shop with this email<br>
+                <a href="http://localhost:3000/confirm/""" + token + """">Please click here to verify.</a>
+                </p>
+            </body>
+        </html>
+        """
+
+        print('Attaching MIMEtext')
+        try:
+            message.attach(MIMEText(email_content, 'html'))
+        except:
+            print(traceback.format_exc())
+
+        print('CREATING SSL context')
+        try:
+            #Create secure connection with the server and send the email
+            context = ssl.create_default_context()
+        except:
+            print(traceback.format_exc())
+
+        print('SENDING Email')
+        try:
+            with smtplib.SMTP_SSL(server_email, server_port, context=context) as server:
+                server.login(sender_email, sender_password)
+                server.sendmail(
+                    sender_email, receiver_email, message.as_string()
+                )
+
+            print('SUCCESSFUL')
+            response = {'status' : 'Success', 'msg' : 'Email send successfully', 'token' : token}
+        except:
+            print(traceback.format_exc())
+            response = {'status' : 'Fail', 'msg' : 'Unable to send mail to user'}
+        
+        return response
