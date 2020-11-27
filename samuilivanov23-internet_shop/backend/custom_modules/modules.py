@@ -72,6 +72,13 @@ class DbOperations:
         else:
             return False
     
+    def GenerateSalt(self):
+        chars = string.printable[:95] #get list of all ascii chars excluding special ones
+        salt_length = 6
+        salt = ''.join(random.choice(chars) for i in range(salt_length))
+        
+        return salt
+    
     def GenerateImages(self, count, sizeX, sizeY):
         color = '#34a1eb' #skyblue
         image_names = []

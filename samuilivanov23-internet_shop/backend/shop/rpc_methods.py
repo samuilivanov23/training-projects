@@ -145,9 +145,10 @@ def RegisterUser(first_name, last_name, username, email_address, password):
         cart_id = cur.fetchone()[0]
         connection.commit()
 
-        hashed_password = dbOperator.MakePasswordHash(password)
-        sql = 'insert into users (first_name, last_name, username, email_address, password, authenticated, cart_id) values(%s, %s, %s, %s, %s, %s, %s) RETURNING id'
-        cur.execute(sql, (first_name, last_name, username, email_address, hashed_password, DEFAULT_AUTHENTICATION_STATE, cart_id))
+        salt = dbOperator.GenerateSalt()
+        salted_password = dbOperator.MakePasswordHash(password+salt)
+        sql = 'insert into users (first_name, last_name, username, email_address, password, salt, authenticated, cart_id) values(%s, %s, %s, %s, %s, %s, %s, %s) RETURNING id'
+        cur.execute(sql, (first_name, last_name, username, email_address, salted_password, salt, DEFAULT_AUTHENTICATION_STATE, cart_id))
         user_id = cur.fetchone()[0]
         connection.commit()
 
@@ -269,9 +270,21 @@ def LoginUser(email_address, password):
     init_cart_info = []
 
     try:
-        hashed_password = dbOperator.MakePasswordHash(password)
+        try:
+            sql = 'select salt from users where email_address=%s'
+            cur.execute(sql, (email_address, ))
+            salt = cur.fetchone()[0]
+        except Exception as e:
+            response = {'status': 'Fail', 'msg' : 'Incorrect email.', 'userInfo' : init_user_info, 'cart_products' : init_cart_info}
+            response = json.dumps(response)
+            print(response)
+            return response
+
+        print(password+salt)
+        hashed_password = dbOperator.MakePasswordHash(password+salt)
+        print(hashed_password)
         sql = 'select id, username, cart_id from users where email_address=%s and password=%s'
-        cur.execute(sql, (email_address, hashed_password))
+        cur.execute(sql, (email_address, hashed_password, ))
 
         user_record = cur.fetchone()
 
@@ -299,7 +312,7 @@ def LoginUser(email_address, password):
             else:
                 response = {'status': 'OK', 'msg' : 'Successful', 'userInfo' : sign_in_user, 'cart_products' : init_cart_info}
         else:
-            response = {'status': 'Fail', 'msg' : 'User does not exist. Change Email/password.', 'userInfo' : init_user_info, 'cart_products' : init_cart_info}
+            response = {'status': 'Fail', 'msg' : 'User does not exist. Change password.', 'userInfo' : init_user_info, 'cart_products' : init_cart_info}
 
     except Exception as e:
         print(e)

@@ -14,6 +14,7 @@ def createTables(cur, connection):
         "username" text,
         "email_address" text UNIQUE,
         "password" text,
+        "salt" text,
         "authenticated" boolean,
         "cart_id" bigserial UNIQUE
     );
@@ -185,4 +186,4 @@ if __name__ == '__main__':
     cur = connection.cursor()
 
     createTables(cur, connection)
-    #loadData(cur, connection)
+    loadData(cur, connection)
