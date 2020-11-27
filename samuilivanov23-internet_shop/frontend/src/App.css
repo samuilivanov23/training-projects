@@ -20,6 +20,8 @@
 .truncate-overflow {
   line-height: 1em;
   max-height: 3em;
+  overflow: hidden;
+  font-size: small;
 }
 
 .truncate-overflow::before {
@@ -85,6 +87,11 @@
 .products-section {
   margin-left: 16%;
   background: black;
+}
+
+.sort-filter {
+  display: inline-block;
+  margin-left: 70%;
 }
 
 .App-logo {

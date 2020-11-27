@@ -4,6 +4,7 @@ import JsonRpcClient from '../../node_modules/react-jsonrpc-client/jsonrpcclient
 import ReactPaginate from '../../node_modules/react-paginate'
 import PropTypes from '../../node_modules/prop-types'
 import ProductList from './ProductList'
+import SortFilter from './SortFilter';
 
 class Home extends React.Component{
 
@@ -17,7 +18,6 @@ class Home extends React.Component{
     this.state = {
       products: [],
       offset : 0,
-      pages_count : 50, // ISSUE (hardcoded for testing purposes) : must not be hardcoded
     }
   };
 
@@ -77,10 +77,14 @@ class Home extends React.Component{
       <section className={"product-list-container"}>
 
         <div className={"menu-section"}>
-          <p>Testing???</p>
+          <p>Categories / filters</p>
         </div>
 
         <div className={"products-section"}>
+          <div>
+            <SortFilter {...this.props}/>
+          </div>
+
           <div className={"App"} style={{display : 'flex', flexDirection : 'row', flex : 1, flexWrap : 'wrap'}}>
             <ProductList {...this.props} products={this.state.products}/>
           </div>

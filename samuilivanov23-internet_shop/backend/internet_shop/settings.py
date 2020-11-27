@@ -85,6 +85,7 @@ WSGI_APPLICATION = 'internet_shop.wsgi.application'
 
 MODERNRPC_METHODS_MODULES = [
     'shop.rpc_methods', #TODO CREATE STRUCTURE FOR THE RPC METHODS IN DIFFERENT MODULES!!!
+    'shop.rpc_data_filters',
 ]
 
 # Database

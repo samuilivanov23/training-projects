@@ -1,5 +1,4 @@
 import '../App.css';
-import React, { useContext } from 'react';
 import { Navbar, Nav } from '../../node_modules/react-bootstrap';
 import { Link } from '../../node_modules/react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
