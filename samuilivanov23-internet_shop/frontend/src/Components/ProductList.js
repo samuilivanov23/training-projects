@@ -29,13 +29,13 @@ function ProductList (props) {
     return (
         <div className={"App"} style={{display : 'flex', flexDirection : 'row', flex : 1, flexWrap : 'wrap'}}>
             {props.products.map(product => (
-                <div key={product['id']} className={'product-card'}>
-                    <Card style={{ width: '18rem' }}>
+                <div key={product['id']} className={'product-card per-grid-card'}>
+                    <Card>
                         <Card.Img variant="top" src={`/images/${product['image']}`} alt={`${product['name']}`}/>
                         <Card.Body>
-                            <Card.Title>Name: {product['name']}</Card.Title>
+                            <Card.Title>{product['name']}</Card.Title>
 
-                            <Card.Text>Description: {product['description']}</Card.Text>
+                            <Card.Text style={{position:'relative'}} className={"truncate-overflow"}>{product['description']}</Card.Text>
                             <Card.Text>Price: {product['price']} BGN.</Card.Text>
 
                             <Button>
@@ -47,7 +47,7 @@ function ProductList (props) {
                     </Card>
                 </div>
             ))}
-        </div>
+        </div>        
     );
 }
 

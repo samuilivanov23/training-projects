@@ -74,29 +74,36 @@ class Home extends React.Component{
     }
 
     return (
-      <div>
-        <div className={"App"} style={{display : 'flex', flexDirection : 'row', flex : 1, flexWrap : 'wrap'}}>
-          <ProductList {...this.props} products={this.state.products}/>
+      <section className={"product-list-container"}>
+
+        <div className={"menu-section"}>
+          <p>Testing???</p>
         </div>
 
-        <ReactPaginate
-            previousLabel={'← Previous'}
-            nextLabel={'Next →'}
-            pageCount={this.state.pages_count}
-            pageRangeDisplayed={5}
-            onPageChange={this.handlePageClick}
-            breakClassName={'page-item'}
-            breakLinkClassName={'page-link'}
-            containerClassName={'pagination'}
-            pageClassName={'page-item'}
-            pageLinkClassName={'page-link'}
-            previousClassName={'page-item'}
-            previousLinkClassName={'page-link'}
-            nextClassName={'page-item'}
-            nextLinkClassName={'page-link'}
-            activeClassName={'active'}
-        />
-      </div>
+        <div className={"products-section"}>
+          <div className={"App"} style={{display : 'flex', flexDirection : 'row', flex : 1, flexWrap : 'wrap'}}>
+            <ProductList {...this.props} products={this.state.products}/>
+          </div>
+
+          <ReactPaginate
+              previousLabel={'← Previous'}
+              nextLabel={'Next →'}
+              pageCount={this.state.pages_count}
+              pageRangeDisplayed={5}
+              onPageChange={this.handlePageClick}
+              breakClassName={'page-item'}
+              breakLinkClassName={'page-link'}
+              containerClassName={'pagination'}
+              pageClassName={'page-item'}
+              pageLinkClassName={'page-link'}
+              previousClassName={'page-item'}
+              previousLinkClassName={'page-link'}
+              nextClassName={'page-item'}
+              nextLinkClassName={'page-link'}
+              activeClassName={'active'}
+          />
+        </div>
+      </section>
     );
   }
 }

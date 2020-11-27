@@ -41,7 +41,7 @@ function NavigationBar(props) {
 
     return (
         <Navbar bg="dark" variant="dark">
-            <Navbar.Brand to="/">Vide Surveillance shop</Navbar.Brand>
+            <Navbar.Brand to="/">Video Surveillance shop</Navbar.Brand>
             <Nav className="mr-auto">
                 <Link className={'nav-link'} to="/products">Products</Link>
                 <Link className={'nav-link'} to="/tags">Categories</Link>

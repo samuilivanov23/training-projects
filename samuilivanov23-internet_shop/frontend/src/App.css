@@ -1,17 +1,32 @@
 .App {
   text-align: center;
+  margin-left: 1em;
 }
 
 .product-card {
-  margin-top: 4em;
-  margin-bottom: 4em;
-  margin-right: 4em;
-  margin-left: 5em;
+  margin-top: 2em;
+  margin-bottom: 2em;
+  margin-left: 1em;
 }
 
 .product-details-card{
-  margin-top: 3em;
-  margin-left: 3em;
+  width : 36em;
+}
+
+.per-grid-card {
+  width: 12em;
+}
+
+.truncate-overflow {
+  line-height: 1em;
+  max-height: 3em;
+}
+
+.truncate-overflow::before {
+  content: "...";
+  position: absolute;
+  bottom: 0;
+  right: 0;
 }
 
 .pagination {
@@ -52,6 +67,24 @@
   display: inline;
   vertical-align: top;
   line-height: 28px;
+}
+
+.product-list-container {
+  width: 98%;
+  background: aqua;
+  margin : 1em;
+  padding: 10px;
+}
+
+.menu-section {
+  width: 15%;
+  background: red;
+  float: left;
+}
+
+.products-section {
+  margin-left: 16%;
+  background: black;
 }
 
 .App-logo {
