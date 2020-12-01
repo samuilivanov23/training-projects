@@ -3,18 +3,14 @@ import React from 'react';
 import { useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { Form, Button } from '../../node_modules/react-bootstrap';
-import { Link } from '../../node_modules/react-router-dom';
 import JsonRpcClient from '../../node_modules/react-jsonrpc-client/jsonrpcclient';
-import { SignIn } from './actions/UserActions';
-import { AllCartProducts } from './actions/CartActions';
+import { SignInEmployee } from '../Components/actions/EmployeeActions';
 
-
-function Login (props) {
+function LoginEmployee(props) {
     const [validated, setValidated] = useState(false);
 
-    const signInUser = useSelector(state=>state.signInUser);
-    const { userInfo } = signInUser;
-    console.log(userInfo);
+    const { employeeInfo } = useSelector(state=>state.employee);
+    console.log(employeeInfo);
 
     const dispatch = useDispatch();
 
@@ -33,35 +29,35 @@ function Login (props) {
             console.log('Allowing to login');
 
             //TODO: ADD email/password data validation 
-            logInUser(form_data.email_address.value, form_data.password.value);
-            console.log(userInfo);
+            logInEmployee(form_data.email_address.value, form_data.password.value);
+            console.log(employeeInfo);
         }
 
         setValidated(true);
     };
 
-    const logInUser = (email_address, password) => {
+    const logInEmployee = (email_address, password) => {
         var django_rpc = new JsonRpcClient({
-            endpoint: 'http://127.0.0.1:8000/shop/rpc/',
+            endpoint: 'http://127.0.0.1:8000/backoffice/rpc/',
         });
       
         django_rpc.request(
-            "LoginUser",
+            "LoginEmployee",
             email_address,
             password,
-        ).then(function(response){            
-            if(response.userInfo.username !== 'init'){
-                dispatch(SignIn(response.userInfo.id,
-                    response.userInfo.username,
-                    response.userInfo.email_address, 
-                    response.userInfo.cart_id));
+        ).then(function(response){
+            if(response.employeeInfo.email_address !== 'init'){
+                dispatch(SignInEmployee(
+                    response.employeeInfo.id,
+                    response.employeeInfo.email_address,
+                    response.employeeInfo.role_id
+                ));
 
-                dispatch(AllCartProducts(response.cart_products));
-                props.history.push('/products');
+                props.history.push('/backoffice');
             }
-
-            alert(response.msg)
+            alert(response.msg);
         }).catch(function(error){
+            console.log('neshto');
             alert(error['msg'])
         });
     }
@@ -104,13 +100,9 @@ function Login (props) {
                 <Button variant="primary" type="submit">
                     Login
                 </Button>
-
-                <Link to={'/register'}>
-                    Dont have an account?
-                </Link>
             </Form>
         </div>
     );
 }
 
-export default Login;
+export default LoginEmployee;

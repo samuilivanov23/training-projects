@@ -4,6 +4,7 @@ import { signInUserReducer } from './reducers/UserReducers';
 import { cartReducer } from './reducers/CartReducers';
 import { productReducer } from './reducers/ProductReducers';
 import { orderReducer } from './reducers/OrderReducers';
+import { employeeReducer } from './reducers/EmployeeReducers';
 
 //Set initial redux state
 const userInfo = {
@@ -12,6 +13,12 @@ const userInfo = {
     email_address : 'init',
     cart_id : 0,
 };
+
+const employeeInfo = {
+    id : 0,
+    email_address : 'init',
+    role_id : 0,
+}
 
 const cartInfo = [];
 
@@ -31,10 +38,11 @@ const orderInfo = {
     products : []
 }
 
-const initial_state = { signInUser : {userInfo}, cartProducts : {cartInfo}, productDetails : {productInfo}, orderProducts : {orderInfo}};
+const initial_state = { signInUser : {userInfo}, employee : {employeeInfo}, cartProducts : {cartInfo}, productDetails : {productInfo}, orderProducts : {orderInfo}};
 
 const reducer = combineReducers({
     signInUser : signInUserReducer,
+    employee : employeeReducer,
     cartProducts : cartReducer,
     productDetails : productReducer,
     orderProducts : orderReducer,

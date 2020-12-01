@@ -188,7 +188,7 @@ def AddAdmin(cur, connection):
         last_name = 'Admin'
         email_address = 'admin@gmail.com'
         password = admin_pass + salt
-        hashed_password = dbOperator.MakePasswordHash(password+salt)
+        hashed_password = dbOperator.MakePasswordHash(password)
 
         try:
             sql = 'insert into employees (first_name, last_name, email_address, password, role_id) values(%s, %s, %s, %s, %s)'

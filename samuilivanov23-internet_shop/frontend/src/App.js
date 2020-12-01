@@ -8,6 +8,8 @@ import { Route, BrowserRouter as Router } from '../node_modules/react-router-dom
 import CartProductList from './Components/CartProductList';
 import ProductDetails from './Components/ProductDetails';
 import Confirm from './Components/Confirm';
+import LoginEmployee from './Backoffice_Components/LoginEmployee';
+import BackofficeHome from './Backoffice_Components/Home';
 
 function App (props) {
   return(
@@ -20,6 +22,10 @@ function App (props) {
         <Route path={"/login"} render={(props) => <Login {...props} />} />
         <Route path={"/cart"} render={(props) => <CartProductList {...props} />} />
         <Route path={"/confirm/:id"} render={(props) => <Confirm {...props}/>}/>
+        
+        
+        <Route exact path={"/backoffice"} render={(props) => <BackofficeHome {...props}/>} />
+        <Route path={"/backoffice/login"} render={(props) => <LoginEmployee {...props}/>} />
       </Router>      
     </div>
   );
