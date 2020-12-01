@@ -50,7 +50,7 @@ function LoginEmployee(props) {
                 dispatch(SignInEmployee(
                     response.employeeInfo.id,
                     response.employeeInfo.email_address,
-                    response.employeeInfo.role_id
+                    response.employeeInfo.permissions
                 ));
 
                 props.history.push('/backoffice');

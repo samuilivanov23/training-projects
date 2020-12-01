@@ -7,6 +7,8 @@ function Home(props){
     const { employeeInfo } = useSelector(state=>state.employee);
     console.log(employeeInfo);
 
+    console.log(props);
+
     //check if any employee has logged in
     //if not - redirect to LoginEmployee component
     if(employeeInfo.email_address === 'init'){

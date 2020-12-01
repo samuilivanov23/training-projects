@@ -32,11 +32,19 @@ def LoginEmployee(email_address, password):
             employee_id = employee_record[0]
             email_address = employee_record[1]
             role_id = employee_record[2]
+
+            sql = 'select p.create_perm, p.update_perm, p.delete_perm from roles as r left join permissions as p on r.permission_id=p.id where r.id=%s'
+            cur.execute(sql, (role_id, ))
+            permissions = cur.fetchone()
             
             sign_in_employee = {
                 'id' : employee_id,
                 'email_address' : email_address,
-                'role_id' : role_id, 
+                'permissions' : {
+                    'create' : permissions[0],
+                    'update' : permissions[1],
+                    'delete' : permissions[2],
+                }, 
             }
 
             response = {'status' : 'OK', 'msg' : 'Successful', 'employeeInfo' : sign_in_employee}
@@ -44,7 +52,7 @@ def LoginEmployee(email_address, password):
             init_employee_info = {
                 'id' : 0,
                 'email_address' : 'init',
-                'role_id' : 0, 
+                'permissions' : {}, 
             }
 
             response = {'status' : 'Fail', 'msg' : 'Incorrect email/password', 'employeeInfo' : init_employee_info}
@@ -59,7 +67,7 @@ def LoginEmployee(email_address, password):
         init_employee_info = {
             'id' : 0,
             'email_address' : 'init',
-            'role_id' : 0, 
+            'permissions' : {}, 
         }
 
         response = {'status' : 'Fail', 'msg' : 'Unable to get products', 'employeeInfo' : init_employee_info}
