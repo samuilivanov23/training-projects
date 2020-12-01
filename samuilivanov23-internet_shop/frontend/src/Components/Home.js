@@ -21,12 +21,12 @@ class Home extends React.Component{
     }
   };
 
-  loadProductsList(offset, products_per_page){
+  loadInitialProductsList(offset, products_per_page){
     var django_rpc = new JsonRpcClient({
       endpoint: 'http://127.0.0.1:8000/shop/rpc/',
     });
 
-    var home_component = this;
+    const home_component = this;
 
     django_rpc.request(
       "GetProducts",
@@ -34,7 +34,6 @@ class Home extends React.Component{
       products_per_page,
     ).then(function(response){
       let products_list = JSON.parse(response);
-      console.log(products_list['data']);
       
       home_component.setState({
         products : products_list['data'],
@@ -48,13 +47,41 @@ class Home extends React.Component{
     });
   }
 
+  loadProductsPerPage(offset, products_per_page, selected_sorting){
+    const filter = selected_sorting;
+
+    const django_rpc = new JsonRpcClient({
+        endpoint: "http://127.0.0.1:8000/shop/rpc/filters",
+    });
+
+    const home_component = this;
+
+    django_rpc.request(
+        'FilterProducts',
+        filter,
+        offset,
+        products_per_page,
+    ).then(function(response){
+        response = JSON.parse(response);
+
+        home_component.setState({
+          products : response['data'],
+          pages_count : response['pages_count'],
+          selected_sorting : filter,
+        });
+
+    }).catch(function(error){
+        alert(error['msg']);
+    });
+  }
+
   componentDidUpdate() {
     window.scrollTo(0, 0);
   }
 
   componentDidMount(){
     console.log("state:");
-    this.loadProductsList(0, this.props.per_page);
+    this.loadInitialProductsList(0, this.props.per_page);
     console.log(this.state)
   }
 
@@ -95,7 +122,7 @@ class Home extends React.Component{
     let new_offset = Math.ceil(selected * this.props.per_page);
 
     this.setState({offset : new_offset}, () => {
-      this.loadProductsList(new_offset, this.props.per_page);
+      this.loadProductsPerPage(new_offset, this.props.per_page, this.state.selected_sorting);
     })
   }
 
