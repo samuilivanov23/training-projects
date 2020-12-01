@@ -280,9 +280,7 @@ def LoginUser(email_address, password):
             print(response)
             return response
 
-        print(password+salt)
         hashed_password = dbOperator.MakePasswordHash(password+salt)
-        print(hashed_password)
         sql = 'select id, username, cart_id from users where email_address=%s and password=%s'
         cur.execute(sql, (email_address, hashed_password, ))
 

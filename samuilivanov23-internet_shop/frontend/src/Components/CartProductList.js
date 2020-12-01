@@ -35,29 +35,33 @@ function CartProductList (props) {
 
     //takse the signed in user cart_id as argument
     const createOrder = (cart_id) => {
-        var django_rpc = new JsonRpcClient({
-            endpoint: 'http://127.0.0.1:8000/shop/rpc/',
-        })
 
-        django_rpc.request(
-            'CreateOrder',
-            cart_id,
-            userInfo.id,
-            total_price.toFixed(2),
-        ).then(function(response){
-            response = JSON.parse(response);
-            console.log('Create Order res ----');
-            console.log(response);
-            console.log()
+        alert('Product pdded to cart');
+        props.history.push('https://demo.epay.bg/');
 
-            dispatch(AddOrderData(response['order_data']))
-            dispatch(EmptyCart());
-            alert(response['msg']);
+        // var django_rpc = new JsonRpcClient({
+        //     endpoint: 'http://127.0.0.1:8000/shop/rpc/',
+        // })
 
-            props.history.push('/products');
-        }).catch(function(error){
-            console.log(error['msg']);
-        });
+        // django_rpc.request(
+        //     'CreateOrder',
+        //     cart_id,
+        //     userInfo.id,
+        //     total_price.toFixed(2),
+        // ).then(function(response){
+        //     response = JSON.parse(response);
+        //     console.log('Create Order res ----');
+        //     console.log(response);
+        //     console.log()
+
+        //     dispatch(AddOrderData(response['order_data']))
+        //     dispatch(EmptyCart());
+        //     alert(response['msg']);
+
+        //     props.history.push('/products');
+        // }).catch(function(error){
+        //     console.log(error['msg']);
+        // });
     }
 
     useEffect(() => {
@@ -93,7 +97,7 @@ function CartProductList (props) {
                             <Card.Footer className="text-center outer-card font-weight-bold">
                                 TOTAL: {total_price.toFixed(2)} BGN.
                                 <Button>
-                                    <Link style={{color:'white'}} to={'/products'} onClick={() => createOrder(userInfo.cart_id)}>
+                                    <Link style={{color:'white'}} onClick={() => createOrder(userInfo.cart_id)}>
                                         Checkout
                                     </Link>
                                 </Button>

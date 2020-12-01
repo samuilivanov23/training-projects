@@ -11,8 +11,8 @@ class JSONParser:
     def __init__(self):
         pass
 
-    def GetAllProductsJSON(self, records, product_records_count): 
-        response = {'status' : 'OK', 'msg' : 'Successful', 'data': [], 'pages_count' : product_records_count}
+    def GetAllProductsJSON(self, records, pages_count): 
+        response = {'status' : 'OK', 'msg' : 'Successful', 'data': [], 'pages_count' : pages_count}
         print('PRODUCTS LEN: ' + str(len(records)))
 
         i = 0
@@ -231,8 +231,6 @@ class Verifier:
                         server_email, 
                         server_port):
 
-        print('Start SendEmail')
-
         message = MIMEMultipart()
         message['Subject'] = 'Verification mail'
         message['From'] = sender_email
@@ -253,20 +251,17 @@ class Verifier:
         </html>
         """
 
-        print('Attaching MIMEtext')
         try:
             message.attach(MIMEText(email_content, 'html'))
         except:
             print(traceback.format_exc())
 
-        print('CREATING SSL context')
         try:
             #Create secure connection with the server and send the email
             context = ssl.create_default_context()
         except:
             print(traceback.format_exc())
 
-        print('SENDING Email')
         try:
             with smtplib.SMTP_SSL(server_email, server_port, context=context) as server:
                 server.login(sender_email, sender_password)
@@ -274,7 +269,6 @@ class Verifier:
                     sender_email, receiver_email, message.as_string()
                 )
 
-            print('SUCCESSFUL')
             response = {'status' : 'Success', 'msg' : 'Email send successfully', 'token' : token}
         except:
             print(traceback.format_exc())
@@ -287,7 +281,5 @@ class FiltersParser:
         pass
 
     def ParseSortFilter(self, filter):
-        filter_words = filter.split(' ')
-        print('here')
-        print(filter_words)
-        return filter_words[2], filter_words[3]
+        filter_request = filter.split(' ')
+        return filter_request[2], filter_request[3]

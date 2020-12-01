@@ -4,7 +4,6 @@ import JsonRpcClient from '../../node_modules/react-jsonrpc-client/jsonrpcclient
 import ReactPaginate from '../../node_modules/react-paginate'
 import PropTypes from '../../node_modules/prop-types'
 import ProductList from './ProductList'
-import SortFilter from './SortFilter';
 
 class Home extends React.Component{
 
@@ -18,6 +17,7 @@ class Home extends React.Component{
     this.state = {
       products: [],
       offset : 0,
+      selected_sorting : 'Sort by name asc',
     }
   };
 
@@ -58,6 +58,37 @@ class Home extends React.Component{
     console.log(this.state)
   }
 
+  FilterProducts = (event) => {
+    const filter = event.target.value;
+
+    const django_rpc = new JsonRpcClient({
+        endpoint: "http://127.0.0.1:8000/shop/rpc/filters",
+    });
+
+    const home_component = this;
+
+    django_rpc.request(
+        'FilterProducts',
+        filter,
+        this.state.offset,
+        this.props.per_page,
+    ).then(function(response){
+        response = JSON.parse(response);
+
+        home_component.setState({
+          products : response['data'],
+          pages_count : response['pages_count'],
+          selected_sorting : filter,
+        });
+
+        alert(response['msg']);
+    }).catch(function(error){
+        alert(error['msg']);
+    });
+
+    console.log(this.props);
+  }
+
   handlePageClick = (products) => {
     let selected = products.selected;
     console.log(selected);
@@ -69,6 +100,19 @@ class Home extends React.Component{
   }
 
   render(){
+    const GenerateSortFilters = () => {
+      const options = []
+
+      options.push(<option key={1} value={'Sort by name asc'}> Sort by name (asc)</option>);
+      options.push(<option key={2} value={'Sort by name desc'}> Sort by name (desc)</option>);
+      options.push(<option key={3} value={'Sort by price asc'}> Sort by price (asc)</option>);
+      options.push(<option key={4} value={'Sort by price desc'}> Sort by price (desc)</option>);
+      
+      return options;
+    }
+
+    const options = GenerateSortFilters();
+
     if(!this.state.products.length){
       return <div>Loading...</div>
     }
@@ -82,7 +126,12 @@ class Home extends React.Component{
 
         <div className={"products-section"}>
           <div>
-            <SortFilter {...this.props}/>
+            <div className={'sort-filter'}>
+                <select id="SortFilter" name={'sort_filter'} value={this.state.selected_sorting} onChange={this.FilterProducts}>
+                    {options}
+                </select>
+                <label style={{marginLeft:'1em'}}>Select filter</label>
+            </div>
           </div>
 
           <div className={"App"} style={{display : 'flex', flexDirection : 'row', flex : 1, flexWrap : 'wrap'}}>
