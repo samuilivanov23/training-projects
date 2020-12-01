@@ -278,6 +278,11 @@ def LoginUser(email_address, password):
             response = {'status': 'Fail', 'msg' : 'Incorrect email.', 'userInfo' : init_user_info, 'cart_products' : init_cart_info}
             response = json.dumps(response)
             print(response)
+
+            if(connection):
+                cur.close()
+                connection.close()
+                
             return response
 
         hashed_password = dbOperator.MakePasswordHash(password+salt)

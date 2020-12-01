@@ -7,5 +7,5 @@ import re
 urlpatterns= [
     path('', views.index, name='index'),
     url(r'^rpc/', RPCEntryPoint.as_view()),
-    url(r'^rpc/filters/', RPCEntryPoint.as_view()),
+    url(r'^rpc/crud/', RPCEntryPoint.as_view()),
 ]
