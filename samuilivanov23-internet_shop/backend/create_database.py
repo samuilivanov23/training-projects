@@ -1,5 +1,5 @@
 import psycopg2
-from internet_shop.dbconfig import onlineShop_dbname, onlineShop_dbuser, onlineShop_dbpassword
+from internet_shop.dbconfig import onlineShop_dbname, onlineShop_dbuser, onlineShop_dbpassword, salt, admin_pass
 import random, string
 import custom_modules.modules as modules
 dbOperator = modules.DbOperations()
@@ -83,10 +83,10 @@ def createTables(cur, connection):
     );
 
     CREATE TABLE IF NOT EXISTS permissions(
-        "id" int PRIMARY KEY,
-        "create" boolean,
-        "update" boolean,
-        "delete" boolean
+        "id" bigserial PRIMARY KEY,
+        "create_perm" boolean,
+        "update_perm" boolean,
+        "delete_perm" boolean
     );
 
     CREATE TABLE IF NOT EXISTS verification(
@@ -167,15 +167,37 @@ def loadData(cur, connection):
         except Exception as e:
             print(e)
 
+def AddAdmin(cur, connection):
     try:
-        cur.close()
-    except (Exception, psycopg2.DatabaseError) as error:
-        print(error)
-        connection = None
-    finally:
-        if connection is not None:
-            connection.close()
+        try:
+            sql = 'insert into permissions (create_perm, update_perm, delete_perm) values(%s, %s, %s) RETURNING id'
+            cur.execute(sql, (True, True, True, )) # admin has all permissions
+            admin_permissions_id = cur.fetchone()[0]
+        except Exception as e:
+            print(e)
 
+        try:
+            admin_role_name = 'admin'
+            sql = 'insert into roles (name, permission_id) values(%s, %s) RETURNING id'
+            cur.execute(sql, (admin_role_name, admin_permissions_id))
+            admin_role_id =  cur.fetchone()[0]
+        except Exception as e:
+            print(e)
+        
+        first_name = 'Admin'
+        last_name = 'Admin'
+        email_address = 'admin@gmail.com'
+        password = admin_pass + salt
+        hashed_password = dbOperator.MakePasswordHash(password+salt)
+
+        try:
+            sql = 'insert into employees (first_name, last_name, email_address, password, role_id) values(%s, %s, %s, %s, %s)'
+            cur.execute(sql, (first_name, last_name, email_address, hashed_password, admin_role_id))
+        except Exception as e:
+            print(e)
+    except Exception as e:
+        print(e)
+    
 if __name__ == '__main__':
     #connect to the database
     connection = psycopg2.connect("dbname='" + onlineShop_dbname + 
@@ -185,5 +207,10 @@ if __name__ == '__main__':
     connection.autocommit = True
     cur = connection.cursor()
 
-    createTables(cur, connection)
-    loadData(cur, connection)
+    #createTables(cur, connection)
+    #loadData(cur, connection)
+    AddAdmin(cur, connection)
+
+    cur.close()
+    if connection is not None:
+        connection.close()

@@ -37,31 +37,30 @@ function CartProductList (props) {
     const createOrder = (cart_id) => {
 
         alert('Product pdded to cart');
-        props.history.push('https://demo.epay.bg/');
 
-        // var django_rpc = new JsonRpcClient({
-        //     endpoint: 'http://127.0.0.1:8000/shop/rpc/',
-        // })
+        var django_rpc = new JsonRpcClient({
+            endpoint: 'http://127.0.0.1:8000/shop/rpc/',
+        })
 
-        // django_rpc.request(
-        //     'CreateOrder',
-        //     cart_id,
-        //     userInfo.id,
-        //     total_price.toFixed(2),
-        // ).then(function(response){
-        //     response = JSON.parse(response);
-        //     console.log('Create Order res ----');
-        //     console.log(response);
-        //     console.log()
+        django_rpc.request(
+            'CreateOrder',
+            cart_id,
+            userInfo.id,
+            total_price.toFixed(2),
+        ).then(function(response){
+            response = JSON.parse(response);
+            console.log('Create Order res ----');
+            console.log(response);
+            console.log()
 
-        //     dispatch(AddOrderData(response['order_data']))
-        //     dispatch(EmptyCart());
-        //     alert(response['msg']);
+            dispatch(AddOrderData(response['order_data']))
+            dispatch(EmptyCart());
+            alert(response['msg']);
 
-        //     props.history.push('/products');
-        // }).catch(function(error){
-        //     console.log(error['msg']);
-        // });
+            props.history.push('/products');
+        }).catch(function(error){
+            console.log(error['msg']);
+        });
     }
 
     useEffect(() => {
