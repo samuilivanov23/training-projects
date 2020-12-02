@@ -2,6 +2,7 @@ import './App.css';
 import React from 'react';
 import Home from './Components/Home';
 import NavigationBar from './Components/NavigationBar';
+import NavigationBarBackoffice from './Backoffice_Components/NavigationBarBackoffice';
 import Register from './Components/Register';
 import Login from './Components/Login';
 import { Route } from '../node_modules/react-router-dom';
@@ -27,6 +28,7 @@ function App (props) {
 
       
 
+      <Route path={"/backoffice"} render={(props) => <NavigationBarBackoffice {...props}/>} />
       <Route exact path={"/backoffice"} render={(props) => <BackofficeHome {...props}/>} />
       <Route path={"/backoffice/login"} render={(props) => <LoginEmployee {...props}/>} />     
     </div>

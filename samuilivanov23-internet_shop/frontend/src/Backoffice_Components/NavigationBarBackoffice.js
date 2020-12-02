@@ -36,10 +36,14 @@ function NavigationBarBackoffice(props) {
 
     return (
         <Navbar bg="dark" variant="dark">
-            <Navbar.Brand to="/">Video Surveillance shop</Navbar.Brand>
+            <Navbar.Brand to="/">Video Surveillance backoffice</Navbar.Brand>
             <Nav className="mr-auto">
-                <Link className={'nav-link'} to="/products">Products</Link>
-                <Link className={'nav-link'} to="/tags">Categories</Link>
+                <Link className={'nav-link'} to="/backoffice/products">Products</Link>
+                <Link className={'nav-link'} to="/backoffice/employees">Employees</Link>
+                <Link className={'nav-link'} to="/backoffice/orders">Orders</Link>
+                <Link className={'nav-link'} to="/backoffice/carts">Carts</Link>
+                <Link className={'nav-link'} to="/backoffice/roles">Roles</Link>
+                <Link className={'nav-link'} to="/backoffice/permissions">Permissions</Link>
             </Nav>
             <Nav className="ml-auto">
                 {LogInLogoutLink}
