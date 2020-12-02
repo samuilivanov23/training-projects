@@ -1,5 +1,5 @@
 import '../App.css';
-import { Navbar, Nav } from '../../node_modules/react-bootstrap';
+import { Navbar, Nav, Dropdown } from '../../node_modules/react-bootstrap';
 import { Link } from '../../node_modules/react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { LogoutEmployee } from '../Components/actions/EmployeeActions';
@@ -38,12 +38,20 @@ function NavigationBarBackoffice(props) {
         <Navbar bg="dark" variant="dark">
             <Navbar.Brand to="/">Video Surveillance backoffice</Navbar.Brand>
             <Nav className="mr-auto">
-                <Link className={'nav-link'} to="/backoffice/products">Products</Link>
-                <Link className={'nav-link'} to="/backoffice/employees">Employees</Link>
-                <Link className={'nav-link'} to="/backoffice/orders">Orders</Link>
-                <Link className={'nav-link'} to="/backoffice/carts">Carts</Link>
-                <Link className={'nav-link'} to="/backoffice/roles">Roles</Link>
-                <Link className={'nav-link'} to="/backoffice/permissions">Permissions</Link>
+                <Dropdown>
+                    <Dropdown.Toggle variant="info" id="dropdown-basic">
+                        CRUD
+                    </Dropdown.Toggle>
+
+                    <Dropdown.Menu>
+                        <Dropdown.Item as={Link} to="/backoffice/products" >Products</Dropdown.Item>
+                        <Dropdown.Item as={Link} to="/backoffice/employees">Employees</Dropdown.Item>
+                        <Dropdown.Item as={Link} to="/backoffice/orders">Orders</Dropdown.Item>
+                        <Dropdown.Item as={Link} to="/backoffice/carts">Carts</Dropdown.Item>
+                        <Dropdown.Item as={Link} to="/backoffice/roles">Roles</Dropdown.Item>
+                        <Dropdown.Item as={Link} to="/backoffice/permissions">Permissions</Dropdown.Item>
+                    </Dropdown.Menu>
+                </Dropdown>
             </Nav>
             <Nav className="ml-auto">
                 {LogInLogoutLink}

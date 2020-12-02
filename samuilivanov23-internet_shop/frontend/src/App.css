@@ -94,6 +94,14 @@
   margin-left: 70%;
 }
 
+.employee-card {
+  width: 90%;
+}
+
+.crud-buttons-style {
+  margin-left: 1em;
+}
+
 .App-logo {
   height: 40vmin;
   pointer-events: none;

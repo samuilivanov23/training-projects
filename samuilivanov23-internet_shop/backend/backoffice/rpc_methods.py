@@ -6,6 +6,7 @@ import traceback
 import custom_modules.modules as modules
 
 dbOperator = modules.DbOperations()
+employeesCRUD = modules.EmployeesCRUD();
 
 @rpc_method
 def LoginEmployee(email_address, password):
@@ -33,7 +34,7 @@ def LoginEmployee(email_address, password):
             email_address = employee_record[1]
             role_id = employee_record[2]
 
-            sql = 'select p.create_perm, p.update_perm, p.delete_perm from roles as r left join permissions as p on r.permission_id=p.id where r.id=%s'
+            sql = 'select p.create_perm, p.read_perm, p.update_perm, p.delete_perm from roles as r left join permissions as p on r.permission_id=p.id where r.id=%s'
             cur.execute(sql, (role_id, ))
             permissions = cur.fetchone()
             
@@ -42,8 +43,9 @@ def LoginEmployee(email_address, password):
                 'email_address' : email_address,
                 'permissions' : {
                     'create' : permissions[0],
-                    'update' : permissions[1],
-                    'delete' : permissions[2],
+                    'read' : permissions[1],
+                    'update' : permissions[2],
+                    'delete' : permissions[3],
                 }, 
             }
 
@@ -77,5 +79,24 @@ def LoginEmployee(email_address, password):
         cur.close()
         connection.close()
     
+    print(response)
+    return response
+
+
+@rpc_method
+def GetEmployees():
+    #Connect to database
+    try:
+        connection = psycopg2.connect("dbname='" + onlineShop_dbname + 
+                                    "' user='" + onlineShop_dbuser + 
+                                    "' password='" + onlineShop_dbpassword + "'")
+
+        connection.autocommit = True
+        cur = connection.cursor()
+    except Exception as e:
+        print(e)
+
+    response = employeesCRUD.ReadEmployees(cur)
+    print('RPC METHOD')
     print(response)
     return response

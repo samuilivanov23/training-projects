@@ -12,6 +12,7 @@ import Confirm from './Components/Confirm';
 import LoginEmployee from './Backoffice_Components/LoginEmployee';
 import BackofficeHome from './Backoffice_Components/Home';
 import PrivateReroute from './Components/PrivateReroute';
+import EmployeesCRUD from './Backoffice_Components/EmployeesCRUD';
 
 function App (props) {
 
@@ -30,7 +31,8 @@ function App (props) {
 
       <Route path={"/backoffice"} render={(props) => <NavigationBarBackoffice {...props}/>} />
       <Route exact path={"/backoffice"} render={(props) => <BackofficeHome {...props}/>} />
-      <Route path={"/backoffice/login"} render={(props) => <LoginEmployee {...props}/>} />     
+      <Route path={"/backoffice/login"} render={(props) => <LoginEmployee {...props}/>} />
+      <Route path={"/backoffice/employees"} render={(props) => <EmployeesCRUD {...props}/>} />          
     </div>
   );
 }

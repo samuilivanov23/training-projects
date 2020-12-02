@@ -38,7 +38,7 @@ function CartProduct(props){
                                         selected_count,
                                         props.product.count,
                                         props.product.image));
-        props.history.push('/cart');
+        props.history.push('/shop/cart');
     }
 
     const getCurrentProduct = (current_product) => {
@@ -50,7 +50,7 @@ function CartProduct(props){
                                     props.product.count,
                                     props.product.image));
         
-        props.history.push(`/products/${current_product['id']}`);
+        props.history.push(`/shop/products/${current_product['id']}`);
     }
 
     const generateCountSelectElements = (product_count) => {
@@ -75,7 +75,7 @@ function CartProduct(props){
                     
                     <Col>
                         <Card.Title>
-                            <Link style={{'textDecoration' : 'none', 'color' : 'black'}} to={`/products/${props.product.id}`} onClick={() => getCurrentProduct(props.product)}>
+                            <Link style={{'textDecoration' : 'none', 'color' : 'black'}} to={`/shop/products/${props.product.id}`} onClick={() => getCurrentProduct(props.product)}>
                                 {props.product.name}
                             </Link>
                         </Card.Title>

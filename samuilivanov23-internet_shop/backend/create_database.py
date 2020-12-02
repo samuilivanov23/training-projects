@@ -85,6 +85,7 @@ def createTables(cur, connection):
     CREATE TABLE IF NOT EXISTS permissions(
         "id" bigserial PRIMARY KEY,
         "create_perm" boolean,
+        "read_perm" boolean,
         "update_perm" boolean,
         "delete_perm" boolean
     );
@@ -170,8 +171,8 @@ def loadData(cur, connection):
 def AddAdmin(cur, connection):
     try:
         try:
-            sql = 'insert into permissions (create_perm, update_perm, delete_perm) values(%s, %s, %s) RETURNING id'
-            cur.execute(sql, (True, True, True, )) # admin has all permissions
+            sql = 'insert into permissions (create_perm, read_perm, update_perm, delete_perm) values(%s, %s, %s, %s) RETURNING id'
+            cur.execute(sql, (True, True, True, True, )) # admin has all permissions
             admin_permissions_id = cur.fetchone()[0]
         except Exception as e:
             print(e)

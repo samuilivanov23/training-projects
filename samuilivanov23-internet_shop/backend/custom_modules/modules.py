@@ -1,6 +1,6 @@
 import hashlib
 from PIL import Image
-import random, string
+import random, string, json
 import uuid, smtplib, ssl
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
@@ -57,7 +57,24 @@ class JSONParser:
             i+=1
 
         return cart_products
-  
+
+    def GetAllEmployeesJSON(self, records):
+        i = 0
+        employees = []
+
+        while i < len(records):
+            employees.append({
+                'id' : records[i][0],
+                'first_name' : records[i][1],
+                'last_name' : records[i][2],
+                'email_address' : records[i][3],
+                'password' : records[i][4],
+                'role_name' : records[i][5]
+            })
+
+            i+=1
+        
+        return employees
 
 class DbOperations:
     def __init__(self):
@@ -283,3 +300,27 @@ class FiltersParser:
     def ParseSortFilter(self, filter):
         filter_request = filter.split(' ')
         return filter_request[2], filter_request[3]
+
+class EmployeesCRUD:
+    def __init__(self):
+        pass
+
+    def ReadEmployees(self, cur):
+        try:
+            sql = 'select e.id, e.first_name, e.last_name, e.email_address, e.password, r.name from employees as e join roles as r on e.role_id=r.id'
+            cur.execute(sql, )
+            employees_records = cur.fetchall()
+
+            if not employees_records is None:
+                productsJSONServer = JSONParser()
+                employees_json = productsJSONServer.GetAllEmployeesJSON(employees_records)
+                response = {'status' : 'OK', 'msg' : 'Successfull', 'employees' : employees_json}
+            else:
+                response = {'status' : 'Fail', 'msg' : 'No employees in database', 'employees' : []}
+        except Exception as e:
+            print(e)
+            response = {'status' : 'Fail', 'msg' : 'Internal server error', 'employees' : []}
+
+        response = json.dumps(response)
+        print(response)
+        return response

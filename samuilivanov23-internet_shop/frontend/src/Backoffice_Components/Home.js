@@ -16,7 +16,7 @@ function Home(props){
 
     return(
         <div>
-            {employeeInfo.email_address}
+            <h1 style={{textAlign:"center"}}>Backoffice</h1>
         </div>
     );
 
