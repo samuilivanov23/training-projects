@@ -51,13 +51,12 @@ function CartProductList (props) {
             response = JSON.parse(response);
             console.log('Create Order res ----');
             console.log(response);
-            console.log()
 
             dispatch(AddOrderData(response['order_data']))
             dispatch(EmptyCart());
             alert(response['msg']);
 
-            props.history.push('/products');
+            props.history.push('/shop/products');
         }).catch(function(error){
             console.log(error['msg']);
         });
@@ -114,7 +113,7 @@ function CartProductList (props) {
                     The cart is empty. Please add some products first.
                 </h1>
                 <Button>
-                    <Link style={{color:'white'}} to={'/products'}>
+                    <Link style={{color:'white'}} to={'/shop/products'}>
                         Browse products
                     </Link>
                 </Button>

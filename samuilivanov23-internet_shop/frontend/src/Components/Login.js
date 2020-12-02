@@ -57,7 +57,7 @@ function Login (props) {
                     response.userInfo.cart_id));
 
                 dispatch(AllCartProducts(response.cart_products));
-                props.history.push('/products');
+                props.history.push('/shop/products');
             }
 
             alert(response.msg)
@@ -105,7 +105,7 @@ function Login (props) {
                     Login
                 </Button>
 
-                <Link to={'/register'}>
+                <Link to={'/shop/register'}>
                     Dont have an account?
                 </Link>
             </Form>

@@ -57,7 +57,7 @@ function Register (props) {
             
             if(response['msg'] === 'Email send successfully'){
                 localStorage.setItem('user_token', response['token']);
-                props.history.push('/login');
+                props.history.push('/shop/login');
             }
         }).catch(function(error){
             alert(error['msg'])

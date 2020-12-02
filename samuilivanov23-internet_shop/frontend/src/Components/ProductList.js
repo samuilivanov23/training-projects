@@ -39,7 +39,7 @@ function ProductList (props) {
                             <Card.Text>Price: {product['price']} BGN.</Card.Text>
 
                             <Button>
-                                <Link style={{color:'white'}} to={`/products/${product['id']}`} onClick={() => getCurrentProduct(product)}>
+                                <Link style={{color:'white'}} to={`/shop/products/${product['id']}`} onClick={() => getCurrentProduct(product)}>
                                     Veiw details
                                 </Link>
                             </Button>             

@@ -13,22 +13,22 @@ function NavigationBar(props) {
 
     const logoutUser = () => {
         dispatch(LogoutUser());
-        props.history.push('/login');
+        props.history.push('/shop/login');
     }
 
     const generateLoginLogoutLink = () => {
         if(userInfo.username === 'init' || typeof(userInfo.username) === 'undefined'){
-            return <Link className={'nav-link'} to="/login">Login</Link>;
+            return <Link className={'nav-link'} to="/shop/login">Login</Link>;
         }
         else{
-            return <Link className={'nav-link'} to="/login" onClick={logoutUser}>Logout</Link>;
+            return <Link className={'nav-link'} to="/shop/login" onClick={logoutUser}>Logout</Link>;
         }
     }
 
     const generateCartLink = () => {
         if(userInfo.username !== 'init' && typeof(userInfo.username) !== 'undefined'){
             const elements = []
-            elements.push(<Link key={1} className={'nav-link'} to="/cart">Cart</Link>);
+            elements.push(<Link key={1} className={'nav-link'} to="/shop/cart">Cart</Link>);
             elements.push(<p key={0} style={{'color' : 'white', 'marginTop' : '0.5em'}}> Hello {userInfo.username} </p>);
 
             return elements;
@@ -42,11 +42,11 @@ function NavigationBar(props) {
         <Navbar bg="dark" variant="dark">
             <Navbar.Brand to="/">Video Surveillance shop</Navbar.Brand>
             <Nav className="mr-auto">
-                <Link className={'nav-link'} to="/products">Products</Link>
-                <Link className={'nav-link'} to="/tags">Categories</Link>
+                <Link className={'nav-link'} to="/shop/products">Products</Link>
+                <Link className={'nav-link'} to="/shop/tags">Categories</Link>
             </Nav>
             <Nav className="ml-auto">
-                <Link className={'nav-link'} to="/register">Register</Link>
+                <Link className={'nav-link'} to="/shop/register">Register</Link>
                 {LogInLogoutLink}
                 {CartLink}
             </Nav>

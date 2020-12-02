@@ -245,7 +245,7 @@ class Verifier:
             <body>
                 <p>Hi, """ + first_name + """. <br>
                 If you registered in our shop with this email<br>
-                <a href="http://localhost:3000/confirm/""" + token + """">Please click here to verify.</a>
+                <a href="http://localhost:3000/shop/confirm/""" + token + """">Please click here to verify.</a>
                 </p>
             </body>
         </html>

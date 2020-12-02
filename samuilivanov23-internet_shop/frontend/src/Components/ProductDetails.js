@@ -102,7 +102,7 @@ function ProductDetails (props) {
                         </Button>
     
                         <Button style={{'float' : 'right'}}>
-                            <Link style={{color:'white'}} to={'/products'}>
+                            <Link style={{color:'white'}} to={'/shop/products'}>
                                 Browse products
                             </Link>
                         </Button>
@@ -123,7 +123,7 @@ function ProductDetails (props) {
                         <Card.Text>{in_stock}</Card.Text>
 
                         <Button style={{'float' : 'right'}}>
-                            <Link style={{color:'white'}} to={'/products'}>
+                            <Link style={{color:'white'}} to={'/shop/products'}>
                                 Browse products
                             </Link>
                         </Button>
