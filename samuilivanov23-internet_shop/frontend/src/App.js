@@ -13,13 +13,14 @@ import LoginEmployee from './Backoffice_Components/LoginEmployee';
 import BackofficeHome from './Backoffice_Components/Home';
 import PrivateReroute from './Components/PrivateReroute';
 import EmployeesCRUD from './Backoffice_Components/EmployeesCRUD';
+import CreateEmployee from './Backoffice_Components/CreateEmployee';
 
 function App (props) {
 
   return(
     <div>
       <PrivateReroute {...props}/>
-      <Route exact path={"/"} render={(props) => <NavigationBar {...props}/>} />
+      <Route path={"/shop"} render={(props) => <NavigationBar {...props}/>} />
       <Route exact path={"/shop/products"} render={(props) => <Home {...props} per_page={20}/>} />
       <Route path={"/shop/products/:id"} render={(props) => <ProductDetails {...props} />} />
       <Route path={"/shop/register"} render={(props) => <Register {...props}/>} />
@@ -27,12 +28,12 @@ function App (props) {
       <Route path={"/shop/cart"} render={(props) => <CartProductList {...props} />} />
       <Route path={"/shop/confirm/:id"} render={(props) => <Confirm {...props}/>}/>
 
-      
 
       <Route path={"/backoffice"} render={(props) => <NavigationBarBackoffice {...props}/>} />
       <Route exact path={"/backoffice"} render={(props) => <BackofficeHome {...props}/>} />
       <Route path={"/backoffice/login"} render={(props) => <LoginEmployee {...props}/>} />
-      <Route path={"/backoffice/employees"} render={(props) => <EmployeesCRUD {...props}/>} />          
+      <Route exact path={"/backoffice/employees"} render={(props) => <EmployeesCRUD {...props}/>} />
+      <Route path={"/backoffice/employees/create"} render={(props) => <CreateEmployee {...props}/>} />
     </div>
   );
 }

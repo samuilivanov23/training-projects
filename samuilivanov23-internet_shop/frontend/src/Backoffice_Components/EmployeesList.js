@@ -43,7 +43,6 @@ function EmployeesList (props){
         //     current_employee['password'],
         //     current_employee['role_name']
         // ));
-
     }
 
     const deleteEmployee = (employeeToDelete) => {
