@@ -4,12 +4,14 @@ import JsonRpcClient from '../../node_modules/react-jsonrpc-client/jsonrpcclient
 import { useState, useEffect } from 'react';
 import { Card, Button } from '../../node_modules/react-bootstrap';
 //import { SetEmployeeDetails } from '../Components/actions/SetEmployeeDetails';
-import { useDispatch } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { Link } from '../../node_modules/react-router-dom';
 
 function EmployeesList (props){
 
     const [employees, set_employees] = useState([]);
+    
+    const { employeeInfo } = useSelector(state=>state.employee);
     const dispatch = useDispatch();
 
     useEffect(() => {
@@ -66,7 +68,7 @@ function EmployeesList (props){
         return(
             <div>Loading...</div>
         );
-    }
+    }    
     else{
         return(
             <div className={"App"} style={{display : 'flex', flexDirection : 'row', flex : 1, flexWrap : 'wrap'}}>
@@ -76,16 +78,22 @@ function EmployeesList (props){
                             <Card.Title>{ employee['first_name'] } { employee['last_name'] }</Card.Title>
                             <Card.Text>{ employee['email_address'] }</Card.Text>
 
-                            <Button className={'crud-buttons-style'}>
-                                <Link style={{color:'white'}} to={`/backoffice/employees/update/${employee['id']}`} onClick={() => getCurrentEmployee(employee)}>
-                                    Update employee
-                                </Link>
-                            </Button>  
+                            {(employeeInfo.permissions.update) 
+                                ?   <Button className={'crud-buttons-style'}>
+                                        <Link style={{color:'white'}} to={`/backoffice/employees/update/${employee['id']}`} onClick={() => getCurrentEmployee(employee)}>
+                                            Update employee
+                                        </Link>
+                                    </Button>
+                                : null
+                            }
 
-                            <Button className={'crud-buttons-style'} onClick={() => deleteEmployee(employee)}>
-                                Delete employee
-                            </Button>  
+                            {(employeeInfo.permissions.delete)
+                                ?   <Button className={'crud-buttons-style'} onClick={() => deleteEmployee(employee)}>
+                                        Delete employee
+                                    </Button>
+                                : null
 
+                            } 
                         </Card.Body>
                     </Card>
                 ))}
