@@ -6,7 +6,7 @@ import traceback
 import custom_modules.modules as modules
 
 dbOperator = modules.DbOperations()
-employeesCRUD = modules.EmployeesCRUD();
+employeesCRUD = modules.EmployeesCRUD()
 
 @rpc_method
 def LoginEmployee(email_address, password):
@@ -95,8 +95,45 @@ def GetEmployees():
         cur = connection.cursor()
     except Exception as e:
         print(e)
-
+    
     response = employeesCRUD.ReadEmployees(cur)
-    print('RPC METHOD')
+
+    if connection:
+        cur.close()
+        connection.close()
+
     print(response)
+    return response
+
+@rpc_method
+def CreateEmployee(first_name, last_name, email_address, password, role_name, permissions):
+    #Connect to database
+    try:
+        connection = psycopg2.connect("dbname='" + onlineShop_dbname + 
+                                    "' user='" + onlineShop_dbuser + 
+                                    "' password='" + onlineShop_dbpassword + "'")
+
+        connection.autocommit = True
+        cur = connection.cursor()
+    except Exception as e:
+        print(e)
+    
+    try:
+        response = employeesCRUD.Create(first_name, 
+                            last_name, 
+                            email_address, 
+                            password,
+                            salt, 
+                            role_name, 
+                            permissions, cur)
+    except Exception as e:
+        print(e)
+        response = {'status' : 'Fail', 'msg' : 'Internal server error'}
+
+    if connection:
+        cur.close()
+        connection.close()
+
+    print(response)
+    response = json.dumps(response)
     return response

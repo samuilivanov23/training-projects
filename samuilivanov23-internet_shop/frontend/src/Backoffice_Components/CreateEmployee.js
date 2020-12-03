@@ -8,18 +8,15 @@ import JsonRpcClient from '../../node_modules/react-jsonrpc-client/jsonrpcclient
 function CreateEmployee(props){
 
     const [validated, setValidated] = useState(false);
-    //const [permissions_selected, set_permissions_selected] = useState([]);
     var permissions_selected = [];
 
     const changeSelectedPermissions = (event) => {
         if(!permissions_selected.includes(event.target.value)){
             //add permission
-            console.log('not');
             permissions_selected.push(event.target.value);
         }
         else{
             //remove permission
-            console.log('in');
             if(permissions_selected.length === 1){
                 permissions_selected.pop();
             }
@@ -30,11 +27,9 @@ function CreateEmployee(props){
                 }
             }
         }
-        console.log(permissions_selected);
     };
 
     const clearPermissions = () => {
-        alert('test');
         permissions_selected = [];
     };
 
@@ -44,32 +39,31 @@ function CreateEmployee(props){
 
         const form_data = event.currentTarget;
 
-        console.log(form_data.create.value);
-
-        // if (form_data.checkValidity() === false) {
-        //     alert('Plese fill all input fileds!');
-        // }
-        // else{
-        //     console.log('Creating employee');
+        if (form_data.checkValidity() === false) {
+            alert('Plese fill all input fileds!');
+        }
+        else{
+            console.log('Creating employee');
             
-        //     insertEmployee(form_data.first_name.value,
-        //                 form_data.last_name.value,
-        //                 form_data.email_address.value,
-        //                 form_data.password.value,
-        //                 form_data.role_name.value,
-        //                 permissions_selected);
-        // }
+            insertEmployee(form_data.first_name.value,
+                        form_data.last_name.value,
+                        form_data.email_address.value,
+                        form_data.password.value,
+                        form_data.role_name.value,
+                        permissions_selected);
+        }
 
         setValidated(true);  
     };
 
     const insertEmployee = (first_name, last_name, email_address, password, role_name, permissions_selected) => {
+        
         var django_rpc = new JsonRpcClient({
-            endpoint: 'http://127.0.0.1:8000/shop/rpc/',
+            endpoint: 'http://127.0.0.1:8000/backoffice/rpc/',
         });
       
         django_rpc.request(
-            "CreateUser",
+            "CreateEmployee",
             first_name,
             last_name,
             email_address,
@@ -80,7 +74,7 @@ function CreateEmployee(props){
             response = JSON.parse(response);
             alert(response['msg'])
             
-            props.history.push('/backoffice/employees');
+            //props.history.push('/backoffice/employees');
 
         }).catch(function(error){
             alert(error['msg'])
@@ -90,17 +84,15 @@ function CreateEmployee(props){
     const generateCountSelectElements = () => {
         const options = [];
     
-        options.push(<option key={'1'} value={'create'}>create</option>);
-        options.push(<option key={'2'} value={'read'}>read</option>);
-        options.push(<option key={'3'} value={'update'}>update</option>);
-        options.push(<option key={'4'} value={'delete'}>delete</option>);
+        options.push(<option key={'1'} value={'create_perm'}>create</option>);
+        options.push(<option key={'2'} value={'read_perm'}>read</option>);
+        options.push(<option key={'3'} value={'update_perm'}>update</option>);
+        options.push(<option key={'4'} value={'delete_perm'}>delete</option>);
 
         return options;
     }
 
     const options = generateCountSelectElements();
-
-    console.log(permissions_selected);
 
     return (
         <div className={'form-container'}>
@@ -190,19 +182,11 @@ function CreateEmployee(props){
                 <br/>
                 <br/>
 
-
-                <Form.Check name="create" label="create" type={"checkbox"}/>
-                <Form.Check name="read" label="read" type={"checkbox"}/>
-                <Form.Check name="update" label="update" type={"checkbox"}/>
-                <Form.Check name="delete" label="delete" type={"checkbox"}/>
-
-
-
                 <select multiple={true} value={permissions_selected} onChange={changeSelectedPermissions}>
                     {options}
                 </select>
                 <Button style={{marginBottom : '5em', marginLeft : '1em'}}variant="primary" onClick={clearPermissions}>
-                    Create employee
+                    Clear
                 </Button>
                 <br/>
                 <br/>

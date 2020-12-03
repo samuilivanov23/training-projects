@@ -69,11 +69,17 @@ class JSONParser:
                 'last_name' : records[i][2],
                 'email_address' : records[i][3],
                 'password' : records[i][4],
-                'role_name' : records[i][5]
+                'role_name' : records[i][5],
+                'permissions' : {
+                    'create' : records[i][6],
+                    'read' : records[i][7],
+                    'update' : records[i][8],
+                    'delete' : records[i][9],
+                },
             })
 
             i+=1
-        
+
         return employees
 
 class DbOperations:
@@ -307,7 +313,11 @@ class EmployeesCRUD:
 
     def ReadEmployees(self, cur):
         try:
-            sql = 'select e.id, e.first_name, e.last_name, e.email_address, e.password, r.name from employees as e join roles as r on e.role_id=r.id'
+            sql ='''select e.id, e.first_name, e.last_name, e.email_address, e.password, r.name, 
+                    p.create_perm, p.read_perm, p.update_perm, p.delete_perm 
+                    from employees as e join roles as r on e.role_id=r.id 
+                    join permissions as p on r.permission_id=p.id'''
+
             cur.execute(sql, )
             employees_records = cur.fetchall()
 
@@ -322,5 +332,66 @@ class EmployeesCRUD:
             response = {'status' : 'Fail', 'msg' : 'Internal server error', 'employees' : []}
 
         response = json.dumps(response)
-        print(response)
+        return response
+
+    def GeneratePermissionsSql(self, permissions):
+        #generate sql based on selected permissions 
+        sql_start = 'insert into permissions '
+        sql_params = '('
+        sql_values = 'values('
+
+        for permission in permissions:
+            sql_params += permission + ','
+            sql_values += 'true,'
+
+        sql_params = sql_params[0: len(sql_params) - 1]
+        sql_values = sql_values[0: len(sql_values) - 1]
+
+        sql_params += ') '
+        sql_values += ') '
+
+        sql = sql_start + sql_params + sql_values + "RETURNING id"
+
+        return sql
+
+    def Create(self, first_name, 
+                        last_name, 
+                        email_address, 
+                        password,
+                        salt,
+                        role_name, 
+                        permissions, cur):
+        
+        #1) Add entry in permissions table
+        try:
+            sql = self.GeneratePermissionsSql(permissions)
+            cur.execute(sql)
+            permission_id = cur.fetchone()[0]
+        except Exception as e:
+            print(e)
+            response = {'status' : 'Fail', 'msg' : 'Unable to create permissions'}
+            return response
+
+        #2) Add entry into roles table
+        try:
+            sql = 'insert into roles (name, permission_id) values(%s, %s) RETURNING id'
+            cur.execute(sql, (role_name, permission_id, ))
+            role_id = cur.fetchone()[0]
+        except Exception as e:
+            print(e)
+            response = {'status' : 'Fail', 'msg' : 'Unable to create given role'}
+            return response
+
+        #3) Add the employee into the database
+        try:
+            sql = 'insert into employees (first_name, last_name, email_address, password, role_id) values(%s, %s, %s, %s, %s)'
+            dbOperator = DbOperations()
+            hashed_password = dbOperator.MakePasswordHash(password + salt)
+            cur.execute(sql, (first_name, last_name, email_address, hashed_password, role_id))
+            response = {'status' : 'OK', 'msg' : 'Successfull'}
+        except Exception as e:
+            print(e)
+            response = {'status' : 'Fail', 'msg' : 'Unable to create employee'}
+            return response
+        
         return response

@@ -84,10 +84,10 @@ def createTables(cur, connection):
 
     CREATE TABLE IF NOT EXISTS permissions(
         "id" bigserial PRIMARY KEY,
-        "create_perm" boolean,
-        "read_perm" boolean,
-        "update_perm" boolean,
-        "delete_perm" boolean
+        "create_perm" boolean default false,
+        "read_perm" boolean default false,
+        "update_perm" boolean default false,
+        "delete_perm" boolean default false
     );
 
     CREATE TABLE IF NOT EXISTS verification(
