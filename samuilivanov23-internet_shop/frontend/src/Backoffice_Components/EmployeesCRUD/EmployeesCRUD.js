@@ -9,7 +9,7 @@ function EmployeesCRUD (props) {
     const { employeeInfo } = useSelector(state=>state.employee);
     
     const generateCreateOperation = () => {
-        if(employeeInfo.permissions.create){
+        if(employeeInfo.permissions.create_perm){
             return(
                 <Button style={{'margin' : '2em'}}>
                     <Link style={{color:'white'}} to={'/backoffice/employees/create'}>
@@ -24,7 +24,7 @@ function EmployeesCRUD (props) {
     }
 
     const generateReadOperation = () => {
-        if(employeeInfo.permissions.read){
+        if(employeeInfo.permissions.read_perm){
             //TODO add employee list component for the rendering
             return(
                 <EmployeesList/>

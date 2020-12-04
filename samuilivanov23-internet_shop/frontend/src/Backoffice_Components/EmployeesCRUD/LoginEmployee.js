@@ -30,7 +30,6 @@ function LoginEmployee(props) {
 
             //TODO: ADD email/password data validation 
             logInEmployee(form_data.email_address.value, form_data.password.value);
-            console.log(employeeInfo);
         }
 
         setValidated(true);
@@ -57,7 +56,6 @@ function LoginEmployee(props) {
             }
             alert(response.msg);
         }).catch(function(error){
-            console.log('neshto');
             alert(error['msg'])
         });
     }

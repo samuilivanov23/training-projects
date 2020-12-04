@@ -2,7 +2,7 @@ import '../App.css';
 import React from 'react';
 import { useSelector } from 'react-redux';
 
-function Home(props){
+function BackofficeHome(props){
 
     const { employeeInfo } = useSelector(state=>state.employee);
     console.log(employeeInfo);
@@ -22,4 +22,4 @@ function Home(props){
 
 }
 
-export default Home;
+export default BackofficeHome;

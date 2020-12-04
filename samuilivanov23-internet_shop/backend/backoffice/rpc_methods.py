@@ -138,7 +138,6 @@ def CreateEmployee(first_name, last_name, email_address, password, role_name, pe
     response = json.dumps(response)
     return response
 
-
 @rpc_method
 def UpdateEmployee(id, first_name, last_name, email_address, password, role_name, permissions):
     #Connect to database
@@ -154,7 +153,6 @@ def UpdateEmployee(id, first_name, last_name, email_address, password, role_name
 
 
     # get role_id and permission_id
-
     try:
         sql ='''select r.id, p.id from employees as e 
                 join roles as r on e.role_id=r.id 
@@ -167,6 +165,7 @@ def UpdateEmployee(id, first_name, last_name, email_address, password, role_name
     except Exception as e:
         print(e)
         response = {'status' : 'Fail', 'msg' : 'Unable to get role_id/permissions_id'}
+        return response
 
     try:
         response = employeesCRUD.Update(id,
@@ -180,6 +179,48 @@ def UpdateEmployee(id, first_name, last_name, email_address, password, role_name
                                         permission_id,
                                         permissions, 
                                         cur)
+    except Exception as e:
+        print(e)
+        response = {'status' : 'Fail', 'msg' : 'Internal server error'}
+
+    if connection:
+        cur.close()
+        connection.close()
+
+    print(response)
+    response = json.dumps(response)
+    return response
+
+@rpc_method
+def DeleteEmployee(id):
+    #Connect to database
+    try:
+        connection = psycopg2.connect("dbname='" + onlineShop_dbname + 
+                                    "' user='" + onlineShop_dbuser + 
+                                    "' password='" + onlineShop_dbpassword + "'")
+
+        connection.autocommit = True
+        cur = connection.cursor()
+    except Exception as e:
+        print(e)
+    
+    # get role_id and permission_id
+    try:
+        sql ='''select r.id, p.id from employees as e 
+                join roles as r on e.role_id=r.id 
+                join permissions as p on r.permission_id=p.id where e.id=%s'''
+        cur.execute(sql, (id, ))
+        result = cur.fetchone()
+        role_id = result[0]
+        permission_id = result[1]
+        print(role_id, permission_id)
+    except Exception as e:
+        print(e)
+        response = {'status' : 'Fail', 'msg' : 'Unable to get role_id/permissions_id'}
+        return response
+    
+    try:
+        response = employeesCRUD.Delete(id, cur)
     except Exception as e:
         print(e)
         response = {'status' : 'Fail', 'msg' : 'Internal server error'}

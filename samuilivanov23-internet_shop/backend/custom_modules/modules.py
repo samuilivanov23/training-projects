@@ -484,3 +484,15 @@ class EmployeesCRUD:
             return response
     
         return response
+    
+    def Delete(self, id, cur):
+        # delete employee
+        try:
+            sql = 'delete from employees where id=%s'
+            cur.execute(sql, (id, ))
+            response = {'status' : 'OK', 'msg' : 'Successfull'}
+        except Exception as e:
+            print(e)
+            response = {'status' : 'Fail', 'msg' : 'Enable to delete employee'}
+
+        return response

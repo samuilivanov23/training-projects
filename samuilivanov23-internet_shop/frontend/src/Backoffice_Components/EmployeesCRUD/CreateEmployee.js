@@ -26,6 +26,7 @@ function CreateEmployee(props){
                 }
             }
         }
+        console.log(permissions_selected);
     };
 
     const clearPermissions = () => {
