@@ -4,7 +4,7 @@ import { signInUserReducer } from './reducers/UserReducers';
 import { cartReducer } from './reducers/CartReducers';
 import { productReducer } from './reducers/ProductReducers';
 import { orderReducer } from './reducers/OrderReducers';
-import { employeeReducer } from './reducers/EmployeeReducers';
+import { employeeReducer, employeeUpdateReducer } from './reducers/EmployeeReducers';
 
 //Set initial redux state
 const userInfo = {
@@ -18,7 +18,15 @@ const employeeInfo = {
     id : 0,
     email_address : 'init',
     permissions : {},
-}
+};
+
+const employeeToUpdateInfo = {
+    first_name : 'init',
+    last_name : 'init',
+    email_address : 'init',
+    role_name : 'init',
+    permissions : {},
+};
 
 const cartInfo = [];
 
@@ -30,19 +38,27 @@ const productInfo = {
     selected_count : 0,
     count : 0,
     image : 'init'
-}
+};
 
 const orderInfo = {
     user_id : 0,
     total_price : 0,
     products : []
-}
+};
 
-const initial_state = { signInUser : {userInfo}, employee : {employeeInfo}, cartProducts : {cartInfo}, productDetails : {productInfo}, orderProducts : {orderInfo}};
+const initial_state = { 
+    signInUser : {userInfo}, 
+    employee : {employeeInfo}, 
+    employeeToUpdate : {employeeToUpdateInfo}, 
+    cartProducts : {cartInfo}, 
+    productDetails : {productInfo}, 
+    orderProducts : {orderInfo}
+};
 
 const reducer = combineReducers({
     signInUser : signInUserReducer,
     employee : employeeReducer,
+    employeeToUpdate : employeeUpdateReducer,
     cartProducts : cartReducer,
     productDetails : productReducer,
     orderProducts : orderReducer,

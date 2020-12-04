@@ -9,11 +9,12 @@ import { Route } from '../node_modules/react-router-dom';
 import CartProductList from './Components/CartProductList';
 import ProductDetails from './Components/ProductDetails';
 import Confirm from './Components/Confirm';
-import LoginEmployee from './Backoffice_Components/LoginEmployee';
+import LoginEmployee from './Backoffice_Components/EmployeesCRUD/LoginEmployee';
 import BackofficeHome from './Backoffice_Components/Home';
 import PrivateReroute from './Components/PrivateReroute';
-import EmployeesCRUD from './Backoffice_Components/EmployeesCRUD';
-import CreateEmployee from './Backoffice_Components/CreateEmployee';
+import EmployeesCRUD from './Backoffice_Components/EmployeesCRUD/EmployeesCRUD';
+import CreateEmployee from './Backoffice_Components/EmployeesCRUD/CreateEmployee';
+import UpdateEmployee from './Backoffice_Components/EmployeesCRUD/UpdateEmployee';
 
 function App (props) {
 
@@ -34,6 +35,7 @@ function App (props) {
       <Route path={"/backoffice/login"} render={(props) => <LoginEmployee {...props}/>} />
       <Route exact path={"/backoffice/employees"} render={(props) => <EmployeesCRUD {...props}/>} />
       <Route path={"/backoffice/employees/create"} render={(props) => <CreateEmployee {...props}/>} />
+      <Route path={"/backoffice/employees/update/:id"} render={(props) => <UpdateEmployee {...props}/>} />   
     </div>
   );
 }

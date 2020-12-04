@@ -9,6 +9,16 @@ function employeeReducer(state = [], action){
         default:
             return state;
     }
-}
+};
 
-export { employeeReducer };
+function employeeUpdateReducer(state=[], action){
+    switch(action.type){
+        case 'SET_EMPLOYEE_TO_UPDATE_DETAILS':
+            return { employeeToUpdateInfo : action.data};
+
+        default:
+            return state;
+    }
+};
+
+export { employeeReducer, employeeUpdateReducer };

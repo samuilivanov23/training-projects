@@ -15,4 +15,17 @@ const LogoutEmployee = () => async (dispatch) => {
     dispatch({type : 'EMPLOYEE_LOGOUT', data : { employeeInfo }});
 }
 
-export { SignInEmployee, LogoutEmployee };
+const SetEmployeeToUpdateDetails = (first_name, last_name, email_address, role_name, permissions) => async(dispatch) => {
+    console.log('SetEmployeeToUpdateDetails action');
+    
+    dispatch( { type : 'SET_EMPLOYEE_TO_UPDATE_DETAILS', 
+                data : {
+                    first_name, 
+                    last_name, 
+                    email_address, 
+                    role_name, 
+                    permissions
+    }});
+};
+
+export { SignInEmployee, LogoutEmployee, SetEmployeeToUpdateDetails };
