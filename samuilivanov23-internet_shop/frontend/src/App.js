@@ -15,6 +15,7 @@ import PrivateReroute from './Components/PrivateReroute';
 import EmployeesCRUD from './Backoffice_Components/EmployeesCRUD/EmployeesCRUD';
 import CreateEmployee from './Backoffice_Components/EmployeesCRUD/CreateEmployee';
 import UpdateEmployee from './Backoffice_Components/EmployeesCRUD/UpdateEmployee';
+import Payment from './Components/Payment';
 
 function App (props) {
 
@@ -28,6 +29,7 @@ function App (props) {
       <Route path={"/shop/login"} render={(props) => <Login {...props} />} />
       <Route path={"/shop/cart"} render={(props) => <CartProductList {...props} />} />
       <Route path={"/shop/confirm/:id"} render={(props) => <Confirm {...props}/>}/>
+      <Route path={"/shop/payment"} render={(props) => <Payment {...props} />} />
 
 
       <Route path={"/backoffice"} render={(props) => <NavigationBarBackoffice {...props}/>} />

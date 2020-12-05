@@ -4,13 +4,19 @@ import json
 import psycopg2
 from internet_shop.dbconfig import onlineShop_dbname, onlineShop_dbuser, onlineShop_dbpassword
 from internet_shop.dbconfig import sender_email, sender_password, server_email, server_port
+from internet_shop.dbconfig import secret
 import traceback
 import custom_modules.modules as modules
 from datetime import datetime, timedelta
+import random
+import hashlib
+import hmac
+import base64
 
 productsJSONServer = modules.JSONParser()
 dbOperator = modules.DbOperations()
 verifier = modules.Verifier()
+payment = modules.Payment()
 
 @rpc_method
 def GetProducts(offset, products_per_page):
@@ -370,3 +376,65 @@ def CreateOrder(cart_id, user_id, total_price):
     response = json.dumps(response)
     print(response)
     return response
+
+@rpc_method
+def PaymentRequestData(total_price, description):    
+    try:
+        encoded = payment.EncodeData(total_price, description)
+    except Exception as e:
+        print(e)
+        response = {'status' : 'Fail', 
+                    'msg' : 'Unable to encode data', 
+                    'data' : {
+                        'encoded' : None,
+                        'checksum' : None
+                    }}
+        response = json.dumps(response)
+        return response
+    
+    try:
+        checksum = payment.GenerateChecksum(encoded, secret)
+    except Exception as e:
+        print(e)
+        response = {'status' : 'Fail', 
+                    'msg' : 'Unable to encode data', 
+                    'data' : {
+                        'encoded' : None,
+                        'checksum' : None
+                    }}        
+        response = json.dumps(response)
+        return response
+    
+    response = {'status' : 'OK', 
+                'msg' : 'Successful', 
+                'data' : {
+                    'encoded' : encoded,
+                    'checksum' : checksum,
+                }}
+    
+    print(response)
+    response = json.dumps(response)
+    print(response)
+    return response
+
+    # req_data = {
+    #     'ENCODED' : encoded,
+    #     'CHECKSUM' : checksum,
+    #     'URL_OK' : 'https://www.google.com/',
+    #     'URL_CANCEL' : 'https://www.google.com/',
+    # }
+
+    # response = requests.post(url='https://demo.epay.bg/', data=req_data)
+    # print(response.text)
+
+    response = {'status' : 'OK', 'msg' : 'Testing'}
+    return response
+
+# @rpc_method
+# def ePatNotification(test):
+#     response = json.loads(test)
+#     print(response['msg'])
+
+#     response = {'msg' : 'Successful'}
+#     response = json.dumps(response)
+#     return response

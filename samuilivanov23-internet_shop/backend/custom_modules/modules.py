@@ -6,6 +6,7 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 import traceback
 import re
+import hmac, base64
 
 class JSONParser:
     def __init__(self):
@@ -305,6 +306,35 @@ class FiltersParser:
     def ParseSortFilter(self, filter):
         filter_request = filter.split(' ')
         return filter_request[2], filter_request[3]
+    
+class Payment:
+    def __init__(self):
+        pass
+    
+    def EncodeData(self, total_price, description):
+        min = 'D520908428'
+        invoice = str(random.randint(0, 1000000))
+        amount = str(total_price)
+        exp_time = '06.12.2020'
+        descr = description
+
+        data = '''MIN=''' + min + '''
+INVOICE=''' + invoice + '''
+AMOUNT=''' + amount + '''
+EXP_TIME=''' + exp_time + '''
+DESCR=''' + descr + '''\n'''
+        
+        data_as_bytes = data.encode('ascii')
+        base64_encoded_data = base64.b64encode(data_as_bytes)
+
+        return base64_encoded_data.decode('ascii')
+
+    def GenerateChecksum(self, base64_encoded, secret):
+        secret = secret.encode('utf-8')
+        encoded = base64_encoded.encode('utf-8')
+        checksum = hmac.new(secret, encoded, hashlib.sha1).hexdigest()
+
+        return checksum
 
 class EmployeesCRUD:
     def __init__(self):

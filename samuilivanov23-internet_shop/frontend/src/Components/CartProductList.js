@@ -56,7 +56,27 @@ function CartProductList (props) {
             dispatch(EmptyCart());
             alert(response['msg']);
 
-            props.history.push('/shop/products');
+            paymentRequest();
+
+            props.history.push('/shop/payment');
+        }).catch(function(error){
+            console.log(error['msg']);
+        });
+    }
+
+    const paymentRequest = () => {
+        var django_rpc = new JsonRpcClient({
+            endpoint: 'http://127.0.0.1:8000/shop/rpc/',
+        })
+
+        django_rpc.request(
+            'paymentRequest',
+        ).then(function(response){
+            response = JSON.parse(response);
+            
+            console.log('Payment request res ----');
+            console.log(response);
+            alert(response['msg']);
         }).catch(function(error){
             console.log(error['msg']);
         });
@@ -94,11 +114,11 @@ function CartProductList (props) {
     
                             <Card.Footer className="text-center outer-card font-weight-bold">
                                 TOTAL: {total_price.toFixed(2)} BGN.
-                                <Button>
-                                    <Link style={{color:'white'}} onClick={() => createOrder(userInfo.cart_id)}>
-                                        Checkout
-                                    </Link>
-                                </Button>
+                                    <Button>
+                                        <Link style={{color:'white'}} onClick={() => createOrder(userInfo.cart_id)}>
+                                            Proceed with payment
+                                        </Link>
+                                    </Button>
                             </Card.Footer>
                         </Card>
                     </Col>

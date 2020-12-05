@@ -1,4 +1,3 @@
-import React from 'react';
 import { useHistory } from '../../node_modules/react-router-dom';
 
 
