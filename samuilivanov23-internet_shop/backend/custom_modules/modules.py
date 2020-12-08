@@ -372,6 +372,23 @@ DESCR=''' + descr + '''\n'''
 
         return encoded
 
+    def ParseNotificationInvoice(self, response):
+        #response format is like: INVOICE=123456:STATUS=[OK | DENIED | EXPIRED]
+        params = response.split(':')
+        invoice = params[0].split('=')[1]        
+        return invoice
+    
+    def CheckInvoiceValid(self, invoice, cur):
+        sql = 'select id from payments where invoice=%s'
+        cur.execute(sql, (invoice, ))
+
+        try:
+            result = cur.fetchone()[0] #=> if this line passes there is matching invoice
+            return True
+        except:
+            return False
+
+
 class EmployeesCRUD:
     def __init__(self):
         pass

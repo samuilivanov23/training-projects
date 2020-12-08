@@ -3,7 +3,9 @@ from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 import json, base64
 from custom_modules.modules import Payment
+from internet_shop.dbconfig import onlineShop_dbname, onlineShop_dbuser, onlineShop_dbpassword
 from internet_shop.dbconfig import secret
+import psycopg2
 
 # Create your views here.
 
@@ -37,7 +39,24 @@ def ProccessEpayNotification(request):
         # notification_response_checksum = payment.GenerateChecksum(encoded_response, secret)
         # response = "ENCODED=" + encoded_response + "CHECKSUM=" + notification_response_checksum
 
-        response = "INVOICE=123456:STATUS=OK"
+        #Connect to database
+        try:
+            connection = psycopg2.connect("dbname='" + onlineShop_dbname +
+                                        "' user='" + onlineShop_dbuser +
+                                        "' password='" + onlineShop_dbpassword + "'")
+
+            connection.autocommit = True
+            cur = connection.cursor()
+        except Exception as e:
+            print(e)
+
+        invoice = payment.ParseNotificationInvoice(response_data)
+
+        if payment.CheckInvoiceValid(invoice, cur):
+            response = "INVOICE=" + invoice + ":STATUS=OK"
+        else:
+            response = "INVOICE=" + invoice + ":STATUS=NO"
+
         return HttpResponse(response)
 
     else:

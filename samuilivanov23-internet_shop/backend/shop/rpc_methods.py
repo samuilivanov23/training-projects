@@ -380,11 +380,9 @@ def CreateOrder(cart_id, user_id, total_price):
 
 @rpc_method
 def PaymentRequestData(order_id, total_price, description):    
-    print('HEREEEEE?????>?>?>???')
     try:
         invoice = str(random.randint(0, 1000000))
         encoded = payment.EncodePaymentRequestData(invoice, total_price, description)
-        print('ENCODED: ' + encoded)
         #encoded = payment.EncodePaymentRequestData(data)
     except Exception as e:
         print(e)
@@ -413,8 +411,8 @@ def PaymentRequestData(order_id, total_price, description):
     try:
         #Connect to database
         try:
-            connection = psycopg2.connect("dbname='" + onlineShop_dbname + 
-                                        "' user='" + onlineShop_dbuser + 
+            connection = psycopg2.connect("dbname='" + onlineShop_dbname +
+                                        "' user='" + onlineShop_dbuser +
                                         "' password='" + onlineShop_dbpassword + "'")
 
             connection.autocommit = True
@@ -422,9 +420,7 @@ def PaymentRequestData(order_id, total_price, description):
         except Exception as e:
             print(e)
 
-        print('before payment status')
         payment.SetInitialPaymentStatus(order_id, invoice, cur)
-        print('after payment status')
     except Exception as e:
         print(e)
         response = {'status' : 'Fail', 
