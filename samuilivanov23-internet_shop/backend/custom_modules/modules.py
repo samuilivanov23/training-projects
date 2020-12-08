@@ -337,19 +337,23 @@ class Payment:
 
             try:
                 sql = 'update payments set ' + keys[1] + '=%s, ' + keys[2] + '=%s, ' + keys[3] + '=%s, ' + keys[4] + '=%s where ' + keys[0] + '=%s'
+                print(sql)
+                print(values, pay_time)
                 cur.execute(sql, (values[1], #status value
                                   pay_time, #pay_time value
                                   values[3], #stan value
                                   values[4], #bcode value
-                                  values[0])) #invoice value
+                                  values[0], )) #invoice value
             except Exception as e:
                 print(e)
         else:
             #update only payment status to [DENIED | EXPIRED]
             try: 
                 sql = 'update payments set ' + keys[1] + '=%s where ' + keys[0] + '=%s'
+                print(sql)
+                print(values)
                 cur.execute(sql, (values[1], # status value
-                                  values[0])) # invoice value
+                                  values[0], )) # invoice value
             except Exception as e:
                 print(e)
             
@@ -414,9 +418,11 @@ DESCR=''' + descr + '''\n'''
             key_value_pair = param.split('=')
             keys.append(key_value_pair[0])
             values.append(key_value_pair[1])
-             
+        
         keys = [key.lower() for key in keys]
         values = [value.lower() for value in values]
+
+        values[len(values) - 1] = values[len(values) - 1][:-1] #remove \n from the value of the last param
 
         return keys, values
     

@@ -51,12 +51,13 @@ def ProccessEpayNotification(request):
             print(e)
 
         keys, values = payment.ParseNotificationParams(response_data)
+        print(keys)
+        print(values)
 
         invoice = values[0]
         if payment.CheckInvoiceValid(invoice, cur):
 
             payment.UpdatePaymentStatus(keys, values, cur)
-            #payment.ChangeOrderStateOnEpayRes()
             response = "INVOICE=" + invoice + ":STATUS=OK"
         else:
             response = "INVOICE=" + invoice + ":STATUS=NO"
