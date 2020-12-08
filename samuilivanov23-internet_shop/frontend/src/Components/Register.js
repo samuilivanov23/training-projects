@@ -51,7 +51,7 @@ function Register (props) {
         ).then(function(response){
             response = JSON.parse(response);
             alert(response['msg'])
-            
+
             localStorage.setItem('verified', 'false');
             localStorage.setItem('user_email_address', email_address);
             

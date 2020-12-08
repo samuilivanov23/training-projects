@@ -168,6 +168,7 @@ class DbOperations:
         order_id = cur.fetchone()[0]
 
         order_info = {
+            'id' : order_id,
             'user_id' : user_id,
             'total_price' : total_price,
             'products' : []
@@ -208,6 +209,7 @@ class DbOperations:
                     print(e)
                 
                 init_order_info = {
+                    'id' : 0,
                     'user_id' : 0,
                     'total_price' : 0,
                     'products' : []
@@ -310,12 +312,20 @@ class FiltersParser:
 class Payment:
     def __init__(self):
         pass
+
+    def SetInitialPaymentStatus(self, order_id, invoice, cur):
+        sql = 'insert into payments (invoice, status) values(%s, %s) RETURNING id'
+        cur.execute(sql, (invoice, 'sent'))
+        payment_id = cur.fetchone()[0]
+
+        sql = 'update orders set payment_id=%s where id=%s'
+        cur.execute(sql, (payment_id, order_id))
+
     
-    def EncodeData(self, total_price, description):
+    def EncodePaymentRequestData(self, invoice, total_price, description):
         min = 'D520908428'
-        invoice = str(random.randint(0, 1000000))
         amount = str(total_price)
-        exp_time = '06.12.2020'
+        exp_time = '09.12.2020'
         descr = description
 
         data = '''MIN=''' + min + '''
@@ -324,10 +334,16 @@ AMOUNT=''' + amount + '''
 EXP_TIME=''' + exp_time + '''
 DESCR=''' + descr + '''\n'''
         
-        data_as_bytes = data.encode('ascii')
+        data_as_bytes = data.encode('utf-8')
         base64_encoded_data = base64.b64encode(data_as_bytes)
 
-        return base64_encoded_data.decode('ascii')
+        return base64_encoded_data.decode('utf-8')
+
+    def EncodeNotificationResponse(self, response):
+        response_as_bytes = response.encode('utf-8')
+        base64_encoded_response = base64.b64encode(response_as_bytes)
+        return base64_encoded_response.decode('utf-8')
+
 
     def GenerateChecksum(self, base64_encoded, secret):
         secret = secret.encode('utf-8')
@@ -335,6 +351,26 @@ DESCR=''' + descr + '''\n'''
         checksum = hmac.new(secret, encoded, hashlib.sha1).hexdigest()
 
         return checksum
+
+    def ParseNotificationRequest(self, request, secret):
+        params = request.split('&')
+
+        encoded = params[0].split('=')[1]
+        trailling_padding_count = len(re.findall('%3D', encoded)) #get number of trailling padding chars
+        encoded = encoded[:-(trailling_padding_count * 3)] # *3 is '%3D' length
+        encoded += '=' * trailling_padding_count
+
+        received_checksum = params[1].split('=')[1]
+        generated_checksum = self.GenerateChecksum(encoded, secret)
+        
+        return encoded, received_checksum, generated_checksum
+    
+    def DecodeNotificationResponse(self, encoded):
+        encoded = encoded.encode('utf-8')
+        encoded = base64.b64decode(encoded)
+        encoded = encoded.decode('utf-8')
+
+        return encoded
 
 class EmployeesCRUD:
     def __init__(self):

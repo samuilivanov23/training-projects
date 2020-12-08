@@ -7,13 +7,16 @@ import JsonRpcClient from '../../node_modules/react-jsonrpc-client/jsonrpcclient
 
 function Payment(props){
 
-    const {orderInfo} = useSelector(state=>state.orderProducts);    
+    const {orderInfo} = useSelector(state=>state.orderProducts);
+    console.log('OrderInfo -------');
+    console.log(orderInfo);
+
     const [description, set_description] = useState('default');
     const [encoded, set_encoded] = useState('');
     const [checksum, set_checksum] = useState('');
     const history = useHistory();
 
-    const redirectToHome = () => {
+    const redirectToHome = (event) => {
         setTimeout(function (){
             history.push('/shop/products');
         }, 10);
@@ -27,12 +30,17 @@ function Payment(props){
     };
 
     const getOrderData = () => {
+        console.log('GET ORDER DATA');
         var django_rpc = new JsonRpcClient({
             endpoint : 'http://127.0.0.1:8000/shop/rpc/',
         });
 
+        console.log('order id');
+        console.log(orderInfo.id);
+
         django_rpc.request(
             "PaymentRequestData",
+            orderInfo.id,
             orderInfo.total_price,
             description,
         ).then(function(response){

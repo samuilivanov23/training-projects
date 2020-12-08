@@ -360,6 +360,7 @@ def CreateOrder(cart_id, user_id, total_price):
     except Exception as e:
         print(traceback.format_exc())
         init_order_info = {
+            'id' : 0,
             'user_id' : 0,
             'total_price' : 0,
             'products' : []
@@ -378,20 +379,24 @@ def CreateOrder(cart_id, user_id, total_price):
     return response
 
 @rpc_method
-def PaymentRequestData(total_price, description):    
+def PaymentRequestData(order_id, total_price, description):    
+    print('HEREEEEE?????>?>?>???')
     try:
-        encoded = payment.EncodeData(total_price, description)
+        invoice = str(random.randint(0, 1000000))
+        encoded = payment.EncodePaymentRequestData(invoice, total_price, description)
+        print('ENCODED: ' + encoded)
+        #encoded = payment.EncodePaymentRequestData(data)
     except Exception as e:
         print(e)
-        response = {'status' : 'Fail', 
+        response = {'status' : 'Fail',
                     'msg' : 'Unable to encode data', 
                     'data' : {
                         'encoded' : None,
-                        'checksum' : None
+                        'checksum' : None,
                     }}
         response = json.dumps(response)
         return response
-    
+
     try:
         checksum = payment.GenerateChecksum(encoded, secret)
     except Exception as e:
@@ -400,8 +405,34 @@ def PaymentRequestData(total_price, description):
                     'msg' : 'Unable to encode data', 
                     'data' : {
                         'encoded' : None,
-                        'checksum' : None
-                    }}        
+                        'checksum' : None,
+                    }}
+        response = json.dumps(response)
+        return response
+
+    try:
+        #Connect to database
+        try:
+            connection = psycopg2.connect("dbname='" + onlineShop_dbname + 
+                                        "' user='" + onlineShop_dbuser + 
+                                        "' password='" + onlineShop_dbpassword + "'")
+
+            connection.autocommit = True
+            cur = connection.cursor()
+        except Exception as e:
+            print(e)
+
+        print('before payment status')
+        payment.SetInitialPaymentStatus(order_id, invoice, cur)
+        print('after payment status')
+    except Exception as e:
+        print(e)
+        response = {'status' : 'Fail', 
+                    'msg' : 'Unable to insert payment data into database', 
+                    'data' : {
+                        'encoded' : None,
+                        'checksum' : None,
+                    }}
         response = json.dumps(response)
         return response
     
@@ -411,30 +442,7 @@ def PaymentRequestData(total_price, description):
                     'encoded' : encoded,
                     'checksum' : checksum,
                 }}
-    
-    print(response)
+
     response = json.dumps(response)
     print(response)
     return response
-
-    # req_data = {
-    #     'ENCODED' : encoded,
-    #     'CHECKSUM' : checksum,
-    #     'URL_OK' : 'https://www.google.com/',
-    #     'URL_CANCEL' : 'https://www.google.com/',
-    # }
-
-    # response = requests.post(url='https://demo.epay.bg/', data=req_data)
-    # print(response.text)
-
-    response = {'status' : 'OK', 'msg' : 'Testing'}
-    return response
-
-# @rpc_method
-# def ePatNotification(test):
-#     response = json.loads(test)
-#     print(response['msg'])
-
-#     response = {'msg' : 'Successful'}
-#     response = json.dumps(response)
-#     return response

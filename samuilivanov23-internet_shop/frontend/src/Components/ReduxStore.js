@@ -41,6 +41,7 @@ const productInfo = {
 };
 
 const orderInfo = {
+    id : 0,
     user_id : 0,
     total_price : 0,
     products : []

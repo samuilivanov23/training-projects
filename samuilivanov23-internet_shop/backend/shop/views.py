@@ -2,54 +2,51 @@
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 import json, base64
+from custom_modules.modules import Payment
+from internet_shop.dbconfig import secret
 
 # Create your views here.
 
 def index(request):
     print(request)
-    data = {
-        'name': 'Sarah',
-        'age': '20',
-        'email': 'sarah@gmail.com' 
-    }
+    # data = {
+    #     'name': 'Sarah',
+    #     'age': '20',
+    #     'email': 'sarah@gmail.com' 
+    # }
 
-    data_json = json.dumps(data)
-    return HttpResponse(data_json)
-
-def ParseRequest(request):
-    params = request.split('&')
-    
-    encoded = params[0][:-6].split('=')[1] #:-6 to skip the padding %3D%3D
-    checksum = params[1].split('=')[1]
-
-    encoded += '==='
-    
-    return encoded, checksum
-
+    data = "ENCODED=INVOICE:123456:STATUS:OK"
+    #data_json = json.dumps(data)
+    return HttpResponse(data)
 
 @csrf_exempt
 def ProccessEpayNotification(request):
     body = request.body
     body = body.decode('utf-8')
-    
-    encoded, checksum = ParseRequest(body)
 
-    print(encoded)
-    print(checksum)
-  
-    encoded = encoded.encode('utf-8')
-    encoded = base64.b64decode(encoded)
-    encoded = encoded.decode('utf-8')
+    payment = Payment()
+    encoded, received_checksum, generated_checksum = payment.ParseNotificationRequest(body, secret)
     
-    print(encoded)
-    # body_unicode = request.body.decode('utf-8')
-    # body = json.loads(body_unicode)
-    
-    #print(body)
+    if(generated_checksum == received_checksum):
+        print('VALID CHECKSUM')
+        response_data = payment.DecodeNotificationResponse(encoded)
+        print(response_data)
 
-    response = {
-        'status' : 'OK'
-    }
+        # response_message = "INVOICE=123456:STATUS=OK"
+        # encoded_response = payment.EncodeNotificationResponse(response_message)
+        # notification_response_checksum = payment.GenerateChecksum(encoded_response, secret)
+        # response = "ENCODED=" + encoded_response + "CHECKSUM=" + notification_response_checksum
 
-    response = json.dumps(response)
-    return HttpResponse(response)
+        response = "INVOICE=123456:STATUS=OK"
+        return HttpResponse(response)
+
+    else:
+        print("INVALID CHECKSUM")
+
+        # response_message = "INVOICE=123456:STATUS=грешна CHECKSUM"
+        # encoded_response = payment.EncodeNotificationResponse(response_message)
+        # notification_response_checksum = payment.GenerateChecksum(encoded_response, secret)
+        # response = "ENCODED=" + encoded_response + "CHECKSUM=" + notification_response_checksum
+
+        response = "INVOICE=123456:STATUS=грешна CHECKSUM"
+        return HttpResponse(response)

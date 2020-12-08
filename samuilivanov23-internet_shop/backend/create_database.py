@@ -58,13 +58,20 @@ def createTables(cur, connection):
         "id" bigserial PRIMARY KEY,
         "date" timestamp,
         "total_price" numeric,
-        "user_id" bigserial
+        "user_id" bigserial,
+        "payment_id" bigserial
     );
 
     CREATE TABLE IF NOT EXISTS orders_products(
         "order_id" bigserial,
         "product_id" bigserial,
         "count" int
+    );
+
+    CREATE TABLE IF NOT EXISTS payments(
+        "id" bigserial PRIMARY KEY,
+        "invoice" int,
+        "status" text
     );
 
     CREATE TABLE IF NOT EXISTS employees(
@@ -99,6 +106,8 @@ def createTables(cur, connection):
     ALTER TABLE products ADD FOREIGN KEY (manufacturer_id) REFERENCES manufacturers (id);
 
     ALTER TABLE orders ADD FOREIGN KEY (user_id) REFERENCES users (id);
+
+    ALTER TABLE orders ADD FOREIGN KEY (payment_id) REFERENCES payments (id);
 
     ALTER TABLE employees ADD FOREIGN KEY (role_id) REFERENCES roles (id);
 
