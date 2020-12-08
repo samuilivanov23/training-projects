@@ -50,12 +50,20 @@ def ProccessEpayNotification(request):
         except Exception as e:
             print(e)
 
-        invoice = payment.ParseNotificationInvoice(response_data)
+        keys, values = payment.ParseNotificationParams(response_data)
 
+        invoice = values[0]
         if payment.CheckInvoiceValid(invoice, cur):
+
+            payment.UpdatePaymentStatus(keys, values, cur)
+            #payment.ChangeOrderStateOnEpayRes()
             response = "INVOICE=" + invoice + ":STATUS=OK"
         else:
             response = "INVOICE=" + invoice + ":STATUS=NO"
+
+        if(connection):
+            cur.close()
+            connection.close()
 
         return HttpResponse(response)
 

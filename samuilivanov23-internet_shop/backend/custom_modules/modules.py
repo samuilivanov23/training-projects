@@ -320,8 +320,39 @@ class Payment:
 
         sql = 'update orders set payment_id=%s where id=%s'
         cur.execute(sql, (payment_id, order_id))
-
     
+    def UpdatePaymentStatus(self, keys, values, cur):
+        status = values[1]
+        if status == "paid":
+            #update payment status to PAID and set pay_time, stan and bcode
+            pay_time = values[2]
+            
+            year = pay_time[0:4]
+            month = pay_time[4:6]
+            day = pay_time[6:8]
+            hour = pay_time[8:10]
+            minutes = pay_time[10:12]
+            sec = pay_time[12:14]
+            pay_time = year + "-" + month + "-" + day + " " + hour + ":" + minutes + ":" + sec
+
+            try:
+                sql = 'update payments set ' + keys[1] + '=%s, ' + keys[2] + '=%s, ' + keys[3] + '=%s, ' + keys[4] + '=%s where ' + keys[0] + '=%s'
+                cur.execute(sql, (values[1], #status value
+                                  pay_time, #pay_time value
+                                  values[3], #stan value
+                                  values[4], #bcode value
+                                  values[0])) #invoice value
+            except Exception as e:
+                print(e)
+        else:
+            #update only payment status to [DENIED | EXPIRED]
+            try: 
+                sql = 'update payments set ' + keys[1] + '=%s where ' + keys[0] + '=%s'
+                cur.execute(sql, (values[1], # status value
+                                  values[0])) # invoice value
+            except Exception as e:
+                print(e)
+            
     def EncodePaymentRequestData(self, invoice, total_price, description):
         min = 'D520908428'
         amount = str(total_price)
@@ -372,11 +403,22 @@ DESCR=''' + descr + '''\n'''
 
         return encoded
 
-    def ParseNotificationInvoice(self, response):
-        #response format is like: INVOICE=123456:STATUS=[OK | DENIED | EXPIRED]
+    def ParseNotificationParams(self, response):
+        #response format is like: INVOICE=123456:STATUS=[PAID | DENIED | EXPIRED]:PAY_DATE=YYMMDDmmss:STAN=12345:BCODE=1a3b46
         params = response.split(':')
-        invoice = params[0].split('=')[1]        
-        return invoice
+
+        keys = []
+        values = []
+
+        for param in params:
+            key_value_pair = param.split('=')
+            keys.append(key_value_pair[0])
+            values.append(key_value_pair[1])
+             
+        keys = [key.lower() for key in keys]
+        values = [value.lower() for value in values]
+
+        return keys, values
     
     def CheckInvoiceValid(self, invoice, cur):
         sql = 'select id from payments where invoice=%s'

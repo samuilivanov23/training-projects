@@ -40,7 +40,7 @@ function NavigationBarBackoffice(props) {
             <Nav className="mr-auto">
                 <Dropdown>
                     <Dropdown.Toggle variant="info" id="dropdown-basic">
-                        CRUD
+                        Menu
                     </Dropdown.Toggle>
 
                     <Dropdown.Menu>

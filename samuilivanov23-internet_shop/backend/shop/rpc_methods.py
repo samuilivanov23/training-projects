@@ -421,6 +421,10 @@ def PaymentRequestData(order_id, total_price, description):
             print(e)
 
         payment.SetInitialPaymentStatus(order_id, invoice, cur)
+
+        if(connection):
+            cur.close()
+            connection.close()
     except Exception as e:
         print(e)
         response = {'status' : 'Fail', 

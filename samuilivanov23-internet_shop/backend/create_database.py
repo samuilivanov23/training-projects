@@ -70,8 +70,10 @@ def createTables(cur, connection):
 
     CREATE TABLE IF NOT EXISTS payments(
         "id" bigserial PRIMARY KEY,
-        "invoice" int,
-        "status" text
+        "invoice" int NOT NULL,
+        "status" text NOT NULL,
+        "stan" text ,
+        "bcode" text
     );
 
     CREATE TABLE IF NOT EXISTS employees(

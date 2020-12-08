@@ -89,25 +89,27 @@ function EmployeesList (props){
                 {employees.map((employee, idx) => (
                     <Card key={idx} className={'employee-card'}>
                         <Card.Body>
-                            <Card.Title>{ employee['first_name'] } { employee['last_name'] }</Card.Title>
-                            <Card.Text>{ employee['email_address'] }</Card.Text>
+                            <div style={{display : 'flex', flexDirection : 'row', flex : 1, flexWrap : 'wrap'}}>
+                                <Card.Title style={{marginRight:'1em'}}> Name: { employee['first_name'] } { employee['last_name'] }</Card.Title>
+                                <Card.Text style={{marginRight:'1em'}}> Email address: { employee['email_address'] }</Card.Text>
+                                <Card.Text> Role: { employee['role_name'] }</Card.Text>
 
-                            {(employeeInfo.permissions.update_perm) 
-                                ?   <Button className={'crud-buttons-style'}>
+                                {(employeeInfo.permissions.update_perm) 
+                                ?   <Button className={'crud-buttons-style ml-auto'}>
                                         <Link style={{color:'white'}} to={`/backoffice/employees/update/${employee['id']}`} onClick={() => getCurrentEmployee(employee)}>
                                             Update employee
                                         </Link>
                                     </Button>
                                 : null
-                            }
+                                }
 
-                            {(employeeInfo.permissions.delete_perm)
-                                ?   <Button className={'crud-buttons-style'} onClick={() => deleteEmployee(employee['id'])}>
-                                        Delete employee
-                                    </Button>
-                                : null
-
-                            } 
+                                {(employeeInfo.permissions.delete_perm)
+                                    ?   <Button className={'crud-buttons-style'} onClick={() => deleteEmployee(employee['id'])}>
+                                            Delete employee
+                                        </Button>
+                                    : null
+                                }
+                            </div> 
                         </Card.Body>
                     </Card>
                 ))}
