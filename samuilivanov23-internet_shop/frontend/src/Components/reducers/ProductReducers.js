@@ -13,4 +13,14 @@ function productReducer(state = {}, action){
     }
 }
 
-export { productReducer }
+function productUpdateReducer(state = {}, action){
+    switch(action.type){
+        case 'SET_PRODUCT_TO_UPDATE_DETAILS':
+            return { productToUpdateInfo : action.data};
+
+        default:
+            return state;
+    }
+};
+
+export { productReducer, productUpdateReducer }

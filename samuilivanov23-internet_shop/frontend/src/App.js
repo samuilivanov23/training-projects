@@ -18,6 +18,7 @@ import UpdateEmployee from './Backoffice_Components/EmployeesCRUD/UpdateEmployee
 import Payment from './Components/Payment';
 import ProductsCRUD from './Backoffice_Components/ProductsCRUD/ProductsCRUD';
 import CreateProduct from './Backoffice_Components/ProductsCRUD/CreateProduct';
+import UpdateProduct from './Backoffice_Components/ProductsCRUD/UpdateProduct';
 
 function App (props) {
 
@@ -42,6 +43,7 @@ function App (props) {
       <Route path={"/backoffice/employees/update/:id"} render={(props) => <UpdateEmployee {...props}/>} />   
       <Route exact path={"/backoffice/products"} render={(props) => <ProductsCRUD {...props}/>} />
       <Route path={"/backoffice/products/create"} render={(props) => <CreateProduct {...props}/>} />
+      <Route path={"/backoffice/products/update/:id"} render={(props) => <UpdateProduct {...props}/>} />
     </div>
   );
 }

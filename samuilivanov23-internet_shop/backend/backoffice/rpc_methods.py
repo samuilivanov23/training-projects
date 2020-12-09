@@ -258,9 +258,7 @@ def GetProductsBackoffice():
     return response
 
 @rpc_method
-def CreateProduct(name, description, count, price, image_name, manufacturer_id):
-    print('HERE')
-    
+def CreateProduct(name, description, count, price, image_name, manufacturer_id):    
     #Connect to database
     try:
         connection = psycopg2.connect("dbname='" + onlineShop_dbname + 
@@ -275,18 +273,39 @@ def CreateProduct(name, description, count, price, image_name, manufacturer_id):
     count = int(count)
     price = round(float(price), 2)
 
-    print(image_name)
     response = productsCRUD.CreateProduct(name, description, count, price, image_name, manufacturer_id, cur)
-    # response = {'status' : 'OK', 'msg' : 'Testing rpc method'}
 
     if connection:
             cur.close()
             connection.close()
         
     response = json.dumps(response)
-    print(response)
     return response
 
+@rpc_method
+def UpdateProduct(id, name, description, count, price, image, manufacturer_id):
+    #Connect to database
+    try:
+        connection = psycopg2.connect("dbname='" + onlineShop_dbname + 
+                                    "' user='" + onlineShop_dbuser + 
+                                    "' password='" + onlineShop_dbpassword + "'")
+
+        connection.autocommit = True
+        cur = connection.cursor()
+    except Exception as e:
+        print(e)
+    
+    count = int(count)
+    price = round(float(price), 2)
+    response = productsCRUD.UpdateProduct(id, name, description, count, price, image, manufacturer_id, cur)
+
+    if connection:
+            cur.close()
+            connection.close()
+    
+    response = json.dumps(response)
+    print(response)
+    return response
 
 @rpc_method
 def GetManufacturers():

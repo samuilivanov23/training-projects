@@ -3,7 +3,7 @@ import React from 'react';
 import JsonRpcClient from 'react-jsonrpc-client';
 import { useState, useEffect } from 'react';
 import { Card, Button, Row, Col, Container } from 'react-bootstrap';
-//import { SetProductToUpdateDetails } from '../../Components/actions/ProductActions';
+import { SetProductToUpdateDetails } from '../../Components/actions/ProductActions';
 import { useSelector, useDispatch } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { useHistory } from '../../../node_modules/react-router-dom';
@@ -37,9 +37,16 @@ function ProductsList (props){
     }
 
     const getCurrentProduct = (current_product) => {
-        // dispatch(SetProductToUpdateDetails(
-        //     //TODO add parameters to dispatch action
-        // ));
+        console.log('testiiiiing');
+        dispatch(SetProductToUpdateDetails(
+            current_product.id,
+            current_product.name,
+            current_product.description,
+            current_product.count,
+            current_product.price,
+            current_product.image,
+            current_product.manufacturer_id
+        ));
     }
 
     const deleteProduct = (id) => {

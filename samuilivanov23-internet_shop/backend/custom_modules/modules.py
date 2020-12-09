@@ -92,9 +92,10 @@ class JSONParser:
                 'name' : records[i][1],
                 'description' : records[i][2],
                 'manufacturer_name' : records[i][3],
-                'count' : records[i][4],
-                'price' : records[i][5],
-                'image' : records[i][6],
+                'manufacturer_id' : records[i][4],
+                'count' : records[i][5],
+                'price' : records[i][6],
+                'image' : records[i][7],
             })
 
             i+=1
@@ -667,7 +668,7 @@ class ProductsCRUD:
 
     def ReadProducts(self, cur):
         try:
-            sql =  '''select p.id, p.name, p.description, m.name, p.count, p.price, p.image_name from products as p 
+            sql =  '''select p.id, p.name, p.description, m.name, m.id, p.count, p.price, p.image_name from products as p 
                     join manufacturers as m on p.manufacturer_id=m.id'''
             cur.execute(sql, )
 
@@ -694,6 +695,22 @@ class ProductsCRUD:
             print(e)
             response = {'status' : 'Fail', 'msg' : 'Could not create product'}
 
+        return response
+    
+    def UpdateProduct(self, id, name, description, count, price, image, manufacturer_id, cur):
+        try:
+            print(manufacturer_id)
+            print(type(count))
+            print(type(price))
+            print(type(id))
+            print(id)
+            sql = 'update products set name=%s, description=%s, count=%s, price=%s, image_name=%s, manufacturer_id=%s where id=%s'
+            cur.execute(sql, (name, description, count, price, image, manufacturer_id, id))
+            response = {'status' : 'OK', 'msg' : 'Successfull'}
+        except Exception as e:
+            print(e)
+            response = {'status' : 'Failed', 'msg' : 'Unable to update product'}
+        
         return response
 
 class ManufacturersCRUD:

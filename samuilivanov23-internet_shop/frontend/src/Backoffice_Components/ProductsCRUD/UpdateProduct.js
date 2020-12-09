@@ -1,15 +1,19 @@
 import '../../App.css';
 import React from 'react';
+import { useSelector } from 'react-redux';
 import { useState, useEffect } from 'react';
-import { Form, Button } from 'react-bootstrap';
-import JsonRpcClient from 'react-jsonrpc-client';
+import { Form, Button } from '../../../node_modules/react-bootstrap';
+import JsonRpcClient from '../../../node_modules/react-jsonrpc-client/jsonrpcclient';
+import { useHistory } from '../../../node_modules/react-router-dom';
 
-function CreateProduct(props){
+function UpdateProduct (props) {
 
     const [validated, setValidated] = useState(false);
+    const history = useHistory();
+    const { productToUpdateInfo } = useSelector(state =>state.productToUpdate);
     const [manufacturers, set_manufacturers] = useState([])
-    const [selected_manufacturer, set_selected_manufacturer] = useState(1);
-    
+    const [selected_manufacturer, set_selected_manufacturer] = useState(productToUpdateInfo.manufacturer_id);
+
     useEffect(()=> {
         loadManufacturers();
     }, []);
@@ -24,7 +28,7 @@ function CreateProduct(props){
         ).then(function(response){
             response = JSON.parse(response);
             console.log(response);
-            console.log(response['manufacturers']);
+            //console.log(response['manufacturers']);
             set_manufacturers(response['manufacturers']);
             console.log(response['msg']);
         }).catch(function(error){
@@ -42,38 +46,38 @@ function CreateProduct(props){
             alert('Plese fill all input fileds!');
         }
         else{
-            console.log('Creating employee');
-            
-            insertProduct(form_data.name.value,
+            console.log('Updating product');
+
+            updateProduct(productToUpdateInfo.id,
+                        form_data.name.value,
                         form_data.description.value,
                         form_data.count.value,
                         form_data.price.value,
-                        form_data.image_name.value,
+                        form_data.image.value,
                         selected_manufacturer);
         }
 
         setValidated(true);
     };
 
-    const insertProduct = (name, description, count, price, image_name, manufacturer_id) => {
-        
+    const updateProduct = (id, name, description, count, price, image, manufacturer_id) => {
         var django_rpc = new JsonRpcClient({
-            endpoint: 'http://127.0.0.1:8000/backoffice/rpc/',
+            endpoint : 'http://127.0.0.1:8000/backoffice/rpc/',
         });
 
         django_rpc.request(
-            "CreateProduct",
+            "UpdateProduct",
+            id,
             name,
             description,
             count,
             price,
-            image_name,
+            image,
             manufacturer_id,
         ).then(function(response){
             response = JSON.parse(response);
             alert(response['msg'])
-            
-           props.history.push('/backoffice/products');
+            history.push('/backoffice/products');
         }).catch(function(error){
             alert(error['msg']);
         });
@@ -86,7 +90,7 @@ function CreateProduct(props){
     const generateManufacturerSelectElements = () => {
         const options = [];
 
-        if(manufacturers.length != 0){
+        if(manufacturers.length !== 0){
             manufacturers.forEach((manufacturer, idx) => {
                 options.push(<option key={idx} value={manufacturer['id']}> {manufacturer['name']} </option>)
             });
@@ -103,7 +107,6 @@ function CreateProduct(props){
     else{
         const options = generateManufacturerSelectElements();
 
-        console.log(selected_manufacturer);
         return (
             <div className={'form-container'}>
                 <Form noValidate validated={validated} onSubmit={handleSubmit} className={'form-center'}>
@@ -113,7 +116,7 @@ function CreateProduct(props){
                         type="text"
                         name="name"
                         placeholder="Name"
-                        defaultValue=""
+                        defaultValue={productToUpdateInfo.name}
                     />
                     <Form.Text> Use characters [A-Z]/[a-z] </Form.Text>
                     <Form.Control.Feedback>Looks good!</Form.Control.Feedback>
@@ -131,7 +134,7 @@ function CreateProduct(props){
                         type="text"
                         name="description"
                         placeholder="Description"
-                        defaultValue=""
+                        defaultValue={productToUpdateInfo.description}
                     />
                     <Form.Text> Use characters [A-Z]/[a-z] </Form.Text>
                     <Form.Control.Feedback>Looks good!</Form.Control.Feedback>
@@ -149,7 +152,7 @@ function CreateProduct(props){
                         type="text"
                         name="count"
                         placeholder="Quantity"
-                        defaultValue=""
+                        defaultValue={productToUpdateInfo.count}
                     />
                     <Form.Control.Feedback>Looks good!</Form.Control.Feedback>
                     <Form.Control.Feedback type="invalid">
@@ -166,7 +169,7 @@ function CreateProduct(props){
                         type="text"
                         name="price"
                         placeholder="Price"
-                        defaultValue=""
+                        defaultValue={productToUpdateInfo.price}
                     />
                     <Form.Control.Feedback>Looks good!</Form.Control.Feedback>
                     <Form.Control.Feedback type="invalid">
@@ -180,10 +183,10 @@ function CreateProduct(props){
                     <Form.Label>Image</Form.Label>
                     <Form.Control
                         required
-                        type="image_name"
-                        name="image_name"
+                        type="text"
+                        name="image"
                         placeholder="Image"
-                        defaultValue=""
+                        defaultValue={productToUpdateInfo.image}
                     />
                     <Form.Control.Feedback>Looks good!</Form.Control.Feedback>
                     <Form.Control.Feedback type="invalid">
@@ -200,7 +203,7 @@ function CreateProduct(props){
                     <br/>
     
                     <Button variant="primary" type="submit">
-                        Create product
+                        Update product
                     </Button>
                 </Form>
             </div>
@@ -208,4 +211,4 @@ function CreateProduct(props){
     }
 }
 
-export default CreateProduct;
+export default UpdateProduct;
