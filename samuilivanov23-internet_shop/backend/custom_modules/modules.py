@@ -82,6 +82,39 @@ class JSONParser:
 
         return employees
 
+    def GetAllProductsBackofficeJSON(self, records):
+        i = 0
+        products = []
+
+        while i < len(records):
+            products.append({
+                'id' : records[i][0],
+                'name' : records[i][1],
+                'description' : records[i][2],
+                'manufacturer_name' : records[i][3],
+                'count' : records[i][4],
+                'price' : records[i][5],
+                'image' : records[i][6],
+            })
+
+            i+=1
+        
+        return products
+    
+    def GetAllManufacturers(self, records):
+        i = 0
+        manufacturers = []
+
+        while i < len(records):
+            manufacturers.append({
+                'id' : records[i][0],
+                'name' : records[i][1],
+            })
+
+            i+=1
+        
+        return manufacturers
+
 class DbOperations:
     def __init__(self):
         pass
@@ -309,7 +342,7 @@ class FiltersParser:
         filter_request = filter.split(' ')
         return filter_request[2], filter_request[3]
     
-class Payment:
+class Payment: 
     def __init__(self):
         pass
 
@@ -452,8 +485,8 @@ class EmployeesCRUD:
             employees_records = cur.fetchall()
 
             if not employees_records is None:
-                productsJSONServer = JSONParser()
-                employees_json = productsJSONServer.GetAllEmployeesJSON(employees_records)
+                employeesJSONServer = JSONParser()
+                employees_json = employeesJSONServer.GetAllEmployeesJSON(employees_records)
                 response = {'status' : 'OK', 'msg' : 'Successfull', 'employees' : employees_json}
             else:
                 response = {'status' : 'Fail', 'msg' : 'No employees in database', 'employees' : []}
@@ -625,5 +658,59 @@ class EmployeesCRUD:
         except Exception as e:
             print(e)
             response = {'status' : 'Fail', 'msg' : 'Enable to delete employee'}
+
+        return response
+
+class ProductsCRUD:
+    def __init__(self):
+        pass
+
+    def ReadProducts(self, cur):
+        try:
+            sql =  '''select p.id, p.name, p.description, m.name, p.count, p.price, p.image_name from products as p 
+                    join manufacturers as m on p.manufacturer_id=m.id'''
+            cur.execute(sql, )
+
+            try:
+                products_records = cur.fetchall()
+                productsJSONServer = JSONParser()
+                products_json = productsJSONServer.GetAllProductsBackofficeJSON(products_records)
+                response = {'status' : 'OK', 'msg' : 'Successfull', 'products' : products_json}
+            except Exception as e: #=> no products in database
+                print(e)
+                response = {'status' : 'Fail', 'msg' : 'No products in database', 'products' : []}
+        except Exception as e:
+            print(e)
+            response = {'status' : 'Fail', 'msg' : 'Internal server error', 'products' : []}
+        
+        return response
+
+    def CreateProduct(self, name, description, count, price, image_name, manufacturer_id, cur):
+        try:
+            sql = 'insert into products (name, description, count, price, image_name, manufacturer_id) values(%s, %s, %s, %s, %s, %s)'
+            cur.execute(sql, (name, description, count, price, image_name, manufacturer_id))
+            response = {'status' : 'OK', 'msg' : 'Successfull'}
+        except Exception as e:
+            print(e)
+            response = {'status' : 'Fail', 'msg' : 'Could not create product'}
+
+        return response
+
+class ManufacturersCRUD:
+    def __init__(self):
+        pass
+
+    def ReadManufacturers(self, cur):
+        try:
+            sql = 'select * from manufacturers'
+            cur.execute(sql, )
+            manufacturers_records = cur.fetchall()
+
+            manufacturerJSONServer = JSONParser()
+            manufacturers_json = manufacturerJSONServer.GetAllManufacturers(manufacturers_records)
+            response = {'status' : 'OK', 'msg' : 'Successful', 'manufacturers' : manufacturers_json}
+        except Exception as e:
+            print(e)
+            response = {'status' : 'Fail', 'msg' : 'Unable to get manufacturers', 'manufacturers' : []}
 
         return response

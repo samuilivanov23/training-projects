@@ -92,7 +92,7 @@ function EmployeesList (props){
                             <div style={{display : 'flex', flexDirection : 'row', flex : 1, flexWrap : 'wrap'}}>
                                 <Card.Title style={{marginRight:'1em'}}> Name: { employee['first_name'] } { employee['last_name'] }</Card.Title>
                                 <Card.Text style={{marginRight:'1em'}}> Email address: { employee['email_address'] }</Card.Text>
-                                <Card.Text> Role: { employee['role_name'] }</Card.Text>
+                                <Card.Text> Role: { employee['permissions']['create_perm'] }</Card.Text>
 
                                 {(employeeInfo.permissions.update_perm) 
                                 ?   <Button className={'crud-buttons-style ml-auto'}>

@@ -7,6 +7,8 @@ import custom_modules.modules as modules
 
 dbOperator = modules.DbOperations()
 employeesCRUD = modules.EmployeesCRUD()
+productsCRUD = modules.ProductsCRUD()
+manufacturersCRUD = modules.ManufacturersCRUD()
 
 @rpc_method
 def LoginEmployee(email_address, password):
@@ -230,5 +232,81 @@ def DeleteEmployee(id):
         connection.close()
 
     print(response)
+    response = json.dumps(response)
+    return response
+
+@rpc_method
+def GetProductsBackoffice():
+    #Connect to database
+    try:
+        connection = psycopg2.connect("dbname='" + onlineShop_dbname + 
+                                    "' user='" + onlineShop_dbuser + 
+                                    "' password='" + onlineShop_dbpassword + "'")
+
+        connection.autocommit = True
+        cur = connection.cursor()
+    except Exception as e:
+        print(e)
+    
+    response = productsCRUD.ReadProducts(cur)
+
+    if connection:
+        cur.close()
+        connection.close()
+
+    print(response)
+    return response
+
+@rpc_method
+def CreateProduct(name, description, count, price, image_name, manufacturer_id):
+    print('HERE')
+    
+    #Connect to database
+    try:
+        connection = psycopg2.connect("dbname='" + onlineShop_dbname + 
+                                    "' user='" + onlineShop_dbuser + 
+                                    "' password='" + onlineShop_dbpassword + "'")
+
+        connection.autocommit = True
+        cur = connection.cursor()
+    except Exception as e:
+        print(e)
+
+    count = int(count)
+    price = round(float(price), 2)
+
+    print(image_name)
+    response = productsCRUD.CreateProduct(name, description, count, price, image_name, manufacturer_id, cur)
+    # response = {'status' : 'OK', 'msg' : 'Testing rpc method'}
+
+    if connection:
+            cur.close()
+            connection.close()
+        
+    response = json.dumps(response)
+    print(response)
+    return response
+
+
+@rpc_method
+def GetManufacturers():
+    #Connect to database
+    try:
+        connection = psycopg2.connect("dbname='" + onlineShop_dbname + 
+                                    "' user='" + onlineShop_dbuser + 
+                                    "' password='" + onlineShop_dbpassword + "'")
+
+        connection.autocommit = True
+        cur = connection.cursor()
+    except Exception as e:
+        print(e)
+
+    response = manufacturersCRUD.ReadManufacturers(cur)
+
+    if connection:
+        cur.close()
+        connection.close()
+
+
     response = json.dumps(response)
     return response

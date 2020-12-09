@@ -34,11 +34,6 @@ def ProccessEpayNotification(request):
         response_data = payment.DecodeNotificationResponse(encoded)
         print(response_data)
 
-        # response_message = "INVOICE=123456:STATUS=OK"
-        # encoded_response = payment.EncodeNotificationResponse(response_message)
-        # notification_response_checksum = payment.GenerateChecksum(encoded_response, secret)
-        # response = "ENCODED=" + encoded_response + "CHECKSUM=" + notification_response_checksum
-
         #Connect to database
         try:
             connection = psycopg2.connect("dbname='" + onlineShop_dbname +
@@ -70,11 +65,5 @@ def ProccessEpayNotification(request):
 
     else:
         print("INVALID CHECKSUM")
-
-        # response_message = "INVOICE=123456:STATUS=грешна CHECKSUM"
-        # encoded_response = payment.EncodeNotificationResponse(response_message)
-        # notification_response_checksum = payment.GenerateChecksum(encoded_response, secret)
-        # response = "ENCODED=" + encoded_response + "CHECKSUM=" + notification_response_checksum
-
         response = "INVOICE=123456:STATUS=грешна CHECKSUM"
         return HttpResponse(response)

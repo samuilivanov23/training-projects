@@ -107,6 +107,16 @@
   pointer-events: none;
 }
 
+.image-btnstyle{
+  width: 2em;
+  height: 2em;
+}
+
+.product-image-style {
+  width: 6em;
+  height: 6em;
+}
+
 @media (prefers-reduced-motion: no-preference) {
   .App-logo {
     animation: App-logo-spin infinite 20s linear;

@@ -2,9 +2,9 @@ import '../../App.css';
 import { useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { Button } from 'react-bootstrap';
-import EmployeesList from './EmployeesList';
+import ProductsList from './ProductsList';
 
-function EmployeesCRUD (props) {
+function ProductsCRUD (props) {
 
     const { employeeInfo } = useSelector(state=>state.employee);
     
@@ -12,8 +12,8 @@ function EmployeesCRUD (props) {
         if(employeeInfo.permissions.create_perm){
             return(
                 <Button style={{'margin' : '2em'}}>
-                    <Link style={{color:'white'}} to={'/backoffice/employees/create'}>
-                        Create employee
+                    <Link style={{color:'white'}} to={'/backoffice/products/create'}>
+                        Create product
                     </Link>
                 </Button>
             );
@@ -25,13 +25,14 @@ function EmployeesCRUD (props) {
 
     const generateReadOperation = () => {
         if(employeeInfo.permissions.read_perm){
+            //TODO add product list component for the rendering
             return(
-                <EmployeesList/>
+                <ProductsList/>
             );
         }
         else{
             return (
-                <h3>Not sufficient permissions to view employees</h3>
+                <h3>Not sufficient permissions to view products</h3>
             );
         }
     }
@@ -48,4 +49,4 @@ function EmployeesCRUD (props) {
     );
 }
 
-export default EmployeesCRUD;
+export default ProductsCRUD;
