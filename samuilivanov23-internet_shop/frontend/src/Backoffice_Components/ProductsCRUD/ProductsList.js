@@ -29,7 +29,6 @@ function ProductsList (props){
         ).then(function(response){
             //response = JSON.parse(response);
             set_products(response.products);
-            console.log(response);
             alert(response.msg);
         }).catch(function(error){
             alert(error['msg']);

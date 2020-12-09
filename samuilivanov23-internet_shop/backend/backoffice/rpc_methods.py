@@ -254,7 +254,6 @@ def GetProductsBackoffice():
         cur.close()
         connection.close()
 
-    print(response)
     return response
 
 @rpc_method
@@ -304,7 +303,28 @@ def UpdateProduct(id, name, description, count, price, image, manufacturer_id):
             connection.close()
     
     response = json.dumps(response)
-    print(response)
+    return response
+
+@rpc_method
+def DeleteProduct(id):
+    #Connect to database
+    try:
+        connection = psycopg2.connect("dbname='" + onlineShop_dbname + 
+                                    "' user='" + onlineShop_dbuser + 
+                                    "' password='" + onlineShop_dbpassword + "'")
+
+        connection.autocommit = True
+        cur = connection.cursor()
+    except Exception as e:
+        print(e)
+    
+    response = productsCRUD.DeleteProduct(id, cur)
+
+    if connection:
+        cur.close()
+        connection.close()
+    
+    response = json.dumps(response)
     return response
 
 @rpc_method

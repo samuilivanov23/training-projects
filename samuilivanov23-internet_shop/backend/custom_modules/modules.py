@@ -699,11 +699,6 @@ class ProductsCRUD:
     
     def UpdateProduct(self, id, name, description, count, price, image, manufacturer_id, cur):
         try:
-            print(manufacturer_id)
-            print(type(count))
-            print(type(price))
-            print(type(id))
-            print(id)
             sql = 'update products set name=%s, description=%s, count=%s, price=%s, image_name=%s, manufacturer_id=%s where id=%s'
             cur.execute(sql, (name, description, count, price, image, manufacturer_id, id))
             response = {'status' : 'OK', 'msg' : 'Successfull'}
@@ -712,6 +707,36 @@ class ProductsCRUD:
             response = {'status' : 'Failed', 'msg' : 'Unable to update product'}
         
         return response
+
+    def DeleteProduct(self, id, cur):
+        try:
+            sql = 'delete from orders_products where product_id=%s'
+            cur.execute(sql, (id, ))
+        except Exception as e:
+            print(e)
+        
+        try:
+            sql = 'delete from carts_products where product_id=%s'
+            cur.execute(sql, (id, ))
+        except Exception as e:
+            print(e)
+
+        try:
+            sql = 'delete from tags_products where product_id=%s'
+            cur.execute(sql, (id, ))
+        except Exception as e:
+            print(e)
+
+        try:
+            sql = 'delete from products where id=%s'
+            cur.execute(sql, (id, ))
+            response = {'status' : 'OK', 'msg' : 'Successfull'}
+        except Exception as e:
+            print(e)
+            response = {'status' : 'Fail', 'msg' : 'Unable to delete product'}
+
+        return response
+    
 
 class ManufacturersCRUD:
     def __init__(self):
