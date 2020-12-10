@@ -6,14 +6,12 @@ import { Card, Button, Row, Col, Container } from 'react-bootstrap';
 import { SetProductToUpdateDetails } from '../../Components/actions/ProductActions';
 import { useSelector, useDispatch } from 'react-redux';
 import { Link } from 'react-router-dom';
-import { useHistory } from '../../../node_modules/react-router-dom';
 
 function ProductsList (props){
 
     const [products, set_products] = useState([]);
     const { employeeInfo } = useSelector(state=>state.employee);
     const dispatch = useDispatch();
-    const history = useHistory();
 
     useEffect(() => {
         loadProducts();
@@ -36,7 +34,6 @@ function ProductsList (props){
     }
 
     const getCurrentProduct = (current_product) => {
-        console.log('testiiiiing');
         dispatch(SetProductToUpdateDetails(
             current_product.id,
             current_product.name,
@@ -107,7 +104,7 @@ function ProductsList (props){
 
                                 <Col>
                                     {(employeeInfo.permissions.update_perm) 
-                                    ?   <Button tyle={{background : '#ebebeb'}} className={'crud-buttons-style ml-auto'}>
+                                    ?   <Button variant="light" className={'crud-buttons-style ml-auto'}>
                                             <Link style={{color:'white'}} to={`/backoffice/products/update/${product.id}`} onClick={() => getCurrentProduct(product)}>
                                                 <img 
                                                 src='https://p7.hiclipart.com/preview/9/467/583/computer-icons-tango-desktop-project-download-clip-art-update-button.jpg'
@@ -120,10 +117,10 @@ function ProductsList (props){
                                     }
 
                                     {(employeeInfo.permissions.delete_perm)
-                                        ?   <Button style={{background : '#ebebeb'}} onClick={() => deleteProduct(product.id)}>
+                                        ?   <Button variant="light" onClick={() => deleteProduct(product.id)}>
                                                 <img 
-                                                src='https://image.flaticon.com/icons/png/512/61/61848.png'
-                                                alt="Delete"
+                                                src='https://icon-library.com/images/delete-icon-png/delete-icon-png-4.jpg'
+                                                alt="Delete product"
                                                 className={'image-btnstyle'}
                                                 />
                                             </Button>

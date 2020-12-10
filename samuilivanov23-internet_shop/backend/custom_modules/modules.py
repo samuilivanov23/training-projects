@@ -102,7 +102,7 @@ class JSONParser:
         
         return products
     
-    def GetAllManufacturers(self, records):
+    def GetAllManufacturersJSON(self, records):
         i = 0
         manufacturers = []
 
@@ -115,6 +115,25 @@ class JSONParser:
             i+=1
         
         return manufacturers
+
+    def GetAllOrdersJSON(self, records):
+        i = 0
+        orders = []
+
+        while i < len(records):
+            orders.append({
+                'id' : records[i][0],
+                'order_date' : str(records[i][1])[:-7], #-7 to skip the '.' + microseconds part of the date
+                'user_first_name' : records[i][2],
+                'user_last_name' : records[i][3],
+                'total_price' : float(records[i][4]),
+                'payment_date' : str(records[i][5]),
+                'payment_status' : records[i][6],
+            })
+
+            i+=1
+        
+        return orders
 
 class DbOperations:
     def __init__(self):
@@ -748,11 +767,33 @@ class ManufacturersCRUD:
             cur.execute(sql, )
             manufacturers_records = cur.fetchall()
 
-            manufacturerJSONServer = JSONParser()
-            manufacturers_json = manufacturerJSONServer.GetAllManufacturers(manufacturers_records)
+            jsonParser = JSONParser()
+            manufacturers_json = jsonParser.GetAllManufacturersJSON(manufacturers_records)
             response = {'status' : 'OK', 'msg' : 'Successful', 'manufacturers' : manufacturers_json}
         except Exception as e:
             print(e)
             response = {'status' : 'Fail', 'msg' : 'Unable to get manufacturers', 'manufacturers' : []}
+
+        return response
+
+class OrdersCRUD:
+    def __init__(self):
+        pass
+
+    def ReadOrders(self, cur):
+        try:
+            sql = '''select o.id, o.date, u.first_name, u.last_name, o.total_price, p.pay_time, p.status from orders as o
+                     join users as u on o.user_id=u.id
+                     join payments as p on o.payment_id=p.id'''
+            cur.execute(sql, )
+            orders_records = cur.fetchall()
+
+            jsonParser = JSONParser()
+            orders_json = jsonParser.GetAllOrdersJSON(orders_records)
+
+            response = {'status' : 'OK', 'msg' : 'Successfull', 'orders' : orders_json}
+        except Exception as e:
+            print(e)
+            response = {'status' : 'Fail', 'msg' : 'Unable to get orders', 'orders' : []}
 
         return response

@@ -6,14 +6,12 @@ import { Card, Button } from 'react-bootstrap';
 import { SetEmployeeToUpdateDetails } from '../../Components/actions/EmployeeActions';
 import { useSelector, useDispatch } from 'react-redux';
 import { Link } from 'react-router-dom';
-import { useHistory } from '../../../node_modules/react-router-dom';
 
 function EmployeesList (props){
 
     const [employees, set_employees] = useState([]);
     const { employeeInfo } = useSelector(state=>state.employee);
     const dispatch = useDispatch();
-    const history = useHistory();
 
     useEffect(() => {
         loadEmployees();

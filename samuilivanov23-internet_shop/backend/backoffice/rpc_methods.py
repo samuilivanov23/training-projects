@@ -9,6 +9,7 @@ dbOperator = modules.DbOperations()
 employeesCRUD = modules.EmployeesCRUD()
 productsCRUD = modules.ProductsCRUD()
 manufacturersCRUD = modules.ManufacturersCRUD()
+ordersCRUD = modules.OrdersCRUD()
 
 @rpc_method
 def LoginEmployee(email_address, password):
@@ -347,5 +348,28 @@ def GetManufacturers():
         connection.close()
 
 
+    response = json.dumps(response)
+    return response
+
+
+@rpc_method
+def GetOrders():
+    #Connect to database
+    try:
+        connection = psycopg2.connect("dbname='" + onlineShop_dbname + 
+                                    "' user='" + onlineShop_dbuser + 
+                                    "' password='" + onlineShop_dbpassword + "'")
+
+        connection.autocommit = True
+        cur = connection.cursor()
+    except Exception as e:
+        print(e)
+    
+    response = ordersCRUD.ReadOrders(cur)
+
+    if connection:
+        cur.close()
+        connection.close()
+    
     response = json.dumps(response)
     return response
