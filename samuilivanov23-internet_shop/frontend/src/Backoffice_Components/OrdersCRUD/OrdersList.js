@@ -6,6 +6,14 @@ import { Card, Button } from 'react-bootstrap';
 import { SetOrderToUpdateDetails } from '../../Components/actions/OrderActions';
 import { useSelector, useDispatch } from 'react-redux';
 import { Link } from 'react-router-dom';
+import Table from '@material-ui/core/Table';
+import { makeStyles } from '@material-ui/core/styles';
+import TableBody from '@material-ui/core/TableBody';
+import TableCell from '@material-ui/core/TableCell';
+import TableContainer from '@material-ui/core/TableContainer';
+import TableHead from '@material-ui/core/TableHead';
+import TableRow from '@material-ui/core/TableRow';
+import Paper from '@material-ui/core/Paper';
 
 function OrdersList (props){
 
@@ -61,6 +69,31 @@ function OrdersList (props){
         // });
     }
 
+   
+    const useStyles = makeStyles({
+        table: {
+            minWidth: 650,
+        },
+    });
+
+    const classes = useStyles();
+    
+    const createData = (order_date, customer_name, order_price, payment_date, payment_status) => {
+        return { order_date, customer_name, order_price, payment_date, payment_status };
+    }
+    
+    const generateRows = () => {
+        const rows = []
+    
+        orders.forEach(order => {
+            rows.push(createData(order['order_date'], order['user_first_name'] + ' ' + order['user_last_name'], order['total_price'], order['payment_date'], order['payment_status']))
+        });
+    
+        return rows;
+    }
+      
+    const rows = generateRows();
+
     if(typeof(orders) === 'undefined'){
         return(
             <div>Loading...</div>
@@ -68,44 +101,37 @@ function OrdersList (props){
     }    
     else{
         return(
-            <div className={"App"} style={{display : 'flex', flexDirection : 'row', flex : 1, flexWrap : 'wrap'}}>
-                {orders.map((order, idx) => (
-                    <Card key={idx} className={'employee-card'}>
-                        <Card.Body>
-                            <div style={{display : 'flex', flexDirection : 'row', flex : 1, flexWrap : 'wrap'}}>
-                                <Card.Title style={{marginRight:'1em'}}> Created: { order['order_date'] }</Card.Title>
-                                <Card.Text> by: { order['user_first_name'] } { order['user_last_name'] } </Card.Text>
-                                <Card.Text style={{marginRight:'1em', marginLeft:'1em'}}> Price: { order['total_price'] } </Card.Text>
-                                <Card.Text> Paid on: { order['payment_date'] } Status: { order['payment_status'] }</Card.Text>
+            <TableContainer component={Paper}>
+                <Table className={classes.table} aria-label="simple table">
+                    <TableHead>
+                        <TableRow>
+                            <TableCell>Created</TableCell>
+                            <TableCell align="right">Customer</TableCell>
+                            <TableCell align="right">Price</TableCell>
+                            <TableCell align="right">Paid on</TableCell>
+                            <TableCell align="right">Payment status</TableCell>
+                        </TableRow>
+                    </TableHead>
+                    <TableBody>
+                        {rows.map((row) => (
+                            <TableRow key={row.name}>
+                            <TableCell component="th" scope="row">
+                                {row.order_date}
+                            </TableCell>
+                            <TableCell align="right">{row.customer_name}</TableCell>
+                            <TableCell align="right">{row.order_price}</TableCell>
+                            <TableCell align="right">{row.payment_date}</TableCell>
+                            <TableCell align="right">{row.payment_status}</TableCell>
+                            </TableRow>
+                        ))}
+                    </TableBody>
+                </Table>
+            </TableContainer>
 
-                                {(employeeInfo.permissions.update_perm) 
-                                ?   <Button variant="light" className={'crud-buttons-style ml-auto'}>
-                                        <Link style={{color:'white'}} to={`/backoffice/orders/update/${order['id']}`} onClick={() => getCurrentorder(order)}>
-                                            <img 
-                                            src='https://p7.hiclipart.com/preview/9/467/583/computer-icons-tango-desktop-project-download-clip-art-update-button.jpg'
-                                            alt="Update order"
-                                            className={'image-btnstyle'}
-                                            />
-                                        </Link>
-                                    </Button>
-                                : null
-                                }
 
-                                {(employeeInfo.permissions.delete_perm)
-                                    ?   <Button variant="light" className={'crud-buttons-style'} onClick={() => deleteorder(order['id'])}>
-                                            <img 
-                                                src='https://icon-library.com/images/delete-icon-png/delete-icon-png-4.jpg'
-                                                alt="Delete"
-                                                className={'image-btnstyle'}
-                                                />
-                                        </Button>
-                                    : null
-                                }
-                            </div> 
-                        </Card.Body>
-                    </Card>
-                ))}
-            </div>
+
+
+
         );
     }
 }
