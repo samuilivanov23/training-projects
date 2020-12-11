@@ -42,7 +42,7 @@ function OrdersList (props){
         });
     }
 
-    const getCurrentorder = (current_order) => {
+    const getCurrentOrder = (current_order) => {
         // dispatch(SetOrderToUpdateDetails(
         //     current_order['first_name'],
         //     current_order['last_name'],
@@ -78,15 +78,15 @@ function OrdersList (props){
 
     const classes = useStyles();
     
-    const createData = (order_date, customer_name, order_price, payment_date, payment_status) => {
-        return { order_date, customer_name, order_price, payment_date, payment_status };
+    const createData = (order_id, order_date, customer_name, order_price, payment_date, payment_status) => {
+        return { order_id, order_date, customer_name, order_price, payment_date, payment_status };
     }
     
     const generateRows = () => {
         const rows = []
     
         orders.forEach(order => {
-            rows.push(createData(order['order_date'], order['user_first_name'] + ' ' + order['user_last_name'], order['total_price'], order['payment_date'], order['payment_status']))
+            rows.push(createData(order['id'], order['order_date'], order['user_first_name'] + ' ' + order['user_last_name'], order['total_price'], order['payment_date'], order['payment_status']))
         });
     
         return rows;
@@ -110,28 +110,47 @@ function OrdersList (props){
                             <TableCell align="right">Price</TableCell>
                             <TableCell align="right">Paid on</TableCell>
                             <TableCell align="right">Payment status</TableCell>
+                            <TableCell align="right"> </TableCell>
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        {rows.map((row) => (
-                            <TableRow key={row.name}>
-                            <TableCell component="th" scope="row">
-                                {row.order_date}
-                            </TableCell>
-                            <TableCell align="right">{row.customer_name}</TableCell>
-                            <TableCell align="right">{row.order_price}</TableCell>
-                            <TableCell align="right">{row.payment_date}</TableCell>
-                            <TableCell align="right">{row.payment_status}</TableCell>
+                        {rows.map((row, idx) => (
+                            <TableRow key={idx}>
+                                <TableCell component="th" scope="row">{row.order_date}</TableCell>
+                                <TableCell align="right">{row.customer_name}</TableCell>
+                                <TableCell align="right">{row.order_price}</TableCell>
+                                <TableCell align="right">{row.payment_date}</TableCell>
+                                <TableCell align="right">{row.payment_status}</TableCell>
+                                <TableCell align="right">
+                                    {(employeeInfo.permissions.update_perm) 
+                                    ?   <Button variant="light" className={'crud-buttons-style ml-auto'}>
+                                            <Link style={{color:'white'}} to={`/backoffice/orders/update/${row.order_id}`} onClick={() => getCurrentOrder(row)}>
+                                                <img 
+                                                src='https://p7.hiclipart.com/preview/9/467/583/computer-icons-tango-desktop-project-download-clip-art-update-button.jpg'
+                                                alt="Update order"
+                                                className={'image-btnstyle'}
+                                                />
+                                            </Link>
+                                        </Button>
+                                    : null
+                                    }
+
+                                    {(employeeInfo.permissions.delete_perm)
+                                        ?   <Button variant="light" onClick={() => deleteorder(row.order_id)}>
+                                                <img 
+                                                src='https://icon-library.com/images/delete-icon-png/delete-icon-png-4.jpg'
+                                                alt="Delete order"
+                                                className={'image-btnstyle'}
+                                                />
+                                            </Button>
+                                        : null
+                                    }
+                                </TableCell>
                             </TableRow>
                         ))}
                     </TableBody>
                 </Table>
             </TableContainer>
-
-
-
-
-
         );
     }
 }
