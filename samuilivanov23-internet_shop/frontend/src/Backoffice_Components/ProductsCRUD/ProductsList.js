@@ -92,14 +92,14 @@ function ProductsList (props){
         return rows;
     }
       
-    const rows = generateRows();
-
     if(typeof(products) === 'undefined'){
         return(
             <div>Loading...</div>
         );
     }    
     else{
+        const rows = generateRows();
+
         return(
             <TableContainer component={Paper}>
                 <Table className={classes.table} aria-label="simple table">

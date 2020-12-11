@@ -2,7 +2,7 @@ import '../../App.css';
 import React from 'react';
 import JsonRpcClient from 'react-jsonrpc-client';
 import { useState, useEffect } from 'react';
-import { Card, Button } from 'react-bootstrap';
+import { Button } from 'react-bootstrap';
 import { SetEmployeeToUpdateDetails } from '../../Components/actions/EmployeeActions';
 import { useSelector, useDispatch } from 'react-redux';
 import { Link } from 'react-router-dom';
@@ -33,9 +33,7 @@ function EmployeesList (props){
         django_rpc.request(
             'GetEmployees',
         ).then(function(response){
-            console.log(response);
             response = JSON.parse(response);
-            console.log(response['employees']);
             set_employees(response['employees']);
             alert(response['msg']);
         }).catch(function(error){
@@ -46,10 +44,10 @@ function EmployeesList (props){
     const getCurrentEmployee = (current_employee) => {
 
         var permission_list = []
-        Object.keys(current_employee['permissions']).forEach(permission => {
-            console.log(current_employee['permissions'][permission]);
+        Object.keys(current_employee.employee_permissions).forEach(permission => {
+            console.log(current_employee.employee_permissions[permission]);
             console.log(permission);
-            if(current_employee['permissions'][permission]){
+            if(current_employee.employee_permissions[permission]){
                 permission_list.push(permission);
             }
         });
@@ -60,10 +58,10 @@ function EmployeesList (props){
         });
 
         dispatch(SetEmployeeToUpdateDetails(
-            current_employee['first_name'],
-            current_employee['last_name'],
-            current_employee['email_address'],
-            current_employee['role_name'],
+            current_employee.employee_first_name,
+            current_employee.employee_last_name,
+            current_employee.employee_email_address,
+            current_employee.employee_role_name,
             permission_dict,
         ));
     }
@@ -93,21 +91,22 @@ function EmployeesList (props){
 
     const classes = useStyles();
     
-    const createData = (employee_id, employee_name, employee_email_address, employee_role_name) => {
-        return { employee_id, employee_name, employee_email_address, employee_role_name };
+    const createData = (employee_id, employee_first_name, employee_last_name, employee_email_address, employee_role_name, employee_permissions) => {
+        return { employee_id, employee_first_name, employee_last_name, employee_email_address, employee_role_name, employee_permissions };
     }
 
     const generateRows = () => {
         const rows = []
-    
+        
+        console.log(employees);
+
         employees.forEach(employee => {
-            employees.push(createData(employee['id'], employee['first_name'] + ' ' + employee['last_name'], employee['email_address'], employee['role_name']))
+            rows.push(createData(employee['id'], employee['first_name'], employee['last_name'], employee['email_address'], employee['role_name'], employee['permissions']))
         });
     
         return rows;
     }
       
-    const rows = generateRows();
 
     if(typeof(employees) === 'undefined'){
         return(
@@ -115,6 +114,8 @@ function EmployeesList (props){
         );
     }    
     else{
+        const rows = generateRows();
+
         return(
             <TableContainer component={Paper}>
                 <Table className={classes.table} aria-label="simple table">
@@ -129,14 +130,18 @@ function EmployeesList (props){
                     <TableBody>
                         {rows.map((row, idx) => (
                             <TableRow key={idx}>
-                                <TableCell component="th" scope="row">{row.employee_name}</TableCell>
+                                <TableCell component="th" scope="row">{row.employee_first_name} {row.employee_last_name}</TableCell>
                                 <TableCell align="center">{row.employee_email_address}</TableCell>
                                 <TableCell align="center">{row.employee_role_name}</TableCell>
                                 <TableCell align="center">
                                     {(employeeInfo.permissions.update_perm) 
                                     ?   <Button className={'crud-buttons-style ml-auto'}>
                                             <Link style={{color:'white'}} to={`/backoffice/employees/update/${row.employee_id}`} onClick={() => getCurrentEmployee(row)}>
-                                                Update employee
+                                                <img 
+                                                src='https://p7.hiclipart.com/preview/9/467/583/computer-icons-tango-desktop-project-download-clip-art-update-button.jpg'
+                                                alt="Update employee"
+                                                className={'image-btnstyle'}
+                                                />
                                             </Link>
                                         </Button>
                                     : null
@@ -144,7 +149,11 @@ function EmployeesList (props){
 
                                     {(employeeInfo.permissions.delete_perm)
                                         ?   <Button className={'crud-buttons-style'} onClick={() => deleteEmployee(row.employee_id)}>
-                                                Delete employee
+                                                <img 
+                                                src='https://icon-library.com/images/delete-icon-png/delete-icon-png-4.jpg'
+                                                alt="Delete employee"
+                                                className={'image-btnstyle'}
+                                                />
                                             </Button>
                                         : null
                                     }
