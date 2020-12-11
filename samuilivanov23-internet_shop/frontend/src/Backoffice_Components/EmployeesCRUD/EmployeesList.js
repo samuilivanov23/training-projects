@@ -6,6 +6,14 @@ import { Card, Button } from 'react-bootstrap';
 import { SetEmployeeToUpdateDetails } from '../../Components/actions/EmployeeActions';
 import { useSelector, useDispatch } from 'react-redux';
 import { Link } from 'react-router-dom';
+import Table from '@material-ui/core/Table';
+import { makeStyles } from '@material-ui/core/styles';
+import TableBody from '@material-ui/core/TableBody';
+import TableCell from '@material-ui/core/TableCell';
+import TableContainer from '@material-ui/core/TableContainer';
+import TableHead from '@material-ui/core/TableHead';
+import TableRow from '@material-ui/core/TableRow';
+import Paper from '@material-ui/core/Paper';
 
 function EmployeesList (props){
 
@@ -25,9 +33,10 @@ function EmployeesList (props){
         django_rpc.request(
             'GetEmployees',
         ).then(function(response){
-            response = JSON.parse(response);
-            set_employees(response['employees']);
             console.log(response);
+            response = JSON.parse(response);
+            console.log(response['employees']);
+            set_employees(response['employees']);
             alert(response['msg']);
         }).catch(function(error){
             alert(error['msg']);
@@ -76,6 +85,30 @@ function EmployeesList (props){
         });
     }
 
+    const useStyles = makeStyles({
+        table: {
+            minWidth: 650,
+        },
+    });
+
+    const classes = useStyles();
+    
+    const createData = (employee_id, employee_name, employee_email_address, employee_role_name) => {
+        return { employee_id, employee_name, employee_email_address, employee_role_name };
+    }
+
+    const generateRows = () => {
+        const rows = []
+    
+        employees.forEach(employee => {
+            employees.push(createData(employee['id'], employee['first_name'] + ' ' + employee['last_name'], employee['email_address'], employee['role_name']))
+        });
+    
+        return rows;
+    }
+      
+    const rows = generateRows();
+
     if(typeof(employees) === 'undefined'){
         return(
             <div>Loading...</div>
@@ -83,35 +116,44 @@ function EmployeesList (props){
     }    
     else{
         return(
-            <div className={"App"} style={{display : 'flex', flexDirection : 'row', flex : 1, flexWrap : 'wrap'}}>
-                {employees.map((employee, idx) => (
-                    <Card key={idx} className={'employee-card'}>
-                        <Card.Body>
-                            <div style={{display : 'flex', flexDirection : 'row', flex : 1, flexWrap : 'wrap'}}>
-                                <Card.Title style={{marginRight:'1em'}}> Name: { employee['first_name'] } { employee['last_name'] }</Card.Title>
-                                <Card.Text style={{marginRight:'1em'}}> Email address: { employee['email_address'] }</Card.Text>
-                                <Card.Text> Role: { employee['permissions']['create_perm'] }</Card.Text>
-
-                                {(employeeInfo.permissions.update_perm) 
-                                ?   <Button className={'crud-buttons-style ml-auto'}>
-                                        <Link style={{color:'white'}} to={`/backoffice/employees/update/${employee['id']}`} onClick={() => getCurrentEmployee(employee)}>
-                                            Update employee
-                                        </Link>
-                                    </Button>
-                                : null
-                                }
-
-                                {(employeeInfo.permissions.delete_perm)
-                                    ?   <Button className={'crud-buttons-style'} onClick={() => deleteEmployee(employee['id'])}>
-                                            Delete employee
+            <TableContainer component={Paper}>
+                <Table className={classes.table} aria-label="simple table">
+                    <TableHead>
+                        <TableRow>
+                            <TableCell align="center">Name</TableCell>
+                            <TableCell align="center">Email</TableCell>
+                            <TableCell align="center">Role</TableCell>
+                            <TableCell align="center"> </TableCell>
+                        </TableRow>
+                    </TableHead>
+                    <TableBody>
+                        {rows.map((row, idx) => (
+                            <TableRow key={idx}>
+                                <TableCell component="th" scope="row">{row.employee_name}</TableCell>
+                                <TableCell align="center">{row.employee_email_address}</TableCell>
+                                <TableCell align="center">{row.employee_role_name}</TableCell>
+                                <TableCell align="center">
+                                    {(employeeInfo.permissions.update_perm) 
+                                    ?   <Button className={'crud-buttons-style ml-auto'}>
+                                            <Link style={{color:'white'}} to={`/backoffice/employees/update/${row.employee_id}`} onClick={() => getCurrentEmployee(row)}>
+                                                Update employee
+                                            </Link>
                                         </Button>
                                     : null
-                                }
-                            </div> 
-                        </Card.Body>
-                    </Card>
-                ))}
-            </div>
+                                    }
+
+                                    {(employeeInfo.permissions.delete_perm)
+                                        ?   <Button className={'crud-buttons-style'} onClick={() => deleteEmployee(row.employee_id)}>
+                                                Delete employee
+                                            </Button>
+                                        : null
+                                    }
+                                </TableCell>
+                            </TableRow>
+                        ))}
+                    </TableBody>
+                </Table>
+            </TableContainer>
         );
     }
 }
