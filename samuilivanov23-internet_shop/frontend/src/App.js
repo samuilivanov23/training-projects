@@ -20,6 +20,7 @@ import ProductsCRUD from './Backoffice_Components/ProductsCRUD/ProductsCRUD';
 import CreateProduct from './Backoffice_Components/ProductsCRUD/CreateProduct';
 import UpdateProduct from './Backoffice_Components/ProductsCRUD/UpdateProduct';
 import OrdersCRUD from './Backoffice_Components/OrdersCRUD/OrdersCRUD';
+import CreateOrder from './Backoffice_Components/OrdersCRUD/CreateOrder';
 
 function App (props) {
 
@@ -46,6 +47,7 @@ function App (props) {
       <Route path={"/backoffice/products/create"} render={(props) => <CreateProduct {...props}/>} />
       <Route path={"/backoffice/products/update/:id"} render={(props) => <UpdateProduct {...props}/>} />
       <Route exact path={"/backoffice/orders"} render={(props) => <OrdersCRUD {...props}/>} />
+      <Route path={"/backoffice/orders/create"} render={(props) => <CreateOrder {...props}/>} />
     </div>
   );
 }

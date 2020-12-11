@@ -11,9 +11,13 @@ function EmployeesCRUD (props) {
     const generateCreateOperation = () => {
         if(employeeInfo.permissions.create_perm){
             return(
-                <Button style={{'margin' : '2em'}}>
+                <Button variant="info" style={{'margin' : '2em'}}>
                     <Link style={{color:'white'}} to={'/backoffice/employees/create'}>
-                        Create employee
+                        <img 
+                        src='https://cdn2.iconfinder.com/data/icons/media-controls-5/100/add-512.png'
+                        alt="Create employee"
+                        className={'image-btnstyle'}
+                        />
                     </Link>
                 </Button>
             );

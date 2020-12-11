@@ -115,6 +115,21 @@ class JSONParser:
             i+=1
         
         return manufacturers
+    
+    def GetAllUsersJSON(self, records):
+        i = 0
+        users = []
+
+        while i < len(records):
+            users.append({
+                'id' : records[i][0],
+                'first_name' : records[i][1],
+                'last_name' : records[i][2],
+            })
+
+            i+=1
+        
+        return users
 
     def GetAllOrdersJSON(self, records):
         i = 0
@@ -776,6 +791,25 @@ class ManufacturersCRUD:
 
         return response
 
+class UsersCRUD:
+    def __init__(self):
+        pass
+
+    def ReadUsers(self, cur):
+        try:
+            sql = 'select * from users'
+            cur.execute(sql, )
+            users_records = cur.fetchall()
+
+            jsonParser = JSONParser()
+            users_json = jsonParser.GetAllUsersJSON(users_json)
+            response = {'status' : 'OK', 'msg' : 'Successfull', 'users' : users_json}
+        except Exception as e:
+            print(e)
+            response = {'status' : 'Fail', 'msg' : 'Unable to get users', 'users' : []}
+
+        return response
+
 class OrdersCRUD:
     def __init__(self):
         pass
@@ -796,4 +830,5 @@ class OrdersCRUD:
             print(e)
             response = {'status' : 'Fail', 'msg' : 'Unable to get orders', 'orders' : []}
 
-        return response
+        return 
+
