@@ -11,9 +11,13 @@ function ProductsCRUD (props) {
     const generateCreateOperation = () => {
         if(employeeInfo.permissions.create_perm){
             return(
-                <Button style={{'margin' : '2em'}}>
+                <Button variant="info" style={{'margin' : '2em'}}>
                     <Link style={{color:'white'}} to={'/backoffice/products/create'}>
-                        Create product
+                        <img 
+                        src='https://cdn2.iconfinder.com/data/icons/media-controls-5/100/add-512.png'
+                        alt="Create product"
+                        className={'image-btnstyle'}
+                        />
                     </Link>
                 </Button>
             );
@@ -25,7 +29,6 @@ function ProductsCRUD (props) {
 
     const generateReadOperation = () => {
         if(employeeInfo.permissions.read_perm){
-            //TODO add product list component for the rendering
             return(
                 <ProductsList/>
             );

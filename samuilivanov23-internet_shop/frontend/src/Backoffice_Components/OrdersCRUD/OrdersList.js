@@ -2,7 +2,7 @@ import '../../App.css';
 import React from 'react';
 import JsonRpcClient from 'react-jsonrpc-client';
 import { useState, useEffect } from 'react';
-import { Card, Button } from 'react-bootstrap';
+import { Button } from 'react-bootstrap';
 import { SetOrderToUpdateDetails } from '../../Components/actions/OrderActions';
 import { useSelector, useDispatch } from 'react-redux';
 import { Link } from 'react-router-dom';
@@ -98,30 +98,30 @@ function OrdersList (props){
         return(
             <div>Loading...</div>
         );
-    }    
+    }
     else{
         return(
             <TableContainer component={Paper}>
                 <Table className={classes.table} aria-label="simple table">
                     <TableHead>
                         <TableRow>
-                            <TableCell>Created</TableCell>
-                            <TableCell align="right">Customer</TableCell>
-                            <TableCell align="right">Price</TableCell>
-                            <TableCell align="right">Paid on</TableCell>
-                            <TableCell align="right">Payment status</TableCell>
-                            <TableCell align="right"> </TableCell>
+                            <TableCell align="center">Created</TableCell>
+                            <TableCell align="center">Customer</TableCell>
+                            <TableCell align="center">Price</TableCell>
+                            <TableCell align="center">Paid on</TableCell>
+                            <TableCell align="center">Payment status</TableCell>
+                            <TableCell align="center"> </TableCell>
                         </TableRow>
                     </TableHead>
                     <TableBody>
                         {rows.map((row, idx) => (
                             <TableRow key={idx}>
                                 <TableCell component="th" scope="row">{row.order_date}</TableCell>
-                                <TableCell align="right">{row.customer_name}</TableCell>
-                                <TableCell align="right">{row.order_price}</TableCell>
-                                <TableCell align="right">{row.payment_date}</TableCell>
-                                <TableCell align="right">{row.payment_status}</TableCell>
-                                <TableCell align="right">
+                                <TableCell align="center">{row.customer_name}</TableCell>
+                                <TableCell align="center">{row.order_price}</TableCell>
+                                <TableCell align="center">{row.payment_date}</TableCell>
+                                <TableCell align="center">{row.payment_status}</TableCell>
+                                <TableCell align="center">
                                     {(employeeInfo.permissions.update_perm) 
                                     ?   <Button variant="light" className={'crud-buttons-style ml-auto'}>
                                             <Link style={{color:'white'}} to={`/backoffice/orders/update/${row.order_id}`} onClick={() => getCurrentOrder(row)}>

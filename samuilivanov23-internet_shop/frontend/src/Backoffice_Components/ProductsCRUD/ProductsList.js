@@ -2,10 +2,18 @@ import '../../App.css';
 import React from 'react';
 import JsonRpcClient from 'react-jsonrpc-client';
 import { useState, useEffect } from 'react';
-import { Card, Button, Row, Col, Container } from 'react-bootstrap';
+import { Button } from 'react-bootstrap';
 import { SetProductToUpdateDetails } from '../../Components/actions/ProductActions';
 import { useSelector, useDispatch } from 'react-redux';
 import { Link } from 'react-router-dom';
+import Table from '@material-ui/core/Table';
+import { makeStyles } from '@material-ui/core/styles';
+import TableBody from '@material-ui/core/TableBody';
+import TableCell from '@material-ui/core/TableCell';
+import TableContainer from '@material-ui/core/TableContainer';
+import TableHead from '@material-ui/core/TableHead';
+import TableRow from '@material-ui/core/TableRow';
+import Paper from '@material-ui/core/Paper';
 
 function ProductsList (props){
 
@@ -62,6 +70,30 @@ function ProductsList (props){
         });
     }
 
+    const useStyles = makeStyles({
+        table: {
+            minWidth: 650,
+        },
+    });
+
+    const classes = useStyles();
+    
+    const createData = (product_id, product_name, product_description, product_count, product_price, product_image, product_manufacturer_name) => {
+        return { product_id, product_name, product_description, product_count, product_price, product_image, product_manufacturer_name };
+    }
+    
+    const generateRows = () => {
+        const rows = []
+    
+        products.forEach(product => {
+            rows.push(createData(product.id, product.name, product.description, product.count, product.price, product.image, product.manufacturer_name))
+        });
+    
+        return rows;
+    }
+      
+    const rows = generateRows();
+
     if(typeof(products) === 'undefined'){
         return(
             <div>Loading...</div>
@@ -69,43 +101,39 @@ function ProductsList (props){
     }    
     else{
         return(
-            <div className={"App"} style={{display : 'flex', flexDirection : 'row', flex : 1, flexWrap : 'wrap'}}>
-                {products.map((product, idx) => (
-                    <Card key={idx} style={{ width: '80rem', margin: '1em' }}>
-                        <Container style={{ width: '80rem', margin: '1em' }}>
-                            <Row>
-                                <Col>
-                                    <Card.Img className={'product-image-style'} variant="left" src={`/images/${product.image}`} alt={`${product.name}`} />
-                                </Col>
+            <TableContainer component={Paper}>
+                <Table className={classes.table} aria-label="simple table">
+                    <TableHead>
+                        <TableRow>
+                            <TableCell align="center">Image</TableCell>
+                            <TableCell align="center">Name</TableCell>
+                            <TableCell align="center">Description</TableCell>
+                            <TableCell align="center">Quantity in stock</TableCell>
+                            <TableCell align="center">Price [BGN]</TableCell>
+                            <TableCell align="center">Manufacturer</TableCell>
+                            <TableCell align="center"> </TableCell>
+                        </TableRow>
+                    </TableHead>
+                    <TableBody>
+                        {rows.map((row, idx) => (
+                            <TableRow key={idx}>
+                                <TableCell align="center">
+                                    <img 
+                                    src={`/images/${row.product_image}`} alt={`${row.product_name}`}
+                                    alt="Product image"
+                                    className={'product-image-style'}
+                                    />
+                                </TableCell>
                                 
-                                <Col>
-                                    <Card.Title>
-                                        <Link style={{'textDecoration' : 'none', 'color' : 'black'}} to={`/shop/products/${product.id}`} onClick={() => getCurrentProduct(product)}>
-                                            {product.name}
-                                        </Link>
-                                    </Card.Title>
-                                </Col>
-            
-                                <Col>
-                                    <Card.Text>{product.description}</Card.Text>
-                                </Col>
-
-                                <Col>
-                                    <Card.Text>Quantity : {product.count}</Card.Text>
-                                </Col>
-
-                                <Col>
-                                    <Card.Text>{product.manufacturer_name}</Card.Text>
-                                </Col>
-            
-                                <Col>
-                                    <p style={{'marginRight' : '1em', 'width' : '12em'}}>Price: {product.price} BGN.</p>
-                                </Col>
-
-                                <Col>
-                                    {(employeeInfo.permissions.update_perm) 
+                                <TableCell component="th" scope="row" align="center">{row.product_name}</TableCell>
+                                <TableCell align="center">{row.product_description}</TableCell>
+                                <TableCell align="center">{row.product_count}</TableCell>
+                                <TableCell align="center">{row.product_price}</TableCell>
+                                <TableCell align="center">{row.product_manufacturer_name}</TableCell>
+                                <TableCell align="center">
+                                {(employeeInfo.permissions.update_perm) 
                                     ?   <Button variant="light" className={'crud-buttons-style ml-auto'}>
-                                            <Link style={{color:'white'}} to={`/backoffice/products/update/${product.id}`} onClick={() => getCurrentProduct(product)}>
+                                            <Link style={{color:'white'}} to={`/backoffice/products/update/${row.product_id}`} onClick={() => getCurrentProduct(row)}>
                                                 <img 
                                                 src='https://p7.hiclipart.com/preview/9/467/583/computer-icons-tango-desktop-project-download-clip-art-update-button.jpg'
                                                 alt="Update product"
@@ -117,7 +145,7 @@ function ProductsList (props){
                                     }
 
                                     {(employeeInfo.permissions.delete_perm)
-                                        ?   <Button variant="light" onClick={() => deleteProduct(product.id)}>
+                                        ?   <Button variant="light" onClick={() => deleteProduct(row.product_id)}>
                                                 <img 
                                                 src='https://icon-library.com/images/delete-icon-png/delete-icon-png-4.jpg'
                                                 alt="Delete product"
@@ -126,12 +154,12 @@ function ProductsList (props){
                                             </Button>
                                         : null
                                     }
-                                </Col>
-                            </Row>
-                        </Container>
-                    </Card>
-                ))}
-            </div>
+                                </TableCell>
+                            </TableRow>
+                        ))}
+                    </TableBody>
+                </Table>
+            </TableContainer>
         );
     }
 }
