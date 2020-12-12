@@ -508,27 +508,42 @@ class EmployeesCRUD:
     def __init__(self):
         pass
 
-    def ReadEmployees(self, cur):
+    def ReadEmployees(self, selected_sorting, offset, products_per_page, cur):
         try:
+            filterParser = FiltersParser()
+            #parameter: date/price/customer_name...
+            #direction: asc/desc
+            parameter, sorting_direction = filterParser.ParseSortFilter(selected_sorting)
+
+            if parameter == 'customer_name':
+                if sorting_direction == 'asc':
+                    parameter = 'e.first_name asc, e.last_name'
+                else:
+                    parameter = 'e.first_name desc, e.last_name'
+
             sql ='''select e.id, e.first_name, e.last_name, e.email_address, r.name, 
                     p.create_perm, p.read_perm, p.update_perm, p.delete_perm 
                     from employees as e join roles as r on e.role_id=r.id 
-                    join permissions as p on r.permission_id=p.id'''
-
+                    join permissions as p on r.permission_id=p.id order by ''' + parameter + ' ' + sorting_direction + ''' offset ''' + offset + ''' limit ''' + products_per_page
             cur.execute(sql, )
             employees_records = cur.fetchall()
 
-            if not employees_records is None:
-                employeesJSONServer = JSONParser()
-                employees_json = employeesJSONServer.GetAllEmployeesJSON(employees_records)
-                response = {'status' : 'OK', 'msg' : 'Successfull', 'employees' : employees_json}
-            else:
+            sql = 'select count(*) from employees'
+            cur.execute(sql, )
+            all_products_count = cur.fetchone()[0]
+            pages_count = math.ceil(all_products_count / int(products_per_page))
+
+            try:
+                jsonParser = JSONParser()
+                employees_json = jsonParser.GetAllEmployeesJSON(employees_records)
+                response = {'status' : 'OK', 'msg' : 'Successfull', 'employees' : employees_json, 'pages_count' : pages_count}
+            except Exception as e:
+                print(e)
                 response = {'status' : 'Fail', 'msg' : 'No employees in database', 'employees' : []}
         except Exception as e:
             print(e)
             response = {'status' : 'Fail', 'msg' : 'Internal server error', 'employees' : []}
 
-        response = json.dumps(response)
         return response
 
     def GeneratePermissionsInsertSql(self, permissions):

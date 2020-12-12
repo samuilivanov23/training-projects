@@ -88,7 +88,7 @@ def LoginEmployee(email_address, password):
 
 
 @rpc_method
-def GetEmployees():
+def GetEmployees(selected_sorting, current_page):
     #Connect to database
     try:
         connection = psycopg2.connect("dbname='" + onlineShop_dbname + 
@@ -99,14 +99,16 @@ def GetEmployees():
         cur = connection.cursor()
     except Exception as e:
         print(e)
-    
-    response = employeesCRUD.ReadEmployees(cur)
+
+    products_per_page = 20
+    offset = current_page * products_per_page
+    response = employeesCRUD.ReadEmployees(selected_sorting, str(offset), str(products_per_page), cur)
 
     if connection:
         cur.close()
         connection.close()
 
-    print(response)
+    response = json.dumps(response)
     return response
 
 @rpc_method

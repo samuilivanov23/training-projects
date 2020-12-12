@@ -5,6 +5,7 @@ import { useState, useEffect } from 'react';
 import { Button } from 'react-bootstrap';
 import { SetEmployeeToUpdateDetails } from '../../Components/actions/EmployeeActions';
 import { useSelector, useDispatch } from 'react-redux';
+import ReactPaginate from '../../../node_modules/react-paginate'
 import { Link } from 'react-router-dom';
 import Table from '@material-ui/core/Table';
 import { makeStyles } from '@material-ui/core/styles';
@@ -18,23 +19,30 @@ import Paper from '@material-ui/core/Paper';
 function EmployeesList (props){
 
     const [employees, set_employees] = useState([]);
+    const [selected_sorting, set_selected_sorting] = useState('Sort by customer_name asc');
+    const [pages_count, set_pages_count] = useState(0);
+    const [current_page, set_current_page] = useState(0);
     const { employeeInfo } = useSelector(state=>state.employee);
     const dispatch = useDispatch();
 
     useEffect(() => {
-        loadEmployees();
+        loadEmployees(current_page, selected_sorting);
     }, [])
 
-    const loadEmployees = () => {
+    const loadEmployees = (current_page, selected_sorting) => {
         const django_rpc = new JsonRpcClient({
             endpoint : 'http://127.0.0.1:8000/backoffice/rpc/',
         });
 
         django_rpc.request(
             'GetEmployees',
+            selected_sorting,
+            current_page,
         ).then(function(response){
             response = JSON.parse(response);
             set_employees(response['employees']);
+            set_pages_count(response['pages_count']);
+            set_selected_sorting(selected_sorting);
             alert(response['msg']);
         }).catch(function(error){
             alert(error['msg']);
@@ -77,10 +85,22 @@ function EmployeesList (props){
         ).then(function(response){
             response = JSON.parse(response);
             alert(response['msg']);
-            loadEmployees();
+            loadEmployees(current_page, selected_sorting);
         }).catch(function(error){
             alert(error['msg']);
         });
+    }
+
+    const FilterProducts = (event) => {
+        const filter = event.target.value;
+        loadEmployees(current_page, filter);
+    }
+
+    const handlePageClick = (employee) => {
+        let page_number = employee.selected;
+        loadEmployees(page_number, selected_sorting);
+        set_current_page(page_number);
+        window.scrollTo(0, 0);
     }
 
     const useStyles = makeStyles({
@@ -106,7 +126,19 @@ function EmployeesList (props){
     
         return rows;
     }
-      
+
+    const GenerateSortFilters = () => {
+        const options = []
+  
+        options.push(<option key={1} value={'Sort by customer_name asc'}> Sort by name (asc)</option>);
+        options.push(<option key={2} value={'Sort by customer_name desc'}> Sort by name (desc)</option>);
+        options.push(<option key={3} value={'Sort by e.email_address asc'}> Sort by email (asc)</option>);
+        options.push(<option key={4} value={'Sort by e.email_address desc'}> Sort by email (desc)</option>);
+        options.push(<option key={7} value={'Sort by r.name asc'}> Sort by role (asc)</option>);
+        options.push(<option key={8} value={'Sort by r.name desc'}> Sort by role (desc)</option>);
+        
+        return options;
+    } 
 
     if(typeof(employees) === 'undefined'){
         return(
@@ -115,54 +147,85 @@ function EmployeesList (props){
     }    
     else{
         const rows = generateRows();
+        const sorting_options = GenerateSortFilters();
 
         return(
-            <TableContainer component={Paper}>
-                <Table className={classes.table} aria-label="simple table">
-                    <TableHead>
-                        <TableRow>
-                            <TableCell align="center">Name</TableCell>
-                            <TableCell align="center">Email</TableCell>
-                            <TableCell align="center">Role</TableCell>
-                            <TableCell align="center"> </TableCell>
-                        </TableRow>
-                    </TableHead>
-                    <TableBody>
-                        {rows.map((row, idx) => (
-                            <TableRow key={idx}>
-                                <TableCell component="th" scope="row" align="center">{row.employee_first_name} {row.employee_last_name}</TableCell>
-                                <TableCell align="center">{row.employee_email_address}</TableCell>
-                                <TableCell align="center">{row.employee_role_name}</TableCell>
-                                <TableCell align="center">
-                                    {(employeeInfo.permissions.update_perm) 
-                                    ?   <Button variant="light" className={'crud-buttons-style ml-auto'}>
-                                            <Link style={{color:'white'}} to={`/backoffice/employees/update/${row.employee_id}`} onClick={() => getCurrentEmployee(row)}>
-                                                <img 
-                                                src='https://p7.hiclipart.com/preview/9/467/583/computer-icons-tango-desktop-project-download-clip-art-update-button.jpg'
-                                                alt="Update employee"
-                                                className={'image-btnstyle'}
-                                                />
-                                            </Link>
-                                        </Button>
-                                    : null
-                                    }
+            <div>
+                <div>
+                    <select id="SortFilter" name={'sort_filter'} value={selected_sorting} onChange={FilterProducts}>
+                        {sorting_options}
+                    </select>
+                </div>
 
-                                    {(employeeInfo.permissions.delete_perm)
-                                        ?   <Button variant="light" className={'crud-buttons-style'} onClick={() => deleteEmployee(row.employee_id)}>
-                                                <img 
-                                                src='https://icon-library.com/images/delete-icon-png/delete-icon-png-4.jpg'
-                                                alt="Delete employee"
-                                                className={'image-btnstyle'}
-                                                />
-                                            </Button>
-                                        : null
-                                    }
-                                </TableCell>
-                            </TableRow>
-                        ))}
-                    </TableBody>
-                </Table>
-            </TableContainer>
+                <div>
+                    <TableContainer component={Paper}>
+                        <Table className={classes.table} aria-label="simple table">
+                            <TableHead>
+                                <TableRow>
+                                    <TableCell align="center">Name</TableCell>
+                                    <TableCell align="center">Email</TableCell>
+                                    <TableCell align="center">Role</TableCell>
+                                    <TableCell align="center"> </TableCell>
+                                </TableRow>
+                            </TableHead>
+                            <TableBody>
+                                {rows.map((row, idx) => (
+                                    <TableRow key={idx}>
+                                        <TableCell component="th" scope="row" align="center">{row.employee_first_name} {row.employee_last_name}</TableCell>
+                                        <TableCell align="center">{row.employee_email_address}</TableCell>
+                                        <TableCell align="center">{row.employee_role_name}</TableCell>
+                                        <TableCell align="center">
+                                            {(employeeInfo.permissions.update_perm) 
+                                            ?   <Button variant="light" className={'crud-buttons-style ml-auto'}>
+                                                    <Link style={{color:'white'}} to={`/backoffice/employees/update/${row.employee_id}`} onClick={() => getCurrentEmployee(row)}>
+                                                        <img 
+                                                        src='https://p7.hiclipart.com/preview/9/467/583/computer-icons-tango-desktop-project-download-clip-art-update-button.jpg'
+                                                        alt="Update employee"
+                                                        className={'image-btnstyle'}
+                                                        />
+                                                    </Link>
+                                                </Button>
+                                            : null
+                                            }
+
+                                            {(employeeInfo.permissions.delete_perm)
+                                                ?   <Button variant="light" className={'crud-buttons-style'} onClick={() => deleteEmployee(row.employee_id)}>
+                                                        <img 
+                                                        src='https://icon-library.com/images/delete-icon-png/delete-icon-png-4.jpg'
+                                                        alt="Delete employee"
+                                                        className={'image-btnstyle'}
+                                                        />
+                                                    </Button>
+                                                : null
+                                            }
+                                        </TableCell>
+                                    </TableRow>
+                                ))}
+                            </TableBody>
+                        </Table>
+                    </TableContainer>
+                </div>
+
+                <div>
+                    <ReactPaginate
+                        previousLabel={'← Previous'}
+                        nextLabel={'Next →'}
+                        pageCount={pages_count}
+                        pageRangeDisplayed={(pages_count > 5) ? 5 : pages_count}
+                        onPageChange={handlePageClick}
+                        breakClassName={'page-item'}
+                        breakLinkClassName={'page-link'}
+                        containerClassName={'pagination'}
+                        pageClassName={'page-item'}
+                        pageLinkClassName={'page-link'}
+                        previousClassName={'page-item'}
+                        previousLinkClassName={'page-link'}
+                        nextClassName={'page-item'}
+                        nextLinkClassName={'page-link'}
+                        activeClassName={'active'}
+                    />
+                </div>
+            </div>
         );
     }
 }

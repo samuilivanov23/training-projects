@@ -212,7 +212,7 @@ function ProductsList (props){
                         previousLabel={'← Previous'}
                         nextLabel={'Next →'}
                         pageCount={pages_count}
-                        pageRangeDisplayed={5}
+                        pageRangeDisplayed={(pages_count > 5) ? 5 : pages_count}
                         onPageChange={handlePageClick}
                         breakClassName={'page-item'}
                         breakLinkClassName={'page-link'}
