@@ -18,6 +18,7 @@ import Paper from '@material-ui/core/Paper';
 function ProductsList (props){
 
     const [products, set_products] = useState([]);
+    const [selected_sorting, set_selected_sorting] = useState('Sort by name asc');
     const { employeeInfo } = useSelector(state=>state.employee);
     const dispatch = useDispatch();
 
@@ -70,6 +71,30 @@ function ProductsList (props){
         });
     }
 
+    const FilterProducts = (event) => {
+        const filter = event.target.value;
+
+        const django_rpc = new JsonRpcClient({
+            endpoint : 'http://127.0.0.1:8000/backoffice/rpc/',
+        });
+
+        django_rpc.request(
+            'FilterProductsBackoffice',
+            filter,
+        ).then(function(response){
+            response = JSON.parse(response);
+
+            console.log(response);
+
+            set_products(response['products']);
+            set_selected_sorting(filter);
+    
+            alert(response['msg']);
+        }).catch(function(error){
+            alert(error['msg']);
+        });
+    }
+
     const useStyles = makeStyles({
         table: {
             minWidth: 650,
@@ -91,7 +116,22 @@ function ProductsList (props){
     
         return rows;
     }
-      
+
+    const GenerateSortFilters = () => {
+        const options = []
+  
+        options.push(<option key={1} value={'Sort by p.name asc'}> Sort by name (asc)</option>);
+        options.push(<option key={2} value={'Sort by p.name desc'}> Sort by name (desc)</option>);
+        options.push(<option key={3} value={'Sort by p.price asc'}> Sort by price (asc)</option>);
+        options.push(<option key={4} value={'Sort by p.price desc'}> Sort by price (desc)</option>);
+        options.push(<option key={5} value={'Sort by p.count asc'}> Sort by quantity (asc)</option>);
+        options.push(<option key={6} value={'Sort by p.count desc'}> Sort by quantity (desc)</option>);
+        options.push(<option key={7} value={'Sort by m.name asc'}> Sort by manufacturer name (asc)</option>);
+        options.push(<option key={8} value={'Sort by m.name desc'}> Sort by manufacturer name (desc)</option>);
+        
+        return options;
+    }
+    
     if(typeof(products) === 'undefined'){
         return(
             <div>Loading...</div>
@@ -99,67 +139,79 @@ function ProductsList (props){
     }    
     else{
         const rows = generateRows();
+        const sorting_options = GenerateSortFilters();
 
         return(
-            <TableContainer component={Paper}>
-                <Table className={classes.table} aria-label="simple table">
-                    <TableHead>
-                        <TableRow>
-                            <TableCell align="center">Image</TableCell>
-                            <TableCell align="center">Name</TableCell>
-                            <TableCell align="center">Description</TableCell>
-                            <TableCell align="center">Quantity in stock</TableCell>
-                            <TableCell align="center">Price [BGN]</TableCell>
-                            <TableCell align="center">Manufacturer</TableCell>
-                            <TableCell align="center"> </TableCell>
-                        </TableRow>
-                    </TableHead>
-                    <TableBody>
-                        {rows.map((row, idx) => (
-                            <TableRow key={idx}>
-                                <TableCell align="center">
-                                    <img 
-                                    src={`/images/${row.product_image}`} alt={`${row.product_name}`}
-                                    alt="Product image"
-                                    className={'product-image-style'}
-                                    />
-                                </TableCell>
-                                
-                                <TableCell component="th" scope="row" align="center">{row.product_name}</TableCell>
-                                <TableCell align="center">{row.product_description}</TableCell>
-                                <TableCell align="center">{row.product_count}</TableCell>
-                                <TableCell align="center">{row.product_price}</TableCell>
-                                <TableCell align="center">{row.product_manufacturer_name}</TableCell>
-                                <TableCell align="center">
-                                {(employeeInfo.permissions.update_perm) 
-                                    ?   <Button variant="light" className={'crud-buttons-style ml-auto'}>
-                                            <Link style={{color:'white'}} to={`/backoffice/products/update/${row.product_id}`} onClick={() => getCurrentProduct(row)}>
-                                                <img 
-                                                src='https://p7.hiclipart.com/preview/9/467/583/computer-icons-tango-desktop-project-download-clip-art-update-button.jpg'
-                                                alt="Update product"
-                                                className={'image-btnstyle'}
-                                                />
-                                            </Link>
-                                        </Button>
-                                    : null
-                                    }
+            <div>
+                <div>
+                    <select id="SortFilter" name={'sort_filter'} value={selected_sorting} onChange={FilterProducts}>
+                        {sorting_options}
+                    </select>
+                    <label style={{marginLeft:'1em'}}>Sort by</label>
+                </div>
 
-                                    {(employeeInfo.permissions.delete_perm)
-                                        ?   <Button variant="light" onClick={() => deleteProduct(row.product_id)}>
-                                                <img 
-                                                src='https://icon-library.com/images/delete-icon-png/delete-icon-png-4.jpg'
-                                                alt="Delete product"
-                                                className={'image-btnstyle'}
-                                                />
-                                            </Button>
-                                        : null
-                                    }
-                                </TableCell>
-                            </TableRow>
-                        ))}
-                    </TableBody>
-                </Table>
-            </TableContainer>
+                <div>
+                    <TableContainer component={Paper}>
+                        <Table className={classes.table} aria-label="simple table">
+                            <TableHead>
+                                <TableRow>
+                                    <TableCell align="center">Image</TableCell>
+                                    <TableCell align="center">Name</TableCell>
+                                    <TableCell align="center">Description</TableCell>
+                                    <TableCell align="center">Quantity in stock</TableCell>
+                                    <TableCell align="center">Price [BGN]</TableCell>
+                                    <TableCell align="center">Manufacturer</TableCell>
+                                    <TableCell align="center"> </TableCell>
+                                </TableRow>
+                            </TableHead>
+                            <TableBody>
+                                {rows.map((row, idx) => (
+                                    <TableRow key={idx}>
+                                        <TableCell align="center">
+                                            <img 
+                                            src={`/images/${row.product_image}`} alt={`${row.product_name}`}
+                                            alt="Product image"
+                                            className={'product-image-style'}
+                                            />
+                                        </TableCell>
+                                        
+                                        <TableCell component="th" scope="row" align="center">{row.product_name}</TableCell>
+                                        <TableCell align="center">{row.product_description}</TableCell>
+                                        <TableCell align="center">{row.product_count}</TableCell>
+                                        <TableCell align="center">{row.product_price}</TableCell>
+                                        <TableCell align="center">{row.product_manufacturer_name}</TableCell>
+                                        <TableCell align="center">
+                                        {(employeeInfo.permissions.update_perm) 
+                                            ?   <Button variant="light" className={'crud-buttons-style ml-auto'}>
+                                                    <Link style={{color:'white'}} to={`/backoffice/products/update/${row.product_id}`} onClick={() => getCurrentProduct(row)}>
+                                                        <img 
+                                                        src='https://p7.hiclipart.com/preview/9/467/583/computer-icons-tango-desktop-project-download-clip-art-update-button.jpg'
+                                                        alt="Update product"
+                                                        className={'image-btnstyle'}
+                                                        />
+                                                    </Link>
+                                                </Button>
+                                            : null
+                                            }
+
+                                            {(employeeInfo.permissions.delete_perm)
+                                                ?   <Button variant="light" onClick={() => deleteProduct(row.product_id)}>
+                                                        <img 
+                                                        src='https://icon-library.com/images/delete-icon-png/delete-icon-png-4.jpg'
+                                                        alt="Delete product"
+                                                        className={'image-btnstyle'}
+                                                        />
+                                                    </Button>
+                                                : null
+                                            }
+                                        </TableCell>
+                                    </TableRow>
+                                ))}
+                            </TableBody>
+                        </Table>
+                    </TableContainer>
+                </div>
+            </div>
         );
     }
 }

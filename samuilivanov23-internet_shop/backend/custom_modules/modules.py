@@ -14,7 +14,6 @@ class JSONParser:
 
     def GetAllProductsJSON(self, records, pages_count): 
         response = {'status' : 'OK', 'msg' : 'Successful', 'data': [], 'pages_count' : pages_count}
-        print('PRODUCTS LEN: ' + str(len(records)))
 
         i = 0
         while i < len(records):
@@ -94,7 +93,7 @@ class JSONParser:
                 'manufacturer_name' : records[i][3],
                 'manufacturer_id' : records[i][4],
                 'count' : records[i][5],
-                'price' : records[i][6],
+                'price' : float(records[i][6]),
                 'image' : records[i][7],
             })
 

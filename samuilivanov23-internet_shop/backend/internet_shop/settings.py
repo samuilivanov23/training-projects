@@ -89,6 +89,7 @@ MODERNRPC_METHODS_MODULES = [
     'shop.rpc_methods', #TODO CREATE STRUCTURE FOR THE RPC METHODS IN DIFFERENT MODULES!!!
     'shop.rpc_data_filters',
     'backoffice.rpc_methods',
+    'backoffice.rpc_data_filters',
 ]
 
 # Database

@@ -377,7 +377,6 @@ def GetOrders():
 
 @rpc_method
 def DeleteOrder(id):
-    print('TEEST?>?>?')
     #Connect to database
     try:
         connection = psycopg2.connect("dbname='" + onlineShop_dbname + 
@@ -396,7 +395,6 @@ def DeleteOrder(id):
         connection.close()
     
     response = json.dumps(response)
-    print(response)
     return response
 
 @rpc_method

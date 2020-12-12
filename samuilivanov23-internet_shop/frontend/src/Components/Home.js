@@ -112,8 +112,6 @@ class Home extends React.Component{
     }).catch(function(error){
         alert(error['msg']);
     });
-
-    console.log(this.props);
   }
 
   handlePageClick = (products) => {
