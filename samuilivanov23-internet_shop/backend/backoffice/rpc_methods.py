@@ -10,6 +10,7 @@ employeesCRUD = modules.EmployeesCRUD()
 productsCRUD = modules.ProductsCRUD()
 manufacturersCRUD = modules.ManufacturersCRUD()
 ordersCRUD = modules.OrdersCRUD()
+usersCRUD = modules.UsersCRUD()
 
 @rpc_method
 def LoginEmployee(email_address, password):

@@ -744,24 +744,6 @@ class ProductsCRUD:
 
     def DeleteProduct(self, id, cur):
         try:
-            sql = 'delete from orders_products where product_id=%s'
-            cur.execute(sql, (id, ))
-        except Exception as e:
-            print(e)
-        
-        try:
-            sql = 'delete from carts_products where product_id=%s'
-            cur.execute(sql, (id, ))
-        except Exception as e:
-            print(e)
-
-        try:
-            sql = 'delete from tags_products where product_id=%s'
-            cur.execute(sql, (id, ))
-        except Exception as e:
-            print(e)
-
-        try:
             sql = 'delete from products where id=%s'
             cur.execute(sql, (id, ))
             response = {'status' : 'OK', 'msg' : 'Successfull'}
@@ -802,7 +784,7 @@ class UsersCRUD:
             users_records = cur.fetchall()
 
             jsonParser = JSONParser()
-            users_json = jsonParser.GetAllUsersJSON(users_json)
+            users_json = jsonParser.GetAllUsersJSON(users_records)
             response = {'status' : 'OK', 'msg' : 'Successfull', 'users' : users_json}
         except Exception as e:
             print(e)
@@ -830,5 +812,14 @@ class OrdersCRUD:
             print(e)
             response = {'status' : 'Fail', 'msg' : 'Unable to get orders', 'orders' : []}
 
-        return 
+        return response
+    
+    def DeleteOrders(self, id, cur):
+        try:
+            sql = 'delete from orders where id=%s'
+            cur.execute(sql, (id, ))
+            response = {'status' : 'OK', 'msg' : 'Successfull'}
+        except Exception as e:
+            print(e)
+            response = {'status' : 'Fail', 'msg' : 'Unable to delete order'}
 

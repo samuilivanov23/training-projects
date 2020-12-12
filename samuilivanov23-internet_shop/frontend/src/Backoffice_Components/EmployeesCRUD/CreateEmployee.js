@@ -182,6 +182,7 @@ function CreateEmployee(props){
                 <br/>
                 <br/>
 
+                <Form.Label>Permissions</Form.Label>
                 <select multiple={true} value={permissions_selected} onChange={changeSelectedPermissions}>
                     {options}
                 </select>

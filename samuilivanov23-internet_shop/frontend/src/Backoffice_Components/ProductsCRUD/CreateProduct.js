@@ -193,6 +193,7 @@ function CreateProduct(props){
                     <br/>
 
 
+                    <Form.Label>Manufacturer</Form.Label>
                     <select value={selected_manufacturer} onChange={changeManufacturer}>
                         {options}
                     </select>

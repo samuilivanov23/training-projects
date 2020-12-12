@@ -118,17 +118,17 @@ def createTables(cur, connection):
 
     ALTER TABLE carts_products ADD CONSTRAINT pk_carts_products PRIMARY KEY (cart_id, product_id);
 
-    ALTER TABLE carts_products ADD FOREIGN KEY (cart_id) REFERENCES carts (id);
+    ALTER TABLE carts_products ADD FOREIGN KEY (cart_id) REFERENCES carts (id) ON DELETE CASCADE;
 
-    ALTER TABLE carts_products ADD FOREIGN KEY (product_id) REFERENCES products (id);
+    ALTER TABLE carts_products ADD FOREIGN KEY (product_id) REFERENCES products (id) ON DELETE CASCADE;
 
-    ALTER TABLE tags_products ADD FOREIGN KEY (tag_id) REFERENCES carts (id);
+    ALTER TABLE tags_products ADD FOREIGN KEY (tag_id) REFERENCES tags (id) ON DELETE CASCADE;
 
-    ALTER TABLE tags_products ADD FOREIGN KEY (product_id) REFERENCES products (id);
+    ALTER TABLE tags_products ADD FOREIGN KEY (product_id) REFERENCES products (id) ON DELETE CASCADE;
 
-    ALTER TABLE orders_products ADD FOREIGN KEY (order_id) REFERENCES orders (id);
+    ALTER TABLE orders_products ADD FOREIGN KEY (order_id) REFERENCES orders (id) ON DELETE CASCADE;
 
-    ALTER TABLE orders_products ADD FOREIGN KEY (product_id) REFERENCES products (id);
+    ALTER TABLE orders_products ADD FOREIGN KEY (product_id) REFERENCES products (id) ON DELETE CASCADE;
 
     ''')
 

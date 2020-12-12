@@ -108,16 +108,26 @@ function CreateOrder(props){
         console.log(selected_user);
         return (
             <div className={'form-container'}>
-                <DatePicker
-                onChange={set_order_date}
-                value={order_date}
-                />
-
                 <Form noValidate validated={validated} onSubmit={handleSubmit} className={'form-center'}>
+                    <Form.Label>Order date</Form.Label>
                     <DatePicker
                     onChange={set_order_date}
                     value={order_date}
                     />
+                    <br/>
+                    <br/>
+
+                    <Form.Label>Order price</Form.Label>
+                    <Form.Control
+                        required
+                        type="text"
+                        name="order_price"
+                        placeholder="Order price"
+                        defaultValue=""
+                    />
+                    <br/>
+                    <br/>
+                   
                     
                     {/* <Form.Label>Price</Form.Label>
                     <Form.Control
