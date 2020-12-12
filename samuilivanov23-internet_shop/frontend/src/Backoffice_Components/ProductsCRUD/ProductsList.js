@@ -4,6 +4,7 @@ import JsonRpcClient from 'react-jsonrpc-client';
 import { useState, useEffect } from 'react';
 import { Button } from 'react-bootstrap';
 import { SetProductToUpdateDetails } from '../../Components/actions/ProductActions';
+import ReactPaginate from '../../../node_modules/react-paginate'
 import { useSelector, useDispatch } from 'react-redux';
 import { Link } from 'react-router-dom';
 import Table from '@material-ui/core/Table';
@@ -18,25 +19,32 @@ import Paper from '@material-ui/core/Paper';
 function ProductsList (props){
 
     const [products, set_products] = useState([]);
-    const [selected_sorting, set_selected_sorting] = useState('Sort by name asc');
+    const [selected_sorting, set_selected_sorting] = useState('Sort by p.name asc');
+    const [pages_count, set_pages_count] = useState(0);
+    const [current_page, set_current_page] = useState(0);
     const { employeeInfo } = useSelector(state=>state.employee);
     const dispatch = useDispatch();
 
     useEffect(() => {
-        loadProducts();
+        //current page is 0 when the component first loads
+        loadProducts(current_page, selected_sorting);
     }, [])
 
-    const loadProducts = () => {
+    const loadProducts = (current_page, selected_sorting) => {
         const django_rpc = new JsonRpcClient({
             endpoint : 'http://127.0.0.1:8000/backoffice/rpc/',
         });
 
         django_rpc.request(
             'GetProductsBackoffice',
+            selected_sorting,
+            current_page,
         ).then(function(response){
-            //response = JSON.parse(response);
-            set_products(response.products);
-            alert(response.msg);
+            response = JSON.parse(response);
+            set_products(response['products']);
+            set_pages_count(response['pages_count']);
+            set_selected_sorting(selected_sorting);
+            alert(response['msg']);
         }).catch(function(error){
             alert(error['msg']);
         });
@@ -65,7 +73,7 @@ function ProductsList (props){
         ).then(function(response){
             response = JSON.parse(response);
             alert(response['msg']);
-            loadProducts();
+            loadProducts(current_page, selected_sorting);
         }).catch(function(error){
             alert(error['msg']);
         });
@@ -73,26 +81,14 @@ function ProductsList (props){
 
     const FilterProducts = (event) => {
         const filter = event.target.value;
+        loadProducts(current_page, filter);
+    }
 
-        const django_rpc = new JsonRpcClient({
-            endpoint : 'http://127.0.0.1:8000/backoffice/rpc/',
-        });
-
-        django_rpc.request(
-            'FilterProductsBackoffice',
-            filter,
-        ).then(function(response){
-            response = JSON.parse(response);
-
-            console.log(response);
-
-            set_products(response['products']);
-            set_selected_sorting(filter);
-    
-            alert(response['msg']);
-        }).catch(function(error){
-            alert(error['msg']);
-        });
+    const handlePageClick = (products) => {
+        let page_number = products.selected;
+        loadProducts(page_number, selected_sorting);
+        set_current_page(page_number);
+        window.scrollTo(0, 0);
     }
 
     const useStyles = makeStyles({
@@ -210,6 +206,26 @@ function ProductsList (props){
                             </TableBody>
                         </Table>
                     </TableContainer>
+                </div>
+
+                <div>
+                <ReactPaginate
+                    previousLabel={'← Previous'}
+                    nextLabel={'Next →'}
+                    pageCount={pages_count}
+                    pageRangeDisplayed={5}
+                    onPageChange={handlePageClick}
+                    breakClassName={'page-item'}
+                    breakLinkClassName={'page-link'}
+                    containerClassName={'pagination'}
+                    pageClassName={'page-item'}
+                    pageLinkClassName={'page-link'}
+                    previousClassName={'page-item'}
+                    previousLinkClassName={'page-link'}
+                    nextClassName={'page-item'}
+                    nextLinkClassName={'page-link'}
+                    activeClassName={'active'}
+                />
                 </div>
             </div>
         );

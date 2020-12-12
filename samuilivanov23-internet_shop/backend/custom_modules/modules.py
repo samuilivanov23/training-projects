@@ -1,6 +1,6 @@
 import hashlib
 from PIL import Image
-import random, string, json
+import random, string, json, math
 import uuid, smtplib, ssl
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
@@ -699,17 +699,30 @@ class ProductsCRUD:
     def __init__(self):
         pass
 
-    def ReadProducts(self, cur):
+    def ReadProducts(self, selected_sorting, offset, products_per_page, cur):
         try:
+            filterParser = FiltersParser()
+            #parameter: name/price/quantity...
+            #direction: asc/desc
+            parameter, sorting_direction = filterParser.ParseSortFilter(selected_sorting)
+
+            # sql =  '''select p.id, p.name, p.description, m.name, m.id, p.count, p.price, p.image_name from products as p 
+            #         join manufacturers as m on p.manufacturer_id=m.id'''
+            
             sql =  '''select p.id, p.name, p.description, m.name, m.id, p.count, p.price, p.image_name from products as p 
-                    join manufacturers as m on p.manufacturer_id=m.id'''
+                    join manufacturers as m on p.manufacturer_id=m.id order by ''' + parameter + ' ' + sorting_direction + ''' offset ''' + offset + ''' limit ''' + products_per_page
             cur.execute(sql, )
+            products_records = cur.fetchall()
+
+            sql = 'select count(*) from products'
+            cur.execute(sql, )
+            all_products_count = cur.fetchone()[0]
+            pages_count = math.ceil(all_products_count / int(products_per_page))
 
             try:
-                products_records = cur.fetchall()
                 productsJSONServer = JSONParser()
                 products_json = productsJSONServer.GetAllProductsBackofficeJSON(products_records)
-                response = {'status' : 'OK', 'msg' : 'Successfull', 'products' : products_json}
+                response = {'status' : 'OK', 'msg' : 'Successfull', 'products' : products_json, 'pages_count' : pages_count}
             except Exception as e: #=> no products in database
                 print(e)
                 response = {'status' : 'Fail', 'msg' : 'No products in database', 'products' : []}
