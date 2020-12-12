@@ -53,20 +53,20 @@ function OrdersList (props){
     }
 
     const deleteorder = (id) => {
-        // const django_rpc = new JsonRpcClient({
-        //     endpoint : 'http://127.0.0.1:8000/backoffice/rpc/',
-        // });
+        const django_rpc = new JsonRpcClient({
+            endpoint : 'http://127.0.0.1:8000/backoffice/rpc/',
+        });
 
-        // django_rpc.request(
-        //     'Deleteorder',
-        //     id,
-        // ).then(function(response){
-        //     response = JSON.parse(response);
-        //     alert(response['msg']);
-        //     loadOrders();
-        // }).catch(function(error){
-        //     alert(error['msg']);
-        // });
+        django_rpc.request(
+            'DeleteOrder',
+            id,
+        ).then(function(response){
+            response = JSON.parse(response);
+            alert(response['msg']);
+            loadOrders();
+        }).catch(function(error){
+            alert(error['msg']);
+        });
     }
 
    
@@ -116,7 +116,7 @@ function OrdersList (props){
                     <TableBody>
                         {rows.map((row, idx) => (
                             <TableRow key={idx}>
-                                <TableCell component="th" scope="row">{row.order_date}</TableCell>
+                                <TableCell component="th" scope="row" align="center">{row.order_date}</TableCell>
                                 <TableCell align="center">{row.customer_name}</TableCell>
                                 <TableCell align="center">{row.order_price}</TableCell>
                                 <TableCell align="center">{row.payment_date}</TableCell>

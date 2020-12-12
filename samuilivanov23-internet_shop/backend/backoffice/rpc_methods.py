@@ -376,6 +376,30 @@ def GetOrders():
     return response
 
 @rpc_method
+def DeleteOrder(id):
+    print('TEEST?>?>?')
+    #Connect to database
+    try:
+        connection = psycopg2.connect("dbname='" + onlineShop_dbname + 
+                                    "' user='" + onlineShop_dbuser + 
+                                    "' password='" + onlineShop_dbpassword + "'")
+
+        connection.autocommit = True
+        cur = connection.cursor()
+    except Exception as e:
+        print(e)
+    
+    response = ordersCRUD.DeleteOrders(id, cur)
+
+    if connection:
+        cur.close()
+        connection.close()
+    
+    response = json.dumps(response)
+    print(response)
+    return response
+
+@rpc_method
 def GetUsers():
     #Connect to database
     try:

@@ -822,4 +822,6 @@ class OrdersCRUD:
         except Exception as e:
             print(e)
             response = {'status' : 'Fail', 'msg' : 'Unable to delete order'}
+        
+        return response
 
