@@ -130,12 +130,12 @@ function EmployeesList (props){
                     <TableBody>
                         {rows.map((row, idx) => (
                             <TableRow key={idx}>
-                                <TableCell component="th" scope="row">{row.employee_first_name} {row.employee_last_name}</TableCell>
+                                <TableCell component="th" scope="row" align="center">{row.employee_first_name} {row.employee_last_name}</TableCell>
                                 <TableCell align="center">{row.employee_email_address}</TableCell>
                                 <TableCell align="center">{row.employee_role_name}</TableCell>
                                 <TableCell align="center">
                                     {(employeeInfo.permissions.update_perm) 
-                                    ?   <Button className={'crud-buttons-style ml-auto'}>
+                                    ?   <Button variant="light" className={'crud-buttons-style ml-auto'}>
                                             <Link style={{color:'white'}} to={`/backoffice/employees/update/${row.employee_id}`} onClick={() => getCurrentEmployee(row)}>
                                                 <img 
                                                 src='https://p7.hiclipart.com/preview/9/467/583/computer-icons-tango-desktop-project-download-clip-art-update-button.jpg'
@@ -148,7 +148,7 @@ function EmployeesList (props){
                                     }
 
                                     {(employeeInfo.permissions.delete_perm)
-                                        ?   <Button className={'crud-buttons-style'} onClick={() => deleteEmployee(row.employee_id)}>
+                                        ?   <Button variant="light" className={'crud-buttons-style'} onClick={() => deleteEmployee(row.employee_id)}>
                                                 <img 
                                                 src='https://icon-library.com/images/delete-icon-png/delete-icon-png-4.jpg'
                                                 alt="Delete employee"

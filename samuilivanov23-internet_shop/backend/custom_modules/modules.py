@@ -706,9 +706,6 @@ class ProductsCRUD:
             #direction: asc/desc
             parameter, sorting_direction = filterParser.ParseSortFilter(selected_sorting)
 
-            # sql =  '''select p.id, p.name, p.description, m.name, m.id, p.count, p.price, p.image_name from products as p 
-            #         join manufacturers as m on p.manufacturer_id=m.id'''
-            
             sql =  '''select p.id, p.name, p.description, m.name, m.id, p.count, p.price, p.image_name from products as p 
                     join manufacturers as m on p.manufacturer_id=m.id order by ''' + parameter + ' ' + sorting_direction + ''' offset ''' + offset + ''' limit ''' + products_per_page
             cur.execute(sql, )
@@ -808,18 +805,33 @@ class OrdersCRUD:
     def __init__(self):
         pass
 
-    def ReadOrders(self, cur):
+    def ReadOrders(self, selected_sorting, offset, products_per_page, cur):
         try:
+            filterParser = FiltersParser()
+            #parameter: date/price/customer_name...
+            #direction: asc/desc
+            parameter, sorting_direction = filterParser.ParseSortFilter(selected_sorting)
+
+            if parameter == 'customer_name':
+                if sorting_direction == 'asc':
+                    parameter = 'u.first_name asc, u.last_name'
+                else:
+                    parameter = 'u.first_name desc, u.last_name'
+                
             sql = '''select o.id, o.date, u.first_name, u.last_name, o.total_price, p.pay_time, p.status from orders as o
-                     join users as u on o.user_id=u.id
-                     join payments as p on o.payment_id=p.id'''
+                     left join users as u on o.user_id=u.id
+                     left join payments as p on o.payment_id=p.id order by ''' + parameter + ' ' + sorting_direction + ''' offset ''' + offset + ''' limit ''' + products_per_page
             cur.execute(sql, )
             orders_records = cur.fetchall()
 
+            sql = 'select count(*) from orders'
+            cur.execute(sql, )
+            all_products_count = cur.fetchone()[0]
+            pages_count = math.ceil(all_products_count / int(products_per_page))
+
             jsonParser = JSONParser()
             orders_json = jsonParser.GetAllOrdersJSON(orders_records)
-
-            response = {'status' : 'OK', 'msg' : 'Successfull', 'orders' : orders_json}
+            response = {'status' : 'OK', 'msg' : 'Successfull', 'orders' : orders_json, 'pages_count' : pages_count}
         except Exception as e:
             print(e)
             response = {'status' : 'Fail', 'msg' : 'Unable to get orders', 'orders' : []}

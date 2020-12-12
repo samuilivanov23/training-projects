@@ -143,7 +143,6 @@ function ProductsList (props){
                     <select id="SortFilter" name={'sort_filter'} value={selected_sorting} onChange={FilterProducts}>
                         {sorting_options}
                     </select>
-                    <label style={{marginLeft:'1em'}}>Sort by</label>
                 </div>
 
                 <div>
@@ -209,23 +208,23 @@ function ProductsList (props){
                 </div>
 
                 <div>
-                <ReactPaginate
-                    previousLabel={'← Previous'}
-                    nextLabel={'Next →'}
-                    pageCount={pages_count}
-                    pageRangeDisplayed={5}
-                    onPageChange={handlePageClick}
-                    breakClassName={'page-item'}
-                    breakLinkClassName={'page-link'}
-                    containerClassName={'pagination'}
-                    pageClassName={'page-item'}
-                    pageLinkClassName={'page-link'}
-                    previousClassName={'page-item'}
-                    previousLinkClassName={'page-link'}
-                    nextClassName={'page-item'}
-                    nextLinkClassName={'page-link'}
-                    activeClassName={'active'}
-                />
+                    <ReactPaginate
+                        previousLabel={'← Previous'}
+                        nextLabel={'Next →'}
+                        pageCount={pages_count}
+                        pageRangeDisplayed={5}
+                        onPageChange={handlePageClick}
+                        breakClassName={'page-item'}
+                        breakLinkClassName={'page-link'}
+                        containerClassName={'pagination'}
+                        pageClassName={'page-item'}
+                        pageLinkClassName={'page-link'}
+                        previousClassName={'page-item'}
+                        previousLinkClassName={'page-link'}
+                        nextClassName={'page-item'}
+                        nextLinkClassName={'page-link'}
+                        activeClassName={'active'}
+                    />
                 </div>
             </div>
         );
