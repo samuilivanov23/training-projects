@@ -95,6 +95,7 @@ class JSONParser:
                 'count' : records[i][5],
                 'price' : float(records[i][6]),
                 'image' : records[i][7],
+                'inserted_at' : str(records[i][8])[:-3],
             })
 
             i+=1
@@ -721,7 +722,7 @@ class ProductsCRUD:
             #direction: asc/desc
             parameter, sorting_direction = filterParser.ParseSortFilter(selected_sorting)
 
-            sql =  '''select p.id, p.name, p.description, m.name, m.id, p.count, p.price, p.image_name from products as p 
+            sql =  '''select p.id as product_id, p.name as product_name, p.description, m.name as manufacturer_name, m.id, p.count as product_count, p.price as product_price, p.image_name, p.inserted_at as inserted_at from products as p 
                     join manufacturers as m on p.manufacturer_id=m.id order by ''' + parameter + ' ' + sorting_direction + ''' offset ''' + offset + ''' limit ''' + products_per_page
             cur.execute(sql, )
             products_records = cur.fetchall()

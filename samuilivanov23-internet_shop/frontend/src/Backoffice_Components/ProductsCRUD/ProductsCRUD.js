@@ -12,7 +12,7 @@ function ProductsCRUD (props) {
         if(employeeInfo.permissions.create_perm){
             return(
                 <div>
-                    <h1 style={{textAlign : 'center'}}> Employees </h1>
+                    <h1 style={{textAlign : 'center'}}> Products </h1>
 
                     <Button variant="info" style={{'margin' : '2em'}}>
                         <Link style={{color:'white'}} to={'/backoffice/products/create'}>

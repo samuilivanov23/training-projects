@@ -9,6 +9,7 @@ def createTables(cur, connection):
 
     CREATE TABLE IF NOT EXISTS users (
         "id" bigserial PRIMARY KEY,
+        "inserted_at" timestamp NOT NULL DEFAULT NOW(),
         "first_name" text,
         "last_name" text,
         "username" text,
@@ -21,6 +22,7 @@ def createTables(cur, connection):
 
     CREATE TABLE IF NOT EXISTS products (
         "id" bigserial PRIMARY KEY,
+        "inserted_at" timestamp NOT NULL DEFAULT NOW(),
         "name" text UNIQUE,
         "description" text,
         "manufacturer_id" bigserial,
@@ -30,7 +32,8 @@ def createTables(cur, connection):
     );
 
     CREATE TABLE IF NOT EXISTS carts(
-        "id" bigserial PRIMARY KEY
+        "id" bigserial PRIMARY KEY,
+        "inserted_at" timestamp NOT NULL DEFAULT NOW()
     );
 
     CREATE TABLE IF NOT EXISTS carts_products(
@@ -41,11 +44,13 @@ def createTables(cur, connection):
 
     CREATE TABLE IF NOT EXISTS manufacturers(
         "id" bigserial PRIMARY KEY,
+        "inserted_at" timestamp NOT NULL DEFAULT NOW(),
         "name" text UNIQUE
     );
 
     CREATE TABLE IF NOT EXISTS tags(
         "id" bigserial PRIMARY KEY,
+        "inserted_at" timestamp NOT NULL DEFAULT NOW(),
         "name" text UNIQUE
     );
 
@@ -56,7 +61,7 @@ def createTables(cur, connection):
 
     CREATE TABLE IF NOT EXISTS orders(
         "id" bigserial PRIMARY KEY,
-        "date" timestamp,
+        "date" timestamp NOT NULL DEFAULT NOW(),
         "total_price" numeric,
         "user_id" bigserial,
         "payment_id" bigserial
@@ -70,6 +75,7 @@ def createTables(cur, connection):
 
     CREATE TABLE IF NOT EXISTS payments(
         "id" bigserial PRIMARY KEY,
+        "inserted_at" timestamp NOT NULL DEFAULT NOW(),
         "invoice" int NOT NULL,
         "status" text NOT NULL,
         "stan" text ,
@@ -78,6 +84,7 @@ def createTables(cur, connection):
 
     CREATE TABLE IF NOT EXISTS employees(
         "id" bigserial PRIMARY KEY,
+        "inserted_at" timestamp NOT NULL DEFAULT NOW(),
         "first_name" text,
         "last_name" text,
         "email_address" text,
@@ -87,12 +94,14 @@ def createTables(cur, connection):
 
     CREATE TABLE IF NOT EXISTS roles(
         "id" bigserial PRIMARY KEY,
+        "inserted_at" timestamp NOT NULL DEFAULT NOW(),
         "name" text,
         "permission_id" int
     );
 
     CREATE TABLE IF NOT EXISTS permissions(
         "id" bigserial PRIMARY KEY,
+        "inserted_at" timestamp NOT NULL DEFAULT NOW(),
         "create_perm" boolean default false,
         "read_perm" boolean default false,
         "update_perm" boolean default false,
@@ -101,6 +110,7 @@ def createTables(cur, connection):
 
     CREATE TABLE IF NOT EXISTS verification(
         "user_id" bigserial,
+        "inserted_at" timestamp NOT NULL DEFAULT NOW(),
         "token" text,
         "send_date" timestamp
     );

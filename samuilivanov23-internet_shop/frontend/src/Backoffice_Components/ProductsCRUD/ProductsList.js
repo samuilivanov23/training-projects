@@ -19,9 +19,10 @@ import Paper from '@material-ui/core/Paper';
 function ProductsList (props){
 
     const [products, set_products] = useState([]);
-    const [selected_sorting, set_selected_sorting] = useState('Sort by p.name asc');
+    const [selected_sorting, set_selected_sorting] = useState('Sort by product_id asc');
     const [pages_count, set_pages_count] = useState(0);
     const [current_page, set_current_page] = useState(0);
+    const [sorting_label, set_sorting_label] = useState('product id asc')
     const { employeeInfo } = useSelector(state=>state.employee);
     const dispatch = useDispatch();
 
@@ -44,6 +45,13 @@ function ProductsList (props){
             set_products(response['products']);
             set_pages_count(response['pages_count']);
             set_selected_sorting(selected_sorting);
+
+            let ordering_param = selected_sorting.split(" ")[2];
+            let ordering_direction = selected_sorting.split(" ")[3];            
+            ordering_param = ordering_param.split("_");
+            
+            set_sorting_label('Ordered by: ' + ordering_param[0] + " " + ordering_param[1] + " " + ordering_direction);
+
             alert(response['msg']);
         }).catch(function(error){
             alert(error['msg']);
@@ -80,6 +88,7 @@ function ProductsList (props){
     }
 
     const FilterProducts = (event) => {
+        console.log(event);
         const filter = event.target.value;
         loadProducts(current_page, filter);
     }
@@ -99,33 +108,18 @@ function ProductsList (props){
 
     const classes = useStyles();
     
-    const createData = (product_id, product_name, product_description, product_count, product_price, product_image, product_manufacturer_name) => {
-        return { product_id, product_name, product_description, product_count, product_price, product_image, product_manufacturer_name };
+    const createData = (product_id, product_name, product_description, product_count, product_price, product_image, product_manufacturer_name, product_inserted_at) => {
+        return { product_id, product_name, product_description, product_count, product_price, product_image, product_manufacturer_name, product_inserted_at };
     }
     
     const generateRows = () => {
         const rows = []
     
         products.forEach(product => {
-            rows.push(createData(product.id, product.name, product.description, product.count, product.price, product.image, product.manufacturer_name))
+            rows.push(createData(product.id, product.name, product.description, product.count, product.price, product.image, product.manufacturer_name, product.inserted_at))
         });
     
         return rows;
-    }
-
-    const GenerateSortFilters = () => {
-        const options = []
-  
-        options.push(<option key={1} value={'Sort by p.name asc'}> Sort by name (asc)</option>);
-        options.push(<option key={2} value={'Sort by p.name desc'}> Sort by name (desc)</option>);
-        options.push(<option key={3} value={'Sort by p.price asc'}> Sort by price (asc)</option>);
-        options.push(<option key={4} value={'Sort by p.price desc'}> Sort by price (desc)</option>);
-        options.push(<option key={5} value={'Sort by p.count asc'}> Sort by quantity (asc)</option>);
-        options.push(<option key={6} value={'Sort by p.count desc'}> Sort by quantity (desc)</option>);
-        options.push(<option key={7} value={'Sort by m.name asc'}> Sort by manufacturer name (asc)</option>);
-        options.push(<option key={8} value={'Sort by m.name desc'}> Sort by manufacturer name (desc)</option>);
-        
-        return options;
     }
     
     if(typeof(products) === 'undefined'){
@@ -135,14 +129,11 @@ function ProductsList (props){
     }    
     else{
         const rows = generateRows();
-        const sorting_options = GenerateSortFilters();
 
         return(
             <div>
                 <div>
-                    <select id="SortFilter" name={'sort_filter'} value={selected_sorting} onChange={FilterProducts}>
-                        {sorting_options}
-                    </select>
+                   <h5 style={{textAlign : 'center'}}>{sorting_label}</h5>
                 </div>
 
                 <div>
@@ -150,13 +141,50 @@ function ProductsList (props){
                         <Table className={classes.table} aria-label="simple table">
                             <TableHead>
                                 <TableRow>
-                                    <TableCell align="center">Id</TableCell>
+                                    <TableCell align="center">
+                                        Id
+                                        <select style={{marginLeft : '0.5em'}} id="SortFilter" name={'sort_filter'} value={selected_sorting} onChange={FilterProducts}>
+                                            <option key={1} value={'Sort by product_id asc'}>↗</option>
+                                            <option key={2} value={'Sort by product_id desc'}>↘</option>
+                                        </select>
+                                    </TableCell>
+                                    <TableCell align="center">
+                                        Inserted
+                                        <select style={{marginLeft : '0.5em'}} id="SortFilter" name={'sort_filter'} value={selected_sorting} onChange={FilterProducts}>
+                                            <option key={1} value={'Sort by inserted_at asc'}>↗</option>
+                                            <option key={2} value={'Sort by inserted_at desc'}>↘</option>
+                                        </select>
+                                    </TableCell>
                                     <TableCell align="center">Image</TableCell>
-                                    <TableCell align="center">Name</TableCell>
+                                    <TableCell align="center">
+                                        Name
+                                        <select style={{marginLeft : '0.5em'}} id="SortFilter" name={'sort_filter'} value={selected_sorting} onChange={FilterProducts}>
+                                            <option key={1} value={'Sort by product_name asc'}>↗</option>
+                                            <option key={2} value={'Sort by product_name desc'}>↘</option>
+                                        </select>
+                                    </TableCell>
                                     <TableCell align="center">Description</TableCell>
-                                    <TableCell align="center">Quantity in stock</TableCell>
-                                    <TableCell align="center">Price [BGN]</TableCell>
-                                    <TableCell align="center">Manufacturer</TableCell>
+                                    <TableCell align="center">
+                                        Quantity in stock
+                                        <select style={{marginLeft : '0.5em'}} id="SortFilter" name={'sort_filter'} value={selected_sorting} onChange={FilterProducts}>
+                                            <option key={1} value={'Sort by product_count asc'}>↗</option>
+                                            <option key={2} value={'Sort by product_count desc'}>↘</option>
+                                        </select>
+                                    </TableCell>
+                                    <TableCell align="center">
+                                        Price [BGN]
+                                        <select style={{marginLeft : '0.5em'}} id="SortFilter" name={'sort_filter'} value={selected_sorting} onChange={FilterProducts}>
+                                            <option key={1} value={'Sort by product_price asc'}>↗</option>
+                                            <option key={2} value={'Sort by product_price desc'}>↘</option>
+                                        </select>
+                                    </TableCell>
+                                    <TableCell align="center">
+                                        Manufacturer
+                                        <select style={{marginLeft : '0.5em'}} id="SortFilter" name={'sort_filter'} value={selected_sorting} onChange={FilterProducts}>
+                                            <option key={1} value={'Sort by manufacturer_name asc'}>↗</option>
+                                            <option key={2} value={'Sort by manufacturer_name desc'}>↘</option>
+                                        </select>
+                                    </TableCell>
                                     <TableCell align="center"> </TableCell>
                                 </TableRow>
                             </TableHead>
@@ -164,8 +192,9 @@ function ProductsList (props){
                                 {rows.map((row, idx) => (
                                     <TableRow key={idx}>
                                         <TableCell component="th" scope="row" align="center">{row.product_id}</TableCell>     
+                                        <TableCell align="center">{row.product_inserted_at}</TableCell>     
                                         <TableCell align="center">
-                                            <img 
+                                            <img
                                             src={`/images/${row.product_image}`} alt={`${row.product_name}`}
                                             alt="Product image"
                                             className={'product-image-style'}
