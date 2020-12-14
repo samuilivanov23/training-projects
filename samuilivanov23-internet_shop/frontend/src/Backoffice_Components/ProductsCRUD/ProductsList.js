@@ -150,6 +150,7 @@ function ProductsList (props){
                         <Table className={classes.table} aria-label="simple table">
                             <TableHead>
                                 <TableRow>
+                                    <TableCell align="center">Id</TableCell>
                                     <TableCell align="center">Image</TableCell>
                                     <TableCell align="center">Name</TableCell>
                                     <TableCell align="center">Description</TableCell>
@@ -162,6 +163,7 @@ function ProductsList (props){
                             <TableBody>
                                 {rows.map((row, idx) => (
                                     <TableRow key={idx}>
+                                        <TableCell component="th" scope="row" align="center">{row.product_id}</TableCell>     
                                         <TableCell align="center">
                                             <img 
                                             src={`/images/${row.product_image}`} alt={`${row.product_name}`}
@@ -170,7 +172,7 @@ function ProductsList (props){
                                             />
                                         </TableCell>
                                         
-                                        <TableCell component="th" scope="row" align="center">{row.product_name}</TableCell>
+                                        <TableCell align="center">{row.product_name}</TableCell>
                                         <TableCell align="center">{row.product_description}</TableCell>
                                         <TableCell align="center">{row.product_count}</TableCell>
                                         <TableCell align="center">{row.product_price}</TableCell>

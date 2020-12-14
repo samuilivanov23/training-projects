@@ -137,7 +137,7 @@ class JSONParser:
         while i < len(records):
             orders.append({
                 'id' : records[i][0],
-                'order_date' : str(records[i][1])[:-7], #-7 to skip the '.' + microseconds part of the date
+                'order_date' : str(records[i][1])[:-3], #-7 to skip the '.' + microseconds part of the date
                 'user_first_name' : records[i][2],
                 'user_last_name' : records[i][3],
                 'total_price' : float(records[i][4]),

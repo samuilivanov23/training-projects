@@ -47,8 +47,6 @@ function NavigationBarBackoffice(props) {
                         <Dropdown.Item as={Link} to="/backoffice/products" >Products</Dropdown.Item>
                         <Dropdown.Item as={Link} to="/backoffice/employees">Employees</Dropdown.Item>
                         <Dropdown.Item as={Link} to="/backoffice/orders">Orders</Dropdown.Item>
-                        <Dropdown.Item as={Link} to="/backoffice/roles">Roles</Dropdown.Item>
-                        <Dropdown.Item as={Link} to="/backoffice/roles">Manufacturers</Dropdown.Item>
                     </Dropdown.Menu>
                 </Dropdown>
             </Nav>

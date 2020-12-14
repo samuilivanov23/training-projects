@@ -162,6 +162,7 @@ function EmployeesList (props){
                         <Table className={classes.table} aria-label="simple table">
                             <TableHead>
                                 <TableRow>
+                                    <TableCell align="center">Id</TableCell>
                                     <TableCell align="center">Name</TableCell>
                                     <TableCell align="center">Email</TableCell>
                                     <TableCell align="center">Role</TableCell>
@@ -171,7 +172,8 @@ function EmployeesList (props){
                             <TableBody>
                                 {rows.map((row, idx) => (
                                     <TableRow key={idx}>
-                                        <TableCell component="th" scope="row" align="center">{row.employee_first_name} {row.employee_last_name}</TableCell>
+                                        <TableCell component="th" scope="row" align="center">{row.employee_id}</TableCell>
+                                        <TableCell align="center">{row.employee_first_name} {row.employee_last_name}</TableCell>
                                         <TableCell align="center">{row.employee_email_address}</TableCell>
                                         <TableCell align="center">{row.employee_role_name}</TableCell>
                                         <TableCell align="center">

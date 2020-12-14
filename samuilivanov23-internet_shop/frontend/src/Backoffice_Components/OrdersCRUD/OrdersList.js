@@ -149,9 +149,10 @@ function OrdersList (props){
                         <Table className={classes.table} aria-label="simple table">
                             <TableHead>
                                 <TableRow>
+                                    <TableCell align="center">Id</TableCell>
                                     <TableCell align="center">Created</TableCell>
                                     <TableCell align="center">Customer</TableCell>
-                                    <TableCell align="center">Price</TableCell>
+                                    <TableCell align="center">Price [BGN]</TableCell>
                                     <TableCell align="center">Paid on</TableCell>
                                     <TableCell align="center">Payment status</TableCell>
                                     <TableCell align="center"> </TableCell>
@@ -160,7 +161,8 @@ function OrdersList (props){
                             <TableBody>
                                 {rows.map((row, idx) => (
                                     <TableRow key={idx}>
-                                        <TableCell component="th" scope="row" align="center">{row.order_date}</TableCell>
+                                        <TableCell component="th" scope="row" align="center">{row.order_id}</TableCell>
+                                        <TableCell align="center">{row.order_date}</TableCell>
                                         <TableCell align="center">{row.customer_name}</TableCell>
                                         <TableCell align="center">{row.order_price}</TableCell>
                                         <TableCell align="center">{row.payment_date}</TableCell>

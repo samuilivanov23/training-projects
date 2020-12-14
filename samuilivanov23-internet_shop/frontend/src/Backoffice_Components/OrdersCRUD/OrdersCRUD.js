@@ -11,15 +11,20 @@ function OrdersCRUD (props) {
     const generateCreateOperation = () => {
         if(employeeInfo.permissions.create_perm){
             return(
-                <Button variant="info" style={{'margin' : '2em'}}>
-                    <Link style={{color:'white'}} to={'/backoffice/orders/create'}>
-                        <img 
-                        src='https://cdn2.iconfinder.com/data/icons/media-controls-5/100/add-512.png'
-                        alt="Create order"
-                        className={'image-btnstyle'}
-                        />
-                    </Link>
-                </Button>
+                <div>
+                    <h1 style={{textAlign : 'center'}}> Orders </h1>
+
+                    <Button variant="info" style={{'margin' : '2em'}}>
+                        <Link style={{color:'white'}} to={'/backoffice/orders/create'}>
+                            <img 
+                            src='https://cdn2.iconfinder.com/data/icons/media-controls-5/100/add-512.png'
+                            alt="Create order"
+                            className={'image-btnstyle'}
+                            />
+                        </Link>
+                    </Button>
+                    
+                </div>
             );
         }
         else {
