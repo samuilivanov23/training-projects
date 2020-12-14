@@ -19,9 +19,10 @@ import Paper from '@material-ui/core/Paper';
 function OrdersList (props){
 
     const [orders, set_orders] = useState([]);
-    const [selected_sorting, set_selected_sorting] = useState('Sort by o.date asc');
+    const [selected_sorting, set_selected_sorting] = useState('Sort by order_id asc');
     const [pages_count, set_pages_count] = useState(0);
     const [current_page, set_current_page] = useState(0);
+    const [sorting_label, set_sorting_label] = useState('order id asc');
     const { employeeInfo } = useSelector(state=>state.employee);
     const dispatch = useDispatch();
 
@@ -44,6 +45,13 @@ function OrdersList (props){
             set_orders(response['orders']);
             set_pages_count(response['pages_count']);
             set_selected_sorting(selected_sorting);
+
+            let ordering_param = selected_sorting.split(" ")[2];
+            let ordering_direction = selected_sorting.split(" ")[3];            
+            ordering_param = ordering_param.split("_");
+            
+            set_sorting_label('Ordered by: ' + ordering_param[0] + " " + ordering_param[1] + " " + ordering_direction);
+
             alert(response['msg']);
         }).catch(function(error){
             alert(error['msg']);
@@ -139,9 +147,7 @@ function OrdersList (props){
         return(
             <div>
                 <div>
-                    <select id="SortFilter" name={'sort_filter'} value={selected_sorting} onChange={FilterProducts}>
-                        {sorting_options}
-                    </select>
+                    <h5 style={{textAlign : 'center'}}>{sorting_label}</h5>
                 </div>
                 
                 <div>
@@ -149,11 +155,41 @@ function OrdersList (props){
                         <Table className={classes.table} aria-label="simple table">
                             <TableHead>
                                 <TableRow>
-                                    <TableCell align="center">Id</TableCell>
-                                    <TableCell align="center">Created</TableCell>
-                                    <TableCell align="center">Customer</TableCell>
-                                    <TableCell align="center">Price [BGN]</TableCell>
-                                    <TableCell align="center">Paid on</TableCell>
+                                    <TableCell align="center">
+                                        Id
+                                        <select style={{marginLeft : '0.5em'}} id="SortFilter" name={'sort_filter'} value={selected_sorting} onChange={FilterProducts}>
+                                            <option key={1} value={'Sort by order_id asc'}>↗</option>
+                                            <option key={2} value={'Sort by order_id desc'}>↘</option>
+                                        </select>
+                                    </TableCell>
+                                    <TableCell align="center">
+                                        Created
+                                        <select style={{marginLeft : '0.5em'}} id="SortFilter" name={'sort_filter'} value={selected_sorting} onChange={FilterProducts}>
+                                            <option key={1} value={'Sort by order_date asc'}>↗</option>
+                                            <option key={2} value={'Sort by order_date desc'}>↘</option>
+                                        </select>
+                                    </TableCell>
+                                    <TableCell align="center">
+                                        Customer
+                                        <select style={{marginLeft : '0.5em'}} id="SortFilter" name={'sort_filter'} value={selected_sorting} onChange={FilterProducts}>
+                                            <option key={1} value={'Sort by customer_name asc'}>↗</option>
+                                            <option key={2} value={'Sort by customer_name desc'}>↘</option>
+                                        </select>
+                                    </TableCell>
+                                    <TableCell align="center">
+                                        Price [BGN]
+                                        <select style={{marginLeft : '0.5em'}} id="SortFilter" name={'sort_filter'} value={selected_sorting} onChange={FilterProducts}>
+                                            <option key={1} value={'Sort by order_total_price asc'}>↗</option>
+                                            <option key={2} value={'Sort by order_total_price desc'}>↘</option>
+                                        </select>
+                                    </TableCell>
+                                    <TableCell align="center">
+                                        Paid on
+                                        <select style={{marginLeft : '0.5em'}} id="SortFilter" name={'sort_filter'} value={selected_sorting} onChange={FilterProducts}>
+                                            <option key={1} value={'Sort by order_payment_date asc'}>↗</option>
+                                            <option key={2} value={'Sort by order_payment_date desc'}>↘</option>
+                                        </select>
+                                    </TableCell>
                                     <TableCell align="center">Payment status</TableCell>
                                     <TableCell align="center"> </TableCell>
                                 </TableRow>
