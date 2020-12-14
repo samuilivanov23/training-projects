@@ -64,7 +64,8 @@ def createTables(cur, connection):
         "date" timestamp NOT NULL DEFAULT NOW(),
         "total_price" numeric,
         "user_id" bigserial,
-        "payment_id" bigserial
+        "payment_id" bigserial,
+        "is_deleted" boolean default false
     );
 
     CREATE TABLE IF NOT EXISTS orders_products(
@@ -136,9 +137,9 @@ def createTables(cur, connection):
 
     ALTER TABLE tags_products ADD FOREIGN KEY (product_id) REFERENCES products (id) ON DELETE CASCADE;
 
-    ALTER TABLE orders_products ADD FOREIGN KEY (order_id) REFERENCES orders (id) ON DELETE CASCADE;
+    ALTER TABLE orders_products ADD FOREIGN KEY (order_id) REFERENCES orders (id);
 
-    ALTER TABLE orders_products ADD FOREIGN KEY (product_id) REFERENCES products (id) ON DELETE CASCADE;
+    ALTER TABLE orders_products ADD FOREIGN KEY (product_id) REFERENCES products (id);
 
     ''')
 

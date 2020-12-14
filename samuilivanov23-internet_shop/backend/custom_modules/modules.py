@@ -837,7 +837,7 @@ class OrdersCRUD:
                 
             sql = '''select o.id as order_id, o.date as order_date, u.first_name, u.last_name, o.total_price as order_total_price, p.pay_time as order_payment_date, p.status from orders as o
                      left join users as u on o.user_id=u.id
-                     left join payments as p on o.payment_id=p.id order by ''' + parameter + ' ' + sorting_direction + ''' offset ''' + offset + ''' limit ''' + products_per_page
+                     left join payments as p on o.payment_id=p.id where o.is_deleted=false order by ''' + parameter + ' ' + sorting_direction + ''' offset ''' + offset + ''' limit ''' + products_per_page
             cur.execute(sql, )
             orders_records = cur.fetchall()
 
@@ -857,7 +857,8 @@ class OrdersCRUD:
     
     def DeleteOrders(self, id, cur):
         try:
-            sql = 'delete from orders where id=%s'
+            sql = 'update orders set is_deleted=true where id=%s'
+            # sql = 'delete from orders where id=%s'
             cur.execute(sql, (id, ))
             response = {'status' : 'OK', 'msg' : 'Successfull'}
         except Exception as e:

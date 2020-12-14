@@ -119,21 +119,6 @@ function OrdersList (props){
     
         return rows;
     }
-
-    const GenerateSortFilters = () => {
-        const options = []
-  
-        options.push(<option key={1} value={'Sort by o.date asc'}> Sort by date (asc)</option>);
-        options.push(<option key={2} value={'Sort by o.date desc'}> Sort by date (desc)</option>);
-        options.push(<option key={3} value={'Sort by o.total_price asc'}> Sort by price (asc)</option>);
-        options.push(<option key={4} value={'Sort by o.total_price desc'}> Sort by price (desc)</option>);
-        options.push(<option key={5} value={'Sort by customer_name asc'}> Sort by customer name (asc)</option>);
-        options.push(<option key={6} value={'Sort by customer_name desc'}> Sort by customer name (desc)</option>);
-        options.push(<option key={7} value={'Sort by p.pay_time asc'}> Sort by payment date (asc)</option>);
-        options.push(<option key={8} value={'Sort by p.pay_time desc'}> Sort by payment date (desc)</option>);
-        
-        return options;
-    }
     
     if(typeof(orders) === 'undefined'){
         return(
@@ -142,7 +127,6 @@ function OrdersList (props){
     }
     else{
         const rows = generateRows();
-        const sorting_options = GenerateSortFilters();
 
         return(
             <div>
