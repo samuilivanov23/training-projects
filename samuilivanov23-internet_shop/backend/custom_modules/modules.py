@@ -75,6 +75,7 @@ class JSONParser:
                     'update_perm' : records[i][7],
                     'delete_perm' : records[i][8],
                 },
+                'inserted_at' : str(records[i][9])[:-3],
             })
 
             i+=1
@@ -522,8 +523,8 @@ class EmployeesCRUD:
                 else:
                     parameter = 'e.first_name desc, e.last_name'
 
-            sql ='''select e.id, e.first_name, e.last_name, e.email_address, r.name, 
-                    p.create_perm, p.read_perm, p.update_perm, p.delete_perm 
+            sql ='''select e.id as employee_id, e.first_name, e.last_name, e.email_address as email_address, r.name as role_name, 
+                    p.create_perm, p.read_perm, p.update_perm, p.delete_perm, e.inserted_at as inserted_at 
                     from employees as e join roles as r on e.role_id=r.id 
                     join permissions as p on r.permission_id=p.id order by ''' + parameter + ' ' + sorting_direction + ''' offset ''' + offset + ''' limit ''' + products_per_page
             cur.execute(sql, )

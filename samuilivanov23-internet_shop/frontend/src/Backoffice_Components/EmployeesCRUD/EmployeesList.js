@@ -19,9 +19,10 @@ import Paper from '@material-ui/core/Paper';
 function EmployeesList (props){
 
     const [employees, set_employees] = useState([]);
-    const [selected_sorting, set_selected_sorting] = useState('Sort by customer_name asc');
+    const [selected_sorting, set_selected_sorting] = useState('Sort by employee_id asc');
     const [pages_count, set_pages_count] = useState(0);
     const [current_page, set_current_page] = useState(0);
+    const [sorting_label, set_sorting_label] = useState('employee id asc')
     const { employeeInfo } = useSelector(state=>state.employee);
     const dispatch = useDispatch();
 
@@ -43,6 +44,13 @@ function EmployeesList (props){
             set_employees(response['employees']);
             set_pages_count(response['pages_count']);
             set_selected_sorting(selected_sorting);
+
+            let ordering_param = selected_sorting.split(" ")[2];
+            let ordering_direction = selected_sorting.split(" ")[3];            
+            ordering_param = ordering_param.split("_");
+            
+            set_sorting_label('Ordered by: ' + ordering_param[0] + " " + ordering_param[1] + " " + ordering_direction);
+
             alert(response['msg']);
         }).catch(function(error){
             alert(error['msg']);
@@ -111,34 +119,19 @@ function EmployeesList (props){
 
     const classes = useStyles();
     
-    const createData = (employee_id, employee_first_name, employee_last_name, employee_email_address, employee_role_name, employee_permissions) => {
-        return { employee_id, employee_first_name, employee_last_name, employee_email_address, employee_role_name, employee_permissions };
+    const createData = (employee_id, employee_first_name, employee_last_name, employee_email_address, employee_role_name, employee_permissions, employee_inserted_at) => {
+        return { employee_id, employee_first_name, employee_last_name, employee_email_address, employee_role_name, employee_permissions, employee_inserted_at };
     }
 
     const generateRows = () => {
         const rows = []
-        
-        console.log(employees);
 
         employees.forEach(employee => {
-            rows.push(createData(employee['id'], employee['first_name'], employee['last_name'], employee['email_address'], employee['role_name'], employee['permissions']))
+            rows.push(createData(employee['id'], employee['first_name'], employee['last_name'], employee['email_address'], employee['role_name'], employee['permissions'], employee['inserted_at']))
         });
     
         return rows;
     }
-
-    const GenerateSortFilters = () => {
-        const options = []
-  
-        options.push(<option key={1} value={'Sort by customer_name asc'}> Sort by name (asc)</option>);
-        options.push(<option key={2} value={'Sort by customer_name desc'}> Sort by name (desc)</option>);
-        options.push(<option key={3} value={'Sort by e.email_address asc'}> Sort by email (asc)</option>);
-        options.push(<option key={4} value={'Sort by e.email_address desc'}> Sort by email (desc)</option>);
-        options.push(<option key={7} value={'Sort by r.name asc'}> Sort by role (asc)</option>);
-        options.push(<option key={8} value={'Sort by r.name desc'}> Sort by role (desc)</option>);
-        
-        return options;
-    } 
 
     if(typeof(employees) === 'undefined'){
         return(
@@ -147,14 +140,11 @@ function EmployeesList (props){
     }    
     else{
         const rows = generateRows();
-        const sorting_options = GenerateSortFilters();
 
         return(
             <div>
-                <div>
-                    <select id="SortFilter" name={'sort_filter'} value={selected_sorting} onChange={FilterProducts}>
-                        {sorting_options}
-                    </select>
+                <div style={{textAlign : 'center'}}>
+                    <h5>{sorting_label}</h5>
                 </div>
 
                 <div>
@@ -162,10 +152,41 @@ function EmployeesList (props){
                         <Table className={classes.table} aria-label="simple table">
                             <TableHead>
                                 <TableRow>
-                                    <TableCell align="center">Id</TableCell>
-                                    <TableCell align="center">Name</TableCell>
-                                    <TableCell align="center">Email</TableCell>
-                                    <TableCell align="center">Role</TableCell>
+                                    <TableCell align="center">
+                                        Id
+                                        <select style={{marginLeft : '0.5em'}} id="SortFilter" name={'sort_filter'} value={selected_sorting} onChange={FilterProducts}>
+                                            <option key={1} value={'Sort by employee_id asc'}>↗</option>
+                                            <option key={2} value={'Sort by employee_id desc'}>↘</option>
+                                        </select>
+                                    </TableCell>
+                                    <TableCell align="center">
+                                        Inserted
+                                        <select style={{marginLeft : '0.5em'}} id="SortFilter" name={'sort_filter'} value={selected_sorting} onChange={FilterProducts}>
+                                            <option key={1} value={'Sort by inserted_at asc'}>↗</option>
+                                            <option key={2} value={'Sort by inserted_at desc'}>↘</option>
+                                        </select>
+                                    </TableCell>
+                                    <TableCell align="center">
+                                        Name
+                                        <select style={{marginLeft : '0.5em'}} id="SortFilter" name={'sort_filter'} value={selected_sorting} onChange={FilterProducts}>
+                                            <option key={1} value={'Sort by customer_name asc'}>↗</option>
+                                            <option key={2} value={'Sort by customer_name desc'}>↘</option>
+                                        </select>
+                                    </TableCell>
+                                    <TableCell align="center">
+                                        Email
+                                        <select style={{marginLeft : '0.5em'}} id="SortFilter" name={'sort_filter'} value={selected_sorting} onChange={FilterProducts}>
+                                            <option key={1} value={'Sort by email_address asc'}>↗</option>
+                                            <option key={2} value={'Sort by email_address desc'}>↘</option>
+                                        </select>
+                                    </TableCell>
+                                    <TableCell align="center">
+                                        Role
+                                        <select style={{marginLeft : '0.5em'}} id="SortFilter" name={'sort_filter'} value={selected_sorting} onChange={FilterProducts}>
+                                            <option key={1} value={'Sort by role_name asc'}>↗</option>
+                                            <option key={2} value={'Sort by role_name desc'}>↘</option>
+                                        </select>
+                                    </TableCell>
                                     <TableCell align="center"> </TableCell>
                                 </TableRow>
                             </TableHead>
@@ -173,14 +194,15 @@ function EmployeesList (props){
                                 {rows.map((row, idx) => (
                                     <TableRow key={idx}>
                                         <TableCell component="th" scope="row" align="center">{row.employee_id}</TableCell>
+                                        <TableCell align="center">{row.employee_inserted_at}</TableCell>
                                         <TableCell align="center">{row.employee_first_name} {row.employee_last_name}</TableCell>
                                         <TableCell align="center">{row.employee_email_address}</TableCell>
                                         <TableCell align="center">{row.employee_role_name}</TableCell>
                                         <TableCell align="center">
-                                            {(employeeInfo.permissions.update_perm) 
+                                            {(employeeInfo.permissions.update_perm)
                                             ?   <Button variant="light" className={'crud-buttons-style ml-auto'}>
                                                     <Link style={{color:'white'}} to={`/backoffice/employees/update/${row.employee_id}`} onClick={() => getCurrentEmployee(row)}>
-                                                        <img 
+                                                        <img
                                                         src='https://p7.hiclipart.com/preview/9/467/583/computer-icons-tango-desktop-project-download-clip-art-update-button.jpg'
                                                         alt="Update employee"
                                                         className={'image-btnstyle'}
