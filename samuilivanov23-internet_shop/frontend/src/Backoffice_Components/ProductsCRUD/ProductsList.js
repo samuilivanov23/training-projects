@@ -2,7 +2,7 @@ import '../../App.css';
 import React from 'react';
 import JsonRpcClient from 'react-jsonrpc-client';
 import { useState, useEffect } from 'react';
-import { Button } from 'react-bootstrap';
+import { Form, Button } from 'react-bootstrap';
 import { SetProductToUpdateDetails } from '../../Components/actions/ProductActions';
 import ReactPaginate from '../../../node_modules/react-paginate'
 import { useSelector, useDispatch } from 'react-redux';
@@ -18,6 +18,7 @@ import Paper from '@material-ui/core/Paper';
 
 function ProductsList (props){
 
+    const [validated, setValidated] = useState(false);
     const [products, set_products] = useState([]);
     const [selected_sorting, set_selected_sorting] = useState('Sort by product_id asc');
     const [pages_count, set_pages_count] = useState(0);
@@ -100,6 +101,27 @@ function ProductsList (props){
         window.scrollTo(0, 0);
     }
 
+    const handleSubmit = (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const form_data = event.currentTarget;
+
+        if (form_data.checkValidity() === false) {
+            alert('Plese fill all input fileds!');
+        }
+        else{
+            console.log('Creating product');
+            insertProduct(form_data.name.value,
+                        form_data.description.value,
+                        form_data.count.value,
+                        form_data.price.value,
+                        form_data.manufacturer_name.value);
+        }
+
+        setValidated(true);
+    };
+
     const useStyles = makeStyles({
         table: {
             minWidth: 650,
@@ -133,6 +155,81 @@ function ProductsList (props){
         return(
             <div>
                 <div>
+                    <Form noValidate validated={validated} onSubmit={handleSubmit} className={'form-center'}>
+                        <Form.Label>Name</Form.Label>
+                        <Form.Control
+                            required
+                            type="text"
+                            name="name"
+                            placeholder="Name"
+                            defaultValue=""
+                        />
+                        <Form.Text> Use characters [A-Z]/[a-z] </Form.Text>
+                        <Form.Control.Feedback>Looks good!</Form.Control.Feedback>
+                        <Form.Control.Feedback type="invalid">
+                            Please enter Name.
+                        </Form.Control.Feedback>
+                        <br/>
+                        <br/>
+
+
+                        <Form.Label>Quantity</Form.Label>
+                        <Form.Control
+                            required
+                            type="text"
+                            name="count"
+                            placeholder="Quantity"
+                            defaultValue=""
+                        />
+                        <Form.Text> Integer </Form.Text>
+                        <Form.Control.Feedback>Looks good!</Form.Control.Feedback>
+                        <Form.Control.Feedback type="invalid">
+                            Please enter Quantity.
+                        </Form.Control.Feedback>
+                        <br/>
+                        <br/>
+        
+        
+        
+                        <Form.Label>Price</Form.Label>
+                        <Form.Control
+                            required
+                            type="text"
+                            name="price"
+                            placeholder="Price"
+                            defaultValue=""
+                        />
+                        <Form.Text> 2 floating point digits (For instance: 19.99) </Form.Text>
+                        <Form.Control.Feedback>Looks good!</Form.Control.Feedback>
+                        <Form.Control.Feedback type="invalid">
+                            Please enter Price.
+                        </Form.Control.Feedback>
+                        <br/>
+                        <br/>
+
+                        <Form.Label>Manufacturer name</Form.Label>
+                        <Form.Control
+                            required
+                            type="text"
+                            name="manufacturer_name"
+                            placeholder="Manufacturer name"
+                            defaultValue=""
+                        />
+                        <Form.Text> Use characters [A-Z]/[a-z] </Form.Text>
+                        <Form.Control.Feedback>Looks good!</Form.Control.Feedback>
+                        <Form.Control.Feedback type="invalid">
+                            Please enter Manufacturer name.
+                        </Form.Control.Feedback>
+                        <br/>
+                        <br/>
+        
+                        <Button variant="primary" type="submit">
+                            Filter product
+                        </Button>
+                    </Form>
+                </div>
+                
+                <div>
                    <h5 style={{textAlign : 'center'}}>{sorting_label}</h5>
                 </div>
 
@@ -163,7 +260,7 @@ function ProductsList (props){
                                             <option key={2} value={'Sort by product_name desc'}>↘</option>
                                         </select>
                                     </TableCell>
-                                    <TableCell align="center">Description</TableCell>
+                                    <TableCell align="center" style={{maxWidth: "8em"}}>Description</TableCell>
                                     <TableCell align="center">
                                         Quantity in stock
                                         <select style={{marginLeft : '0.5em'}} id="SortFilter" name={'sort_filter'} value={selected_sorting} onChange={FilterProducts}>
@@ -202,7 +299,7 @@ function ProductsList (props){
                                         </TableCell>
                                         
                                         <TableCell align="center">{row.product_name}</TableCell>
-                                        <TableCell align="center">{row.product_description}</TableCell>
+                                        <TableCell align="center" style={{maxWidth: "8em"}}>{row.product_description}</TableCell>
                                         <TableCell align="center">{row.product_count}</TableCell>
                                         <TableCell align="center">{row.product_price}</TableCell>
                                         <TableCell align="center">{row.product_manufacturer_name}</TableCell>

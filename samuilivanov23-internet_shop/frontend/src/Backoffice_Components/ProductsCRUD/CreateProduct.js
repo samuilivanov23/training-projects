@@ -42,8 +42,7 @@ function CreateProduct(props){
             alert('Plese fill all input fileds!');
         }
         else{
-            console.log('Creating employee');
-            
+            console.log('Creating product');
             insertProduct(form_data.name.value,
                         form_data.description.value,
                         form_data.count.value,
@@ -151,6 +150,7 @@ function CreateProduct(props){
                         placeholder="Quantity"
                         defaultValue=""
                     />
+                    <Form.Text> Integer </Form.Text>
                     <Form.Control.Feedback>Looks good!</Form.Control.Feedback>
                     <Form.Control.Feedback type="invalid">
                         Please enter Quantity.
@@ -168,6 +168,7 @@ function CreateProduct(props){
                         placeholder="Price"
                         defaultValue=""
                     />
+                    <Form.Text> 2 floating point digits (For instance: 19.99) </Form.Text>
                     <Form.Control.Feedback>Looks good!</Form.Control.Feedback>
                     <Form.Control.Feedback type="invalid">
                         Please enter Price.
@@ -180,7 +181,7 @@ function CreateProduct(props){
                     <Form.Label>Image</Form.Label>
                     <Form.Control
                         required
-                        type="image_name"
+                        type="text"
                         name="image_name"
                         placeholder="Image"
                         defaultValue=""

@@ -264,7 +264,7 @@ def GetProductsBackoffice(selected_sorting, current_page):
     return response
 
 @rpc_method
-def CreateProduct(name, description, count, price, image_name, manufacturer_id):    
+def CreateProduct(name, description, count, price, image_name, manufacturer_id):
     #Connect to database
     try:
         connection = psycopg2.connect("dbname='" + onlineShop_dbname + 

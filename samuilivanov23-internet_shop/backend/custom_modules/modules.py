@@ -526,7 +526,7 @@ class EmployeesCRUD:
             sql ='''select e.id as employee_id, e.first_name, e.last_name, e.email_address as email_address, r.name as role_name, 
                     p.create_perm, p.read_perm, p.update_perm, p.delete_perm, e.inserted_at as inserted_at 
                     from employees as e join roles as r on e.role_id=r.id 
-                    join permissions as p on r.permission_id=p.id order by ''' + parameter + ' ' + sorting_direction + ''' offset ''' + offset + ''' limit ''' + products_per_page
+                    join permissions as p on r.permission_id=p.id where e.is_deleted=false order by ''' + parameter + ' ' + sorting_direction + ''' offset ''' + offset + ''' limit ''' + products_per_page
             cur.execute(sql, )
             employees_records = cur.fetchall()
 
@@ -703,7 +703,8 @@ class EmployeesCRUD:
     def Delete(self, id, cur):
         # delete employee
         try:
-            sql = 'delete from employees where id=%s'
+            sql = 'update employees set is_deleted=true where id=%s'
+            #sql = 'delete from employees where id=%s'
             cur.execute(sql, (id, ))
             response = {'status' : 'OK', 'msg' : 'Successfull'}
         except Exception as e:
@@ -724,7 +725,7 @@ class ProductsCRUD:
             parameter, sorting_direction = filterParser.ParseSortFilter(selected_sorting)
 
             sql =  '''select p.id as product_id, p.name as product_name, p.description, m.name as manufacturer_name, m.id, p.count as product_count, p.price as product_price, p.image_name, p.inserted_at as inserted_at from products as p 
-                    join manufacturers as m on p.manufacturer_id=m.id order by ''' + parameter + ' ' + sorting_direction + ''' offset ''' + offset + ''' limit ''' + products_per_page
+                    join manufacturers as m on p.manufacturer_id=m.id where p.is_deleted=false order by ''' + parameter + ' ' + sorting_direction + ''' offset ''' + offset + ''' limit ''' + products_per_page
             cur.execute(sql, )
             products_records = cur.fetchall()
 
@@ -770,7 +771,7 @@ class ProductsCRUD:
 
     def DeleteProduct(self, id, cur):
         try:
-            sql = 'delete from products where id=%s'
+            sql = 'update products set is_deleted=true where id=%s'
             cur.execute(sql, (id, ))
             response = {'status' : 'OK', 'msg' : 'Successfull'}
         except Exception as e:
@@ -858,7 +859,6 @@ class OrdersCRUD:
     def DeleteOrders(self, id, cur):
         try:
             sql = 'update orders set is_deleted=true where id=%s'
-            # sql = 'delete from orders where id=%s'
             cur.execute(sql, (id, ))
             response = {'status' : 'OK', 'msg' : 'Successfull'}
         except Exception as e:
