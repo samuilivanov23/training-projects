@@ -1,4 +1,4 @@
-function employeeReducer(state = [], action){
+function employeeReducer(state = {}, action){
     switch(action.type){
         case 'EMPLOYEE_SIGNIN':
             return { employeeInfo : action.data };
@@ -11,7 +11,7 @@ function employeeReducer(state = [], action){
     }
 };
 
-function employeeUpdateReducer(state=[], action){
+function employeeUpdateReducer(state = {}, action){
     switch(action.type){
         case 'SET_EMPLOYEE_TO_UPDATE_DETAILS':
             return { employeeToUpdateInfo : action.data};
