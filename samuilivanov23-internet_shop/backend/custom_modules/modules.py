@@ -374,10 +374,35 @@ class FiltersParser:
     def __init__(self):
         pass
 
-    def ParseSortFilter(self, filter):
-        filter_request = filter.split(' ')
-        return filter_request[2], filter_request[3]
+    def ParseSortFilter(self, sorting_params):
+        sorting_request = sorting_params.split(' ')
+        return sorting_request[2], sorting_request[3]
     
+    def GenerateSqlOnFilters(self, filtering_params, sorting_parameter, sorting_direction, offset, products_per_page):
+        print(filtering_params)
+
+        sql_start = '''select p.id as product_id, p.name as product_name, p.description, m.name as manufacturer_name, m.id, p.count as product_count, p.price as product_price, p.image_name, p.inserted_at as inserted_at from products as p 
+                        join manufacturers as m on p.manufacturer_id=m.id where p.is_deleted=false '''
+        
+        filters_dict = {"p.name" : filtering_params[0], "p.count" : filtering_params[1], "p.price" : filtering_params[2], "m.name" : filtering_params[3]}
+        sql_filters = ""
+        sql_execution_params = []
+
+        for key in filters_dict:
+            if type(filters_dict[key]) is list: # => range restrictions for price/quantity
+                sql_filters += "and " + key + ">=%s and " + key + "<=%s "
+                sql_execution_params.append(filters_dict[key][0])
+                sql_execution_params.append(filters_dict[key][1])
+            elif not filters_dict[key] == '':
+                sql_filters += "and " + key + "=%s "
+                sql_execution_params.append(filters_dict[key])
+
+        sql_sorting = '''order by ''' + sorting_parameter + ' ' + sorting_direction + ''' offset ''' + offset + ''' limit ''' + products_per_page
+
+        sql = sql_start + sql_filters + sql_sorting
+        return sql, sql_execution_params
+
+
 class Payment: 
     def __init__(self):
         pass
@@ -429,7 +454,7 @@ class Payment:
     def EncodePaymentRequestData(self, invoice, total_price, description):
         min = 'D520908428'
         amount = str(total_price)
-        exp_time = '09.12.2020'
+        exp_time = '16.12.2020'
         descr = description
 
         data = '''MIN=''' + min + '''
@@ -532,8 +557,8 @@ class EmployeesCRUD:
 
             sql = 'select count(*) from employees'
             cur.execute(sql, )
-            all_products_count = cur.fetchone()[0]
-            pages_count = math.ceil(all_products_count / int(products_per_page))
+            employees_count = cur.fetchone()[0]
+            pages_count = math.ceil(employees_count / int(products_per_page))
 
             try:
                 jsonParser = JSONParser()
@@ -717,27 +742,40 @@ class ProductsCRUD:
     def __init__(self):
         pass
 
-    def ReadProducts(self, selected_sorting, offset, products_per_page, cur):
+    def ReadProducts(self, selected_sorting, offset, products_per_page, filtering_params, cur):
         try:
             filterParser = FiltersParser()
             #parameter: name/price/quantity...
             #direction: asc/desc
-            parameter, sorting_direction = filterParser.ParseSortFilter(selected_sorting)
+            sorting_parameter, sorting_direction = filterParser.ParseSortFilter(selected_sorting)
+            
+            if filtering_params:
+                print('TODO generate sql based on filters')
+                sql, sql_execution_params = filterParser.GenerateSqlOnFilters(filtering_params, sorting_parameter, sorting_direction, offset, products_per_page)
+                print(sql)
+                print(sql_execution_params)
+                cur.execute(sql, sql_execution_params)
+            else:
+                sql =  '''select p.id as product_id, p.name as product_name, p.description, m.name as manufacturer_name, m.id, p.count as product_count, p.price as product_price, p.image_name, p.inserted_at as inserted_at from products as p 
+                        join manufacturers as m on p.manufacturer_id=m.id where p.is_deleted=false order by ''' + sorting_parameter + ' ' + sorting_direction + ''' offset ''' + offset + ''' limit ''' + products_per_page
+                cur.execute(sql, )
+                print(sql)
 
-            sql =  '''select p.id as product_id, p.name as product_name, p.description, m.name as manufacturer_name, m.id, p.count as product_count, p.price as product_price, p.image_name, p.inserted_at as inserted_at from products as p 
-                    join manufacturers as m on p.manufacturer_id=m.id where p.is_deleted=false order by ''' + parameter + ' ' + sorting_direction + ''' offset ''' + offset + ''' limit ''' + products_per_page
-            cur.execute(sql, )
             products_records = cur.fetchall()
 
-            sql = 'select count(*) from products'
+            sql = 'select count(*), max(count), max(price) from products'
             cur.execute(sql, )
-            all_products_count = cur.fetchone()[0]
-            pages_count = math.ceil(all_products_count / int(products_per_page))
+            aggregated_data = cur.fetchone()
+            products_count = aggregated_data[0]
+            max_quantity_instock = aggregated_data[1]
+            max_price = float(aggregated_data[2])
+
+            pages_count = math.ceil(products_count / int(products_per_page))
 
             try:
                 productsJSONServer = JSONParser()
                 products_json = productsJSONServer.GetAllProductsBackofficeJSON(products_records)
-                response = {'status' : 'OK', 'msg' : 'Successfull', 'products' : products_json, 'pages_count' : pages_count}
+                response = {'status' : 'OK', 'msg' : 'Successfull', 'products' : products_json, 'pages_count' : pages_count, 'max_quantity_instock' : max_quantity_instock, 'max_price' : max_price}
             except Exception as e: #=> no products in database
                 print(e)
                 response = {'status' : 'Fail', 'msg' : 'No products in database', 'products' : []}
@@ -751,6 +789,7 @@ class ProductsCRUD:
         try:
             sql = 'insert into products (name, description, count, price, image_name, manufacturer_id) values(%s, %s, %s, %s, %s, %s)'
             cur.execute(sql, (name, description, count, price, image_name, manufacturer_id))
+                        
             response = {'status' : 'OK', 'msg' : 'Successfull'}
         except Exception as e:
             print(e)
@@ -844,8 +883,8 @@ class OrdersCRUD:
 
             sql = 'select count(*) from orders'
             cur.execute(sql, )
-            all_products_count = cur.fetchone()[0]
-            pages_count = math.ceil(all_products_count / int(products_per_page))
+            orders_count = cur.fetchone()[0]
+            pages_count = math.ceil(orders_count / int(products_per_page))
 
             jsonParser = JSONParser()
             orders_json = jsonParser.GetAllOrdersJSON(orders_records)

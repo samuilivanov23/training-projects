@@ -240,7 +240,7 @@ def DeleteEmployee(id):
     return response
 
 @rpc_method
-def GetProductsBackoffice(selected_sorting, current_page):
+def GetProductsBackoffice(selected_sorting, current_page, filtering_params):
     #Connect to database
     try:
         connection = psycopg2.connect("dbname='" + onlineShop_dbname + 
@@ -254,7 +254,7 @@ def GetProductsBackoffice(selected_sorting, current_page):
     
     products_per_page = 20
     offset = current_page * products_per_page
-    response = productsCRUD.ReadProducts(selected_sorting, str(offset), str(products_per_page), cur)
+    response = productsCRUD.ReadProducts(selected_sorting, str(offset), str(products_per_page), filtering_params, cur)
 
     if connection:
         cur.close()

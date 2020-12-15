@@ -15,6 +15,8 @@ import TableContainer from '@material-ui/core/TableContainer';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import Paper from '@material-ui/core/Paper';
+import Slider from '@material-ui/core/Slider';
+import Typography from '@material-ui/core/Typography';
 
 function ProductsList (props){
 
@@ -24,15 +26,19 @@ function ProductsList (props){
     const [pages_count, set_pages_count] = useState(0);
     const [current_page, set_current_page] = useState(0);
     const [sorting_label, set_sorting_label] = useState('product id asc')
+    const [quantity_slider, set_quantity_slider] = useState([]);
+    const [price_slider, set_price_slider] = useState([]);
+    const [max_quantity, set_max_quantity] = useState(0);
+    const [max_price, set_max_price] = useState(0);
     const { employeeInfo } = useSelector(state=>state.employee);
     const dispatch = useDispatch();
 
     useEffect(() => {
         //current page is 0 when the component first loads
-        loadProducts(current_page, selected_sorting);
+        loadProducts(current_page, selected_sorting, []);
     }, [])
 
-    const loadProducts = (current_page, selected_sorting) => {
+    const loadProducts = (current_page, selected_sorting, filtering_params) => {
         const django_rpc = new JsonRpcClient({
             endpoint : 'http://127.0.0.1:8000/backoffice/rpc/',
         });
@@ -41,11 +47,16 @@ function ProductsList (props){
             'GetProductsBackoffice',
             selected_sorting,
             current_page,
+            filtering_params,
         ).then(function(response){
             response = JSON.parse(response);
             set_products(response['products']);
             set_pages_count(response['pages_count']);
             set_selected_sorting(selected_sorting);
+            set_quantity_slider([0, response['max_quantity_instock']]);
+            set_price_slider([0, response['max_price']]);
+            set_max_quantity(response['max_quantity_instock'])
+            set_max_price(response['max_price']);
 
             let ordering_param = selected_sorting.split(" ")[2];
             let ordering_direction = selected_sorting.split(" ")[3];            
@@ -82,41 +93,48 @@ function ProductsList (props){
         ).then(function(response){
             response = JSON.parse(response);
             alert(response['msg']);
-            loadProducts(current_page, selected_sorting);
+            loadProducts(current_page, selected_sorting, []);
         }).catch(function(error){
             alert(error['msg']);
         });
     }
 
-    const FilterProducts = (event) => {
-        console.log(event);
-        const filter = event.target.value;
-        loadProducts(current_page, filter);
+    const SortProducts = (event) => {
+        const sort_filter = event.target.value;
+        loadProducts(current_page, sort_filter, []);
+    }
+
+    const handleQuantitySliderChange = (event, newValie) => {
+        set_quantity_slider(newValie);
+    }
+
+    const handlePriceSliderChange = (event, newValie) => {
+        set_price_slider(newValie);
     }
 
     const handlePageClick = (products) => {
         let page_number = products.selected;
-        loadProducts(page_number, selected_sorting);
+        loadProducts(page_number, selected_sorting, []);
         set_current_page(page_number);
         window.scrollTo(0, 0);
     }
 
-    const handleSubmit = (event) => {
+    const handleFiltering = (event) => {
         event.preventDefault();
         event.stopPropagation();
 
         const form_data = event.currentTarget;
 
         if (form_data.checkValidity() === false) {
-            alert('Plese fill all input fileds!');
+            alert('Plese fill the input fileds!');
         }
         else{
-            console.log('Creating product');
-            // insertProduct(form_data.name.value,
-            //             form_data.description.value,
-            //             form_data.count.value,
-            //             form_data.price.value,
-            //             form_data.manufacturer_name.value);
+            loadProducts(current_page, selected_sorting, [
+                form_data.name.value,
+                quantity_slider,
+                price_slider,
+                form_data.manufacturer_name.value
+            ]);
         }
 
         setValidated(true);
@@ -155,12 +173,11 @@ function ProductsList (props){
         return(
             <div>
                 <div>
-                    <Form noValidate validated={validated} onSubmit={handleSubmit} style={{marginBottom : '2em', marginLeft : '2em'}}>
+                    <Form noValidate validated={validated} onSubmit={handleFiltering} style={{marginBottom : '2em', marginLeft : '2em'}}>
                         <Row>
                             <Col>
                                 <Form.Label>Name</Form.Label>
                                 <Form.Control
-                                    required
                                     type="text"
                                     name="name"
                                     placeholder="Name"
@@ -174,41 +191,37 @@ function ProductsList (props){
                             </Col>
 
                             <Col>
-                                <Form.Label>Quantity</Form.Label>
-                                <Form.Control
-                                    required
-                                    type="text"
-                                    name="count"
-                                    placeholder="Quantity"
-                                    defaultValue=""
+                                <Typography id="discrete-slider-small-steps" gutterBottom>
+                                    Quantity
+                                </Typography>
+                                <Slider
+                                    value={quantity_slider}
+                                    min={0}
+                                    max={max_quantity}
+                                    onChange={handleQuantitySliderChange}
+                                    valueLabelDisplay="auto"
+                                    aria-labelledby="range-slider"
                                 />
-                                <Form.Text> Integer </Form.Text>
-                                <Form.Control.Feedback>Looks good!</Form.Control.Feedback>
-                                <Form.Control.Feedback type="invalid">
-                                    Please enter Quantity.
-                                </Form.Control.Feedback>
                             </Col>
 
                             <Col>
-                                <Form.Label>Price</Form.Label>
-                                <Form.Control
-                                    required
-                                    type="text"
-                                    name="price"
-                                    placeholder="Price"
-                                    defaultValue=""
+                                <Typography id="discrete-slider-small-steps" gutterBottom>
+                                    Price [BGN]
+                                </Typography>
+                                <Slider
+                                    value={price_slider}
+                                    min={0}
+                                    step={0.01}
+                                    max={max_price}
+                                    onChange={handlePriceSliderChange}
+                                    valueLabelDisplay="auto"
+                                    aria-labelledby="range-slider"
                                 />
-                                <Form.Text> 2 floating point digits (For instance: 19.99) </Form.Text>
-                                <Form.Control.Feedback>Looks good!</Form.Control.Feedback>
-                                <Form.Control.Feedback type="invalid">
-                                    Please enter Price.
-                                </Form.Control.Feedback>
                             </Col>
 
                             <Col>
                                 <Form.Label>Manufacturer name</Form.Label>
                                 <Form.Control
-                                    required
                                     type="text"
                                     name="manufacturer_name"
                                     placeholder="Manufacturer name"
@@ -241,14 +254,14 @@ function ProductsList (props){
                                 <TableRow>
                                     <TableCell align="center">
                                         Id
-                                        <select style={{marginLeft : '0.5em'}} id="SortFilter" name={'sort_filter'} value={selected_sorting} onChange={FilterProducts}>
+                                        <select style={{marginLeft : '0.5em'}} id="SortFilter" name={'sort_filter'} value={selected_sorting} onChange={SortProducts}>
                                             <option key={1} value={'Sort by product_id asc'}>↗</option>
                                             <option key={2} value={'Sort by product_id desc'}>↘</option>
                                         </select>
                                     </TableCell>
                                     <TableCell align="center">
                                         Inserted
-                                        <select style={{marginLeft : '0.5em'}} id="SortFilter" name={'sort_filter'} value={selected_sorting} onChange={FilterProducts}>
+                                        <select style={{marginLeft : '0.5em'}} id="SortFilter" name={'sort_filter'} value={selected_sorting} onChange={SortProducts}>
                                             <option key={1} value={'Sort by inserted_at asc'}>↗</option>
                                             <option key={2} value={'Sort by inserted_at desc'}>↘</option>
                                         </select>
@@ -256,7 +269,7 @@ function ProductsList (props){
                                     <TableCell align="center">Image</TableCell>
                                     <TableCell align="center">
                                         Name
-                                        <select style={{marginLeft : '0.5em'}} id="SortFilter" name={'sort_filter'} value={selected_sorting} onChange={FilterProducts}>
+                                        <select style={{marginLeft : '0.5em'}} id="SortFilter" name={'sort_filter'} value={selected_sorting} onChange={SortProducts}>
                                             <option key={1} value={'Sort by product_name asc'}>↗</option>
                                             <option key={2} value={'Sort by product_name desc'}>↘</option>
                                         </select>
@@ -264,21 +277,21 @@ function ProductsList (props){
                                     <TableCell align="center" style={{maxWidth: "8em"}}>Description</TableCell>
                                     <TableCell align="center">
                                         Quantity in stock
-                                        <select style={{marginLeft : '0.5em'}} id="SortFilter" name={'sort_filter'} value={selected_sorting} onChange={FilterProducts}>
+                                        <select style={{marginLeft : '0.5em'}} id="SortFilter" name={'sort_filter'} value={selected_sorting} onChange={SortProducts}>
                                             <option key={1} value={'Sort by product_count asc'}>↗</option>
                                             <option key={2} value={'Sort by product_count desc'}>↘</option>
                                         </select>
                                     </TableCell>
                                     <TableCell align="center">
                                         Price [BGN]
-                                        <select style={{marginLeft : '0.5em'}} id="SortFilter" name={'sort_filter'} value={selected_sorting} onChange={FilterProducts}>
+                                        <select style={{marginLeft : '0.5em'}} id="SortFilter" name={'sort_filter'} value={selected_sorting} onChange={SortProducts}>
                                             <option key={1} value={'Sort by product_price asc'}>↗</option>
                                             <option key={2} value={'Sort by product_price desc'}>↘</option>
                                         </select>
                                     </TableCell>
                                     <TableCell align="center">
                                         Manufacturer
-                                        <select style={{marginLeft : '0.5em'}} id="SortFilter" name={'sort_filter'} value={selected_sorting} onChange={FilterProducts}>
+                                        <select style={{marginLeft : '0.5em'}} id="SortFilter" name={'sort_filter'} value={selected_sorting} onChange={SortProducts}>
                                             <option key={1} value={'Sort by manufacturer_name asc'}>↗</option>
                                             <option key={2} value={'Sort by manufacturer_name desc'}>↘</option>
                                         </select>
