@@ -2,6 +2,8 @@ import psycopg2
 from internet_shop.dbconfig import onlineShop_dbname, onlineShop_dbuser, onlineShop_dbpassword, salt, admin_pass
 import random, string
 import custom_modules.modules as modules
+import threading
+
 dbOperator = modules.DbOperations()
 
 def createTables(cur, connection):    
@@ -16,7 +18,7 @@ def createTables(cur, connection):
         "email_address" text UNIQUE,
         "password" text,
         "salt" text,
-        "authenticated" boolean,
+        "authenticated" boolean default false,
         "cart_id" bigserial UNIQUE
     );
 
@@ -89,7 +91,7 @@ def createTables(cur, connection):
         "inserted_at" timestamp NOT NULL DEFAULT NOW(),
         "first_name" text,
         "last_name" text,
-        "email_address" text,
+        "email_address" text UNIQUE,
         "password" text,
         "role_id" int
     );
@@ -163,33 +165,96 @@ def createTables(cur, connection):
         if connection is not None:
             connection.close()
 
-def loadData(cur, connection):
-    rows_count = 100
-    manufacturers_names = dbOperator.GenerateRandomNames(rows_count)
-    products_names = dbOperator.GenerateRandomNames(rows_count)
-    descriptions = dbOperator.GenerateRandomDescriptions(rows_count)
-    image_names = dbOperator.GenerateImages(rows_count, 280, 180)
+def loadData(cur, connection, rows):
+    rows_count = rows
+    #manufacturers_names = dbOperator.GenerateRandomNames(rows_count)
+    #products_names = dbOperator.GenerateRandomNames(rows_count)
+    #descriptions = dbOperator.GenerateRandomDescriptions(rows_count)
+    #image_names = dbOperator.GenerateImages(rows_count, 280, 180)
 
-    for i in range(rows_count):
-        try:
-            sql = 'insert into manufacturers (name) values(%s) RETURNING id'
-            cur.execute(sql, (manufacturers_names[i], ))
-            manufacturer_id = cur.fetchone()[0]
-        except Exception as e:
-            print(e)
+    product_letters = string.ascii_lowercase
+    description_letters = string.ascii_lowercase + ' '
+
+    for _ in range(rows_count):
+        # try:
+        #     sql = 'insert into manufacturers (name) values(%s) RETURNING id'
+        #     cur.execute(sql, (manufacturers_names[i], ))
+        #     manufacturer_id = cur.fetchone()[0]
+        # except Exception as e:
+        #     print(e)
         
         try:
             sql = 'insert into products (name, description, manufacturer_id, count, price, image_name) values(%s, %s, %s, %s, %s, %s)'
             
-            product_name = products_names[i]
-            product_description = descriptions[i]
+            product_name_length = random.randint(5, 10)
+            product_name = ''.join(random.choice(product_letters) for i in range(product_name_length))
+
+            description_length = random.randint(30, 40)
+            product_description = ''.join(random.choice(description_letters) for i in range(description_length))
+
+            #product_name = products_names[i]
+            #product_description = descriptions[i]
             product_count = random.randint(1, 20)
             product_price = round(random.uniform(50, 500), 2)
-            image_name = image_names[i]
+            image_name = "gopro.png"
+            manufacturer_id = random.randint(1, 100)
 
             cur.execute(sql, (product_name, product_description, manufacturer_id, product_count, product_price, image_name, ))
         except Exception as e:
             print(e)
+
+def AddUsers(rows, thread_id):
+    #connect to the database
+    connection = psycopg2.connect("dbname='" + onlineShop_dbname + 
+                                  "' user='" + onlineShop_dbuser + 
+                                  "' password='" + onlineShop_dbpassword + "'")
+
+    connection.autocommit = True
+    cur = connection.cursor()
+
+    for _ in range(rows):
+        try:
+            sql = 'insert into carts default values RETURNING id'
+            cur.execute(sql, )
+            cart_id = cur.fetchone()[0]
+            connection.commit()
+
+            sql = 'insert into users (first_name, last_name, username, password, salt, cart_id) values(%s, %s, %s, %s, %s, %s)'
+            cur.execute(sql, ('first_name_test', 'last_name_test', 'stamat.stamatov', 'qazwsxedc', 'asdf', cart_id))
+            connection.commit()
+
+            print("thread: " + str(thread_id))
+        except Exception as e:
+            print(e)
+    
+    cur.close()
+    if connection is not None:
+        connection.close()
+
+def AddEmployees(rows, thread_id):
+    #connect to the database
+    connection = psycopg2.connect("dbname='" + onlineShop_dbname + 
+                                  "' user='" + onlineShop_dbuser + 
+                                  "' password='" + onlineShop_dbpassword + "'")
+
+    connection.autocommit = True
+    cur = connection.cursor()
+
+    for _ in range(rows):
+        try:
+            role_id = random.randint(1,10)
+
+            sql = 'insert into employees (first_name, last_name, password, role_id) values(%s, %s, %s, %s)'
+            cur.execute(sql, ('first_name_test', 'last_name_test', 'qazwsxedc', role_id))
+            connection.commit()
+
+            print("thread: " + str(thread_id))
+        except Exception as e:
+            print(e)
+    
+    cur.close()
+    if connection is not None:
+        connection.close()
 
 def AddAdmin(cur, connection):
     try:
@@ -221,6 +286,7 @@ def AddAdmin(cur, connection):
             print(e)
     except Exception as e:
         print(e)
+        
     
 if __name__ == '__main__':
     #connect to the database
@@ -232,8 +298,14 @@ if __name__ == '__main__':
     cur = connection.cursor()
 
     #createTables(cur, connection)
+    rows_per_thread = 10000
+    threads = []
+    for i in range(10):
+        thread = threading.Thread(target=AddEmployees, args=(rows_per_thread, i))
+        threads.append(thread)
+        thread.start()
     #loadData(cur, connection)
-    AddAdmin(cur, connection)
+    #AddAdmin(cur, connection)
 
     cur.close()
     if connection is not None:

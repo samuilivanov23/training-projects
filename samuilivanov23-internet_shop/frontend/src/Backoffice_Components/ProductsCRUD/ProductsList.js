@@ -99,7 +99,7 @@ function ProductsList (props){
         });
     }
 
-    const SortProducts = (event) => {
+    const sortProducts = (event) => {
         const sort_filter = event.target.value;
         loadProducts(current_page, sort_filter, []);
     }
@@ -130,6 +130,7 @@ function ProductsList (props){
         }
         else{
             loadProducts(current_page, selected_sorting, [
+                form_data.id.value,
                 form_data.name.value,
                 quantity_slider,
                 price_slider,
@@ -175,6 +176,21 @@ function ProductsList (props){
                 <div>
                     <Form noValidate validated={validated} onSubmit={handleFiltering} style={{marginBottom : '2em', marginLeft : '2em'}}>
                         <Row>
+                            <Col>
+                                <Form.Label>Id</Form.Label>
+                                <Form.Control
+                                    type="text"
+                                    name="id"
+                                    placeholder="Id"
+                                    defaultValue=""
+                                />
+                                <Form.Text> Use characters [0-9] </Form.Text>
+                                <Form.Control.Feedback>Looks good!</Form.Control.Feedback>
+                                <Form.Control.Feedback type="invalid">
+                                    Please enter Id.
+                                </Form.Control.Feedback>
+                            </Col>
+
                             <Col>
                                 <Form.Label>Name</Form.Label>
                                 <Form.Control
@@ -254,14 +270,14 @@ function ProductsList (props){
                                 <TableRow>
                                     <TableCell align="center">
                                         Id
-                                        <select style={{marginLeft : '0.5em'}} id="SortFilter" name={'sort_filter'} value={selected_sorting} onChange={SortProducts}>
+                                        <select style={{marginLeft : '0.5em'}} id="SortFilter" name={'sort_filter'} value={selected_sorting} onChange={sortProducts}>
                                             <option key={1} value={'Sort by product_id asc'}>↗</option>
                                             <option key={2} value={'Sort by product_id desc'}>↘</option>
                                         </select>
                                     </TableCell>
                                     <TableCell align="center">
                                         Inserted
-                                        <select style={{marginLeft : '0.5em'}} id="SortFilter" name={'sort_filter'} value={selected_sorting} onChange={SortProducts}>
+                                        <select style={{marginLeft : '0.5em'}} id="SortFilter" name={'sort_filter'} value={selected_sorting} onChange={sortProducts}>
                                             <option key={1} value={'Sort by inserted_at asc'}>↗</option>
                                             <option key={2} value={'Sort by inserted_at desc'}>↘</option>
                                         </select>
@@ -269,7 +285,7 @@ function ProductsList (props){
                                     <TableCell align="center">Image</TableCell>
                                     <TableCell align="center">
                                         Name
-                                        <select style={{marginLeft : '0.5em'}} id="SortFilter" name={'sort_filter'} value={selected_sorting} onChange={SortProducts}>
+                                        <select style={{marginLeft : '0.5em'}} id="SortFilter" name={'sort_filter'} value={selected_sorting} onChange={sortProducts}>
                                             <option key={1} value={'Sort by product_name asc'}>↗</option>
                                             <option key={2} value={'Sort by product_name desc'}>↘</option>
                                         </select>
@@ -277,21 +293,21 @@ function ProductsList (props){
                                     <TableCell align="center" style={{maxWidth: "8em"}}>Description</TableCell>
                                     <TableCell align="center">
                                         Quantity in stock
-                                        <select style={{marginLeft : '0.5em'}} id="SortFilter" name={'sort_filter'} value={selected_sorting} onChange={SortProducts}>
+                                        <select style={{marginLeft : '0.5em'}} id="SortFilter" name={'sort_filter'} value={selected_sorting} onChange={sortProducts}>
                                             <option key={1} value={'Sort by product_count asc'}>↗</option>
                                             <option key={2} value={'Sort by product_count desc'}>↘</option>
                                         </select>
                                     </TableCell>
                                     <TableCell align="center">
                                         Price [BGN]
-                                        <select style={{marginLeft : '0.5em'}} id="SortFilter" name={'sort_filter'} value={selected_sorting} onChange={SortProducts}>
+                                        <select style={{marginLeft : '0.5em'}} id="SortFilter" name={'sort_filter'} value={selected_sorting} onChange={sortProducts}>
                                             <option key={1} value={'Sort by product_price asc'}>↗</option>
                                             <option key={2} value={'Sort by product_price desc'}>↘</option>
                                         </select>
                                     </TableCell>
                                     <TableCell align="center">
                                         Manufacturer
-                                        <select style={{marginLeft : '0.5em'}} id="SortFilter" name={'sort_filter'} value={selected_sorting} onChange={SortProducts}>
+                                        <select style={{marginLeft : '0.5em'}} id="SortFilter" name={'sort_filter'} value={selected_sorting} onChange={sortProducts}>
                                             <option key={1} value={'Sort by manufacturer_name asc'}>↗</option>
                                             <option key={2} value={'Sort by manufacturer_name desc'}>↘</option>
                                         </select>

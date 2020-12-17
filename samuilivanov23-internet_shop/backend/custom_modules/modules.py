@@ -378,13 +378,13 @@ class FiltersParser:
         sorting_request = sorting_params.split(' ')
         return sorting_request[2], sorting_request[3]
     
-    def GenerateSqlOnFilters(self, filtering_params, sorting_parameter, sorting_direction, offset, products_per_page):
+    def GenerateSqlOnProductFilters(self, filtering_params, sorting_parameter, sorting_direction, offset, products_per_page):
         print(filtering_params)
 
         sql_start = '''select p.id as product_id, p.name as product_name, p.description, m.name as manufacturer_name, m.id, p.count as product_count, p.price as product_price, p.image_name, p.inserted_at as inserted_at from products as p 
                         join manufacturers as m on p.manufacturer_id=m.id where p.is_deleted=false '''
         
-        filters_dict = {"p.name" : filtering_params[0], "p.count" : filtering_params[1], "p.price" : filtering_params[2], "m.name" : filtering_params[3]}
+        filters_dict = {'p.id' : filtering_params[0], "p.name" : filtering_params[1], "p.count" : filtering_params[2], "p.price" : filtering_params[3], "m.name" : filtering_params[4]}
         sql_filters = ""
         sql_execution_params = []
 
@@ -400,6 +400,34 @@ class FiltersParser:
         sql_sorting = '''order by ''' + sorting_parameter + ' ' + sorting_direction + ''' offset ''' + offset + ''' limit ''' + products_per_page
 
         sql = sql_start + sql_filters + sql_sorting
+        return sql, sql_execution_params
+    
+    def GenerateSqlOnOrderFilters(self, filtering_params, sorting_parameter, sorting_direction, offset, orders_per_page):
+        print(filtering_params)
+
+        sql_start = '''select o.id as order_id, o.date as order_date, u.first_name, u.last_name, o.total_price as order_total_price, p.pay_time as order_payment_date, p.status from orders as o
+                        left join users as u on o.user_id=u.id
+                        left join payments as p on o.payment_id=p.id where o.is_deleted=false '''
+        
+        filters_dict = {'o.id' : filtering_params[0], "u.first_name" : filtering_params[1], "u.last_name" : filtering_params[2], "o.total_price" : filtering_params[3], "o.date" : filtering_params[4], "p.pay_time" : filtering_params[5]}
+        sql_filters = ""
+        sql_execution_params = []
+
+        for key in filters_dict:
+            if type(filters_dict[key]) is list: # => range restrictions for price/quantity
+                if not (filters_dict[key][0] is None and filters_dict[key][1] is None):
+                    sql_filters += "and " + key + ">=%s and " + key + "<=%s "
+                    sql_execution_params.append(filters_dict[key][0])
+                    sql_execution_params.append(filters_dict[key][1])
+            elif not filters_dict[key] == '' and filters_dict[key] is None:
+                sql_filters += "and " + key + "=%s "
+                sql_execution_params.append(filters_dict[key])
+
+        sql_sorting = '''order by ''' + sorting_parameter + ' ' + sorting_direction + ''' offset ''' + offset + ''' limit ''' + orders_per_page
+
+        sql = sql_start + sql_filters + sql_sorting
+        print(sql)
+        print(sql_execution_params)
         return sql, sql_execution_params
 
 
@@ -454,7 +482,7 @@ class Payment:
     def EncodePaymentRequestData(self, invoice, total_price, description):
         min = 'D520908428'
         amount = str(total_price)
-        exp_time = '16.12.2020'
+        exp_time = '18.12.2020'
         descr = description
 
         data = '''MIN=''' + min + '''
@@ -623,12 +651,12 @@ class EmployeesCRUD:
         return sql
 
 
-    def Create(self, first_name, 
-                        last_name, 
+    def Create(self, first_name,
+                        last_name,
                         email_address, 
                         password,
                         salt,
-                        role_name, 
+                        role_name,
                         permissions, 
                         cur):
         
@@ -750,20 +778,16 @@ class ProductsCRUD:
             sorting_parameter, sorting_direction = filterParser.ParseSortFilter(selected_sorting)
             
             if filtering_params:
-                print('TODO generate sql based on filters')
-                sql, sql_execution_params = filterParser.GenerateSqlOnFilters(filtering_params, sorting_parameter, sorting_direction, offset, products_per_page)
-                print(sql)
-                print(sql_execution_params)
+                sql, sql_execution_params = filterParser.GenerateSqlOnProductFilters(filtering_params, sorting_parameter, sorting_direction, offset, products_per_page)
                 cur.execute(sql, sql_execution_params)
             else:
                 sql =  '''select p.id as product_id, p.name as product_name, p.description, m.name as manufacturer_name, m.id, p.count as product_count, p.price as product_price, p.image_name, p.inserted_at as inserted_at from products as p 
                         join manufacturers as m on p.manufacturer_id=m.id where p.is_deleted=false order by ''' + sorting_parameter + ' ' + sorting_direction + ''' offset ''' + offset + ''' limit ''' + products_per_page
                 cur.execute(sql, )
-                print(sql)
 
             products_records = cur.fetchall()
 
-            sql = 'select count(*), max(count), max(price) from products'
+            sql = 'select count(*), max(count), max(price) from products where is_deleted=false'
             cur.execute(sql, )
             aggregated_data = cur.fetchone()
             products_count = aggregated_data[0]
@@ -862,33 +886,41 @@ class OrdersCRUD:
     def __init__(self):
         pass
 
-    def ReadOrders(self, selected_sorting, offset, products_per_page, cur):
+    def ReadOrders(self, selected_sorting, offset, orders_per_page, filtering_params, cur):
         try:
             filterParser = FiltersParser()
             #parameter: date/price/customer_name...
             #direction: asc/desc
-            parameter, sorting_direction = filterParser.ParseSortFilter(selected_sorting)
+            sorting_parameter, sorting_direction = filterParser.ParseSortFilter(selected_sorting)
 
-            if parameter == 'customer_name':
-                if sorting_direction == 'asc':
-                    parameter = 'u.first_name asc, u.last_name'
-                else:
-                    parameter = 'u.first_name desc, u.last_name'
-                
-            sql = '''select o.id as order_id, o.date as order_date, u.first_name, u.last_name, o.total_price as order_total_price, p.pay_time as order_payment_date, p.status from orders as o
-                     left join users as u on o.user_id=u.id
-                     left join payments as p on o.payment_id=p.id where o.is_deleted=false order by ''' + parameter + ' ' + sorting_direction + ''' offset ''' + offset + ''' limit ''' + products_per_page
-            cur.execute(sql, )
+            if filtering_params:
+                print('TODO generate sql based on filters')
+                sql, sql_execution_params = filterParser.GenerateSqlOnOrderFilters(filtering_params, sorting_parameter, sorting_direction, offset, orders_per_page)
+                cur.execute(sql, sql_execution_params)
+            else:
+                if sorting_parameter == 'customer_name':
+                    if sorting_direction == 'asc':
+                        sorting_parameter = 'u.first_name asc, u.last_name'
+                    else:
+                        sorting_parameter = 'u.first_name desc, u.last_name'
+                    
+                sql = '''select o.id as order_id, o.date as order_date, u.first_name, u.last_name, o.total_price as order_total_price, p.pay_time as order_payment_date, p.status from orders as o
+                        left join users as u on o.user_id=u.id
+                        left join payments as p on o.payment_id=p.id where o.is_deleted=false order by ''' + sorting_parameter + ' ' + sorting_direction + ''' offset ''' + offset + ''' limit ''' + orders_per_page
+                cur.execute(sql, )
+            
             orders_records = cur.fetchall()
 
-            sql = 'select count(*) from orders'
+            sql = 'select count(*), max(total_price) from orders where is_deleted=false'
             cur.execute(sql, )
-            orders_count = cur.fetchone()[0]
-            pages_count = math.ceil(orders_count / int(products_per_page))
+            aggregated_data = cur.fetchone()
+            orders_count = aggregated_data[0]
+            max_price = float(aggregated_data[1])
+            pages_count = math.ceil(orders_count / int(orders_per_page))
 
             jsonParser = JSONParser()
             orders_json = jsonParser.GetAllOrdersJSON(orders_records)
-            response = {'status' : 'OK', 'msg' : 'Successfull', 'orders' : orders_json, 'pages_count' : pages_count}
+            response = {'status' : 'OK', 'msg' : 'Successfull', 'orders' : orders_json, 'pages_count' : pages_count, 'max_price' : max_price}
         except Exception as e:
             print(e)
             response = {'status' : 'Fail', 'msg' : 'Unable to get orders', 'orders' : []}

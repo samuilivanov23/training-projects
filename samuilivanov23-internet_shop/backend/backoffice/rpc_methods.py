@@ -359,7 +359,7 @@ def GetManufacturers():
 
 
 @rpc_method
-def GetOrders(selected_sorting, current_page):
+def GetOrders(selected_sorting, current_page, filtering_params):
     #Connect to database
     try:
         connection = psycopg2.connect("dbname='" + onlineShop_dbname + 
@@ -370,11 +370,12 @@ def GetOrders(selected_sorting, current_page):
         cur = connection.cursor()
     except Exception as e:
         print(e)
+        
+    print(filtering_params)
 
-    
     products_per_page = 20
     offset = current_page * products_per_page
-    response = ordersCRUD.ReadOrders(selected_sorting, str(offset), str(products_per_page), cur)
+    response = ordersCRUD.ReadOrders(selected_sorting, str(offset), str(products_per_page), filtering_params, cur)
 
     if connection:
         cur.close()

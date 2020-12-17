@@ -2,7 +2,7 @@ import '../../App.css';
 import React from 'react';
 import JsonRpcClient from 'react-jsonrpc-client';
 import { useState, useEffect } from 'react';
-import { Button } from 'react-bootstrap';
+import { Form, Button, Row, Col } from 'react-bootstrap';
 import { SetOrderToUpdateDetails } from '../../Components/actions/OrderActions';
 import ReactPaginate from '../../../node_modules/react-paginate'
 import { useSelector, useDispatch } from 'react-redux';
@@ -15,22 +15,32 @@ import TableContainer from '@material-ui/core/TableContainer';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import Paper from '@material-ui/core/Paper';
+import Slider from '@material-ui/core/Slider';
+import Typography from '@material-ui/core/Typography';
+import DatePicker from 'react-date-picker';
 
 function OrdersList (props){
 
+    const [validated, setValidated] = useState(false);
     const [orders, set_orders] = useState([]);
     const [selected_sorting, set_selected_sorting] = useState('Sort by order_id asc');
     const [pages_count, set_pages_count] = useState(0);
     const [current_page, set_current_page] = useState(0);
     const [sorting_label, set_sorting_label] = useState('order id asc');
+    const [start_order_date, set_start_order_date] = useState(null);
+    const [end_order_date, set_end_order_date] = useState(null);
+    const [start_payment_date, set_start_payment_date] = useState(null);
+    const [end_payment_date, set_end_payment_date] = useState(null);
+    const [price_slider, set_price_slider] = useState([])
+    const [max_price, set_max_price] = useState(0);
     const { employeeInfo } = useSelector(state=>state.employee);
     const dispatch = useDispatch();
 
     useEffect(() => {
-        loadOrders(current_page, selected_sorting);
+        loadOrders(current_page, selected_sorting, []);
     }, [])
 
-    const loadOrders = (current_page, selected_sorting) => {
+    const loadOrders = (current_page, selected_sorting, filtering_params) => {
         const django_rpc = new JsonRpcClient({
             endpoint : 'http://127.0.0.1:8000/backoffice/rpc/',
         });
@@ -39,12 +49,15 @@ function OrdersList (props){
             'GetOrders',
             selected_sorting,
             current_page,
+            filtering_params,
         ).then(function(response){
             response = JSON.parse(response);
             console.log(response);
             set_orders(response['orders']);
             set_pages_count(response['pages_count']);
             set_selected_sorting(selected_sorting);
+            set_price_slider([0, response['max_price']]);
+            set_max_price(response['max_price'])
 
             let ordering_param = selected_sorting.split(" ")[2];
             let ordering_direction = selected_sorting.split(" ")[3];            
@@ -79,21 +92,75 @@ function OrdersList (props){
         ).then(function(response){
             response = JSON.parse(response);
             alert(response['msg']);
-            loadOrders(current_page, selected_sorting);
+            loadOrders(current_page, selected_sorting, []);
         }).catch(function(error){
             alert(error['msg']);
         });
     }
 
-    const FilterProducts = (event) => {
+    const sortProducts = (event) => {
         const filter = event.target.value;
-        loadOrders(current_page, filter);
+        loadOrders(current_page, filter, []);
     }
+
+    const handlePriceSliderChange = (event, newValie) => {
+        set_price_slider(newValie);
+    }
+
+    const handleStartOrderDateChange = (event) => {
+        set_start_order_date(event);
+    }
+
+    const handleEndOrderDateChange = (event) => {
+        set_end_order_date(event);
+    }
+
+    const handleStartPaymentDateChange = (event) => {
+        set_start_payment_date(event);
+    }
+
+    const handleEndPaymentDateChange = (event) => {
+        set_end_payment_date(event);
+    }
+
+    const handleFiltering = (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const form_data = event.currentTarget;
+        //console.log(form_data);
+
+        if (form_data.checkValidity() === false) {
+            alert('Plese fill the input fileds!');
+        }
+        else{
+            console.log('filtering');
+            
+            let order_id;
+            if(form_data.id.value !== ''){
+                order_id = parseInt(form_data.id.value);
+            }
+            else{
+                order_id = '';
+            }
+
+            loadOrders(current_page, selected_sorting, [
+                order_id,
+                form_data.first_name.value,
+                form_data.last_name.value,
+                price_slider,
+                [start_order_date, end_order_date],
+                [start_payment_date, end_payment_date]
+            ]);
+        }
+
+        setValidated(true);
+    };
 
     const handlePageClick = (orders) => {
         let page_number = orders.selected;
         console.log(page_number, selected_sorting);
-        loadOrders(page_number, selected_sorting);
+        loadOrders(page_number, selected_sorting, []);
         set_current_page(page_number);
         window.scrollTo(0, 0);
     }
@@ -131,6 +198,110 @@ function OrdersList (props){
         return(
             <div>
                 <div>
+                    <Form id="order_filters" noValidate validated={validated} onSubmit={handleFiltering} style={{marginBottom : '2em', marginLeft : '2em'}}>
+                        <Row>
+                            <Col>
+                                <Form.Label>Id</Form.Label>
+                                <Form.Control
+                                    type="text"
+                                    name="id"
+                                    placeholder="Enter Id"
+                                    defaultValue=""
+                                />
+                                <Form.Text> Use characters [0-9] </Form.Text>
+                                <Form.Control.Feedback>Looks good!</Form.Control.Feedback>
+                                <Form.Control.Feedback type="invalid">
+                                    Please enter Id.
+                                </Form.Control.Feedback>
+                            </Col>
+
+                            <Col>
+                                <Form.Label>Customer first name</Form.Label>
+                                <Form.Control
+                                    type="text"
+                                    name="first_name"
+                                    placeholder="Enter name"
+                                    defaultValue=""
+                                />
+                                <Form.Text> Use characters [A-Z][a-z] </Form.Text>
+                                <Form.Control.Feedback>Looks good!</Form.Control.Feedback>
+                                <Form.Control.Feedback type="invalid">
+                                    Please enter Customer first name.
+                                </Form.Control.Feedback>
+                            </Col>
+
+                            <Col>
+                            <Form.Label>Customer last name</Form.Label>
+                                <Form.Control
+                                    type="text"
+                                    name="last_name"
+                                    placeholder="Enter name"
+                                    defaultValue=""
+                                />
+                                <Form.Text> Use characters [A-Z][a-z] </Form.Text>
+                                <Form.Control.Feedback>Looks good!</Form.Control.Feedback>
+                                <Form.Control.Feedback type="invalid">
+                                    Please enter Customer last name.
+                                </Form.Control.Feedback>
+                            </Col>
+
+                            <Col>
+                                <Form.Label>Start order date</Form.Label>
+                                <DatePicker 
+                                    selected={start_order_date} 
+                                    onChange={handleStartOrderDateChange}
+                                />
+                            </Col>
+
+                            <Col>
+                                <Form.Label>End order date</Form.Label>
+                                <DatePicker 
+                                    selected={end_order_date} 
+                                    onChange={handleEndOrderDateChange}
+                                />
+                            </Col>
+
+                            <Col>
+                                <Typography id="discrete-slider-small-steps" gutterBottom>
+                                    Price [BGN]
+                                </Typography>
+                                <Slider
+                                    value={price_slider}
+                                    min={0}
+                                    step={0.01}
+                                    max={max_price}
+                                    onChange={handlePriceSliderChange}
+                                    valueLabelDisplay="auto"
+                                    aria-labelledby="range-slider"
+                                />
+                            </Col>
+
+                            <Col>
+                                <Form.Label>Start payment date</Form.Label>
+                                <DatePicker 
+                                    selected={start_payment_date} 
+                                    onChange={handleStartPaymentDateChange}
+                                />
+                            </Col>
+
+                            <Col>
+                                <Form.Label>End payment date</Form.Label>
+                                <DatePicker 
+                                    selected={end_payment_date} 
+                                    onChange={handleEndPaymentDateChange}
+                                />
+                            </Col>
+
+                            <Col>
+                                <Button variant="primary" type="submit" className={'filter-button-center'}>
+                                    Filter
+                                </Button>
+                            </Col>
+                        </Row>
+                    </Form>
+                </div>
+
+                <div>
                     <h5 style={{textAlign : 'center'}}>{sorting_label}</h5>
                 </div>
                 
@@ -141,35 +312,35 @@ function OrdersList (props){
                                 <TableRow>
                                     <TableCell align="center">
                                         Id
-                                        <select style={{marginLeft : '0.5em'}} id="SortFilter" name={'sort_filter'} value={selected_sorting} onChange={FilterProducts}>
+                                        <select style={{marginLeft : '0.5em'}} id="SortFilter" name={'sort_filter'} value={selected_sorting} onChange={sortProducts}>
                                             <option key={1} value={'Sort by order_id asc'}>↗</option>
                                             <option key={2} value={'Sort by order_id desc'}>↘</option>
                                         </select>
                                     </TableCell>
                                     <TableCell align="center">
                                         Created
-                                        <select style={{marginLeft : '0.5em'}} id="SortFilter" name={'sort_filter'} value={selected_sorting} onChange={FilterProducts}>
+                                        <select style={{marginLeft : '0.5em'}} id="SortFilter" name={'sort_filter'} value={selected_sorting} onChange={sortProducts}>
                                             <option key={1} value={'Sort by order_date asc'}>↗</option>
                                             <option key={2} value={'Sort by order_date desc'}>↘</option>
                                         </select>
                                     </TableCell>
                                     <TableCell align="center">
                                         Customer
-                                        <select style={{marginLeft : '0.5em'}} id="SortFilter" name={'sort_filter'} value={selected_sorting} onChange={FilterProducts}>
+                                        <select style={{marginLeft : '0.5em'}} id="SortFilter" name={'sort_filter'} value={selected_sorting} onChange={sortProducts}>
                                             <option key={1} value={'Sort by customer_name asc'}>↗</option>
                                             <option key={2} value={'Sort by customer_name desc'}>↘</option>
                                         </select>
                                     </TableCell>
                                     <TableCell align="center">
                                         Price [BGN]
-                                        <select style={{marginLeft : '0.5em'}} id="SortFilter" name={'sort_filter'} value={selected_sorting} onChange={FilterProducts}>
+                                        <select style={{marginLeft : '0.5em'}} id="SortFilter" name={'sort_filter'} value={selected_sorting} onChange={sortProducts}>
                                             <option key={1} value={'Sort by order_total_price asc'}>↗</option>
                                             <option key={2} value={'Sort by order_total_price desc'}>↘</option>
                                         </select>
                                     </TableCell>
                                     <TableCell align="center">
                                         Paid on
-                                        <select style={{marginLeft : '0.5em'}} id="SortFilter" name={'sort_filter'} value={selected_sorting} onChange={FilterProducts}>
+                                        <select style={{marginLeft : '0.5em'}} id="SortFilter" name={'sort_filter'} value={selected_sorting} onChange={sortProducts}>
                                             <option key={1} value={'Sort by order_payment_date asc'}>↗</option>
                                             <option key={2} value={'Sort by order_payment_date desc'}>↘</option>
                                         </select>

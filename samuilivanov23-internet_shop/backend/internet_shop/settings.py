@@ -27,7 +27,7 @@ SECRET_KEY = '%9y!m_%rkhb5abkrslooo_z!u3$@@spxwp%92qd+73ue*ylxd='
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['127.0.0.1', 'e453077aba78.ngrok.io']
+ALLOWED_HOSTS = ['127.0.0.1', '7a6c0e85cc52.ngrok.io']
 
 
 # Application definition
@@ -59,7 +59,7 @@ CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOWED_ORIGINS = [
     'http://localhost:3000',
     'http://127.0.0.1:3000',
-    'http://e453077aba78.ngrok.io',
+    'http://7a6c0e85cc52.ngrok.io',
 ]
 
 CORS_ALLOW_METHODS = list(default_methods)
