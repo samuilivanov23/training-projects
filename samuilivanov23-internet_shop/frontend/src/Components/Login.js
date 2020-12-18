@@ -49,18 +49,19 @@ function Login (props) {
             "LoginUser",
             email_address,
             password,
-        ).then(function(response){            
-            if(response.userInfo.username !== 'init'){
-                dispatch(SignIn(response.userInfo.id,
-                    response.userInfo.username,
-                    response.userInfo.email_address, 
-                    response.userInfo.cart_id));
+        ).then(function(response){
+            response = JSON.parse(response);      
+            if(response['userInfo']['username'] !== 'init'){
+                dispatch(SignIn(response['userInfo']['id'],
+                    response['userInfo']['username'],
+                    response['userInfo']['email_address'], 
+                    response['userInfo']['cart_id']));
 
-                dispatch(AllCartProducts(response.cart_products));
+                dispatch(AllCartProducts(response['cart_products']));
                 props.history.push('/shop/products');
             }
 
-            alert(response.msg)
+            alert(response['msg'])
         }).catch(function(error){
             alert(error['msg'])
         });

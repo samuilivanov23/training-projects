@@ -45,16 +45,17 @@ function LoginEmployee(props) {
             email_address,
             password,
         ).then(function(response){
-            if(response.employeeInfo.email_address !== 'init'){
+            response = JSON.parse(response);
+            if(response['employeeInfo']['email_address'] !== 'init'){
                 dispatch(SignInEmployee(
-                    response.employeeInfo.id,
-                    response.employeeInfo.email_address,
-                    response.employeeInfo.permissions
+                    response['employeeInfo']['id'],
+                    response['employeeInfo']['email_address'],
+                    response['employeeInfo']['permissions']
                 ));
 
                 props.history.push('/backoffice');
             }
-            alert(response.msg);
+            alert(response['msg']);
         }).catch(function(error){
             alert(error['msg'])
         });

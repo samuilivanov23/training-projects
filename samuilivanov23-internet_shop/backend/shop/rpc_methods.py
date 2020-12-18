@@ -101,7 +101,6 @@ def AddProductToCart(product_id, selected_count, product_count, cart_id):
     else:
         response = {'status' : 'Fail', 'msg' : 'Select lesser count', 'product_to_add' : {}}
 
-    print(response)
     return response
 
 
@@ -252,7 +251,6 @@ def SendVerificationEmail(user_email_address):
     print(response)
     return response
 
-
 @rpc_method
 def LoginUser(email_address, password):
     #Connect to database
@@ -332,6 +330,7 @@ def LoginUser(email_address, password):
         connection.close()
     
     print(response)
+    response = json.dumps(response)
     return response
 
 
@@ -373,9 +372,7 @@ def CreateOrder(cart_id, user_id, total_price):
         cur.close()
         connection.close()
 
-    print(response)
     response = json.dumps(response)
-    print(response)
     return response
 
 @rpc_method
@@ -383,7 +380,6 @@ def PaymentRequestData(order_id, total_price, description):
     try:
         invoice = str(random.randint(0, 1000000))
         encoded = payment.EncodePaymentRequestData(invoice, total_price, description)
-        #encoded = payment.EncodePaymentRequestData(data)
     except Exception as e:
         print(e)
         response = {'status' : 'Fail',
@@ -444,5 +440,21 @@ def PaymentRequestData(order_id, total_price, description):
                 }}
 
     response = json.dumps(response)
-    print(response)
+    return response
+
+@rpc_method
+def ChangePaymentStatusSent(order_id):
+    #Connect to database
+    try:
+        connection = psycopg2.connect("dbname='" + onlineShop_dbname +
+                                    "' user='" + onlineShop_dbuser +
+                                    "' password='" + onlineShop_dbpassword + "'")
+
+        connection.autocommit = True
+        cur = connection.cursor()
+    except Exception as e:
+        print(e)
+    
+    response = payment.SetStatusSent(order_id, cur)
+    response = json.dumps(response)
     return response

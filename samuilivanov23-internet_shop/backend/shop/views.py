@@ -11,14 +11,7 @@ import psycopg2
 
 def index(request):
     print(request)
-    # data = {
-    #     'name': 'Sarah',
-    #     'age': '20',
-    #     'email': 'sarah@gmail.com' 
-    # }
-
     data = "ENCODED=INVOICE:123456:STATUS:OK"
-    #data_json = json.dumps(data)
     return HttpResponse(data)
 
 @csrf_exempt

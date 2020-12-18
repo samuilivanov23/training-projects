@@ -1,6 +1,6 @@
 import hashlib
 from PIL import Image
-import random, string, json, math
+import random, string, json, math, datetime
 import uuid, smtplib, ssl
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
@@ -42,7 +42,7 @@ class JSONParser:
     def GetCartProductsJSON(self, records):
         i = 0
         cart_products = []
-
+        print('HERE')
         while i < len(records):
             cart_products.append({
                 'id' : records[i][0],
@@ -56,6 +56,7 @@ class JSONParser:
             
             i+=1
 
+        print(cart_products)
         return cart_products
 
     def GetAllEmployeesJSON(self, records):
@@ -225,10 +226,8 @@ class DbOperations:
     
     def CheckProductInStock(self, selected_count, count_in_stock):
         if selected_count <= count_in_stock:
-            print('TRUE')
             return True
         else:
-            print('FALSE')
             return False
 
     def AddProductsIntoOrder(self, cart_products, cart_id, user_id, total_price, cur):
@@ -379,8 +378,6 @@ class FiltersParser:
         return sorting_request[2], sorting_request[3]
     
     def GenerateSqlOnProductFilters(self, filtering_params, sorting_parameter, sorting_direction, offset, products_per_page):
-        print(filtering_params)
-
         sql_start = '''select p.id as product_id, p.name as product_name, p.description, m.name as manufacturer_name, m.id, p.count as product_count, p.price as product_price, p.image_name, p.inserted_at as inserted_at from products as p 
                         join manufacturers as m on p.manufacturer_id=m.id where p.is_deleted=false '''
         
@@ -419,7 +416,7 @@ class FiltersParser:
                     sql_filters += "and " + key + ">=%s and " + key + "<=%s "
                     sql_execution_params.append(filters_dict[key][0])
                     sql_execution_params.append(filters_dict[key][1])
-            elif not filters_dict[key] == '' and filters_dict[key] is None:
+            elif not filters_dict[key] == '' and not filters_dict[key] is None:
                 sql_filters += "and " + key + "=%s "
                 sql_execution_params.append(filters_dict[key])
 
@@ -436,12 +433,31 @@ class Payment:
         pass
 
     def SetInitialPaymentStatus(self, order_id, invoice, cur):
-        sql = 'insert into payments (invoice, status) values(%s, %s) RETURNING id'
-        cur.execute(sql, (invoice, 'sent'))
-        payment_id = cur.fetchone()[0]
+        try:
+            sql = 'insert into payments (invoice, status) values(%s, %s) RETURNING id'
+            cur.execute(sql, (invoice, 'not sent'))
+            payment_id = cur.fetchone()[0]
 
-        sql = 'update orders set payment_id=%s where id=%s'
-        cur.execute(sql, (payment_id, order_id))
+            sql = 'update orders set payment_id=%s where id=%s'
+            cur.execute(sql, (payment_id, order_id))
+        except Exception as e:
+            print(e)
+    
+    def SetStatusSent(self, order_id, cur):
+        try:
+            print('HERE IN SET SENT')
+            sql = 'select payment_id from orders where id=%s'
+            cur.execute(sql, (order_id, ))
+            payment_id = cur.fetchone()[0]
+
+            sql = 'update payments set status=%s where id=%s'
+            cur.execute(sql, ('sent', payment_id))
+            response = {'status' : 'OK', 'msg' : 'Successfull sent payment request'}
+        except Exception as e:
+            print(e)
+            response = {'status' : 'Fail', 'msg' : 'Unable to update payment status to sent'}
+        
+        return response
     
     def UpdatePaymentStatus(self, keys, values, cur):
         status = values[1]
@@ -482,7 +498,7 @@ class Payment:
     def EncodePaymentRequestData(self, invoice, total_price, description):
         min = 'D520908428'
         amount = str(total_price)
-        exp_time = '18.12.2020'
+        exp_time = (datetime.date.today() + datetime.timedelta(days=1)).strftime('%d.%m.%Y') #get tomorrow date
         descr = description
 
         data = '''MIN=''' + min + '''

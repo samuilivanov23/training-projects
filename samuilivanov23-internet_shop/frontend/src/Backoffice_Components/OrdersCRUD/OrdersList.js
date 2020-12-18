@@ -33,6 +33,9 @@ function OrdersList (props){
     const [end_payment_date, set_end_payment_date] = useState(null);
     const [price_slider, set_price_slider] = useState([])
     const [max_price, set_max_price] = useState(0);
+    const [order_id, set_order_id] = useState(null);
+    const [customer_first_name, set_customer_first_name] = useState('');
+    const [customer_last_name, set_customer_last_name] = useState('');
     const { employeeInfo } = useSelector(state=>state.employee);
     const dispatch = useDispatch();
 
@@ -55,6 +58,7 @@ function OrdersList (props){
             console.log(response);
             set_orders(response['orders']);
             set_pages_count(response['pages_count']);
+            
             set_selected_sorting(selected_sorting);
             set_price_slider([0, response['max_price']]);
             set_max_price(response['max_price'])
@@ -91,7 +95,6 @@ function OrdersList (props){
             id,
         ).then(function(response){
             response = JSON.parse(response);
-            alert(response['msg']);
             loadOrders(current_page, selected_sorting, []);
         }).catch(function(error){
             alert(error['msg']);
@@ -134,18 +137,12 @@ function OrdersList (props){
             alert('Plese fill the input fileds!');
         }
         else{
-            console.log('filtering');
-            
-            let order_id;
-            if(form_data.id.value !== ''){
-                order_id = parseInt(form_data.id.value);
-            }
-            else{
-                order_id = '';
-            }
+            set_order_id(form_data.id.value);
+            set_customer_first_name(form_data.first_name.value);
+            set_customer_last_name(form_data.last_name.value);
 
             loadOrders(current_page, selected_sorting, [
-                order_id,
+                form_data.id.value,
                 form_data.first_name.value,
                 form_data.last_name.value,
                 price_slider,
@@ -160,7 +157,14 @@ function OrdersList (props){
     const handlePageClick = (orders) => {
         let page_number = orders.selected;
         console.log(page_number, selected_sorting);
-        loadOrders(page_number, selected_sorting, []);
+        loadOrders(page_number, selected_sorting, [
+            order_id,
+            customer_first_name,
+            customer_last_name,
+            price_slider,
+            [start_order_date, end_order_date],
+            [start_payment_date, end_payment_date]
+        ]);
         set_current_page(page_number);
         window.scrollTo(0, 0);
     }

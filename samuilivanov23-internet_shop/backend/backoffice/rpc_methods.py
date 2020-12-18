@@ -33,7 +33,7 @@ def LoginEmployee(email_address, password):
         cur.execute(sql, (email_address, hashed_password, ))
         employee_record = cur.fetchone()
 
-        if not employee_record is None:
+        try:
             employee_id = employee_record[0]
             email_address = employee_record[1]
             role_id = employee_record[2]
@@ -54,7 +54,8 @@ def LoginEmployee(email_address, password):
             }
 
             response = {'status' : 'OK', 'msg' : 'Successful', 'employeeInfo' : sign_in_employee}
-        else:
+        except Exception as e:
+            print(e)
             init_employee_info = {
                 'id' : 0,
                 'email_address' : 'init',
@@ -62,13 +63,6 @@ def LoginEmployee(email_address, password):
             }
 
             response = {'status' : 'Fail', 'msg' : 'Incorrect email/password', 'employeeInfo' : init_employee_info}
-            if connection:
-                    cur.close()
-                    connection.close()
-            
-            #response = json.dumps(response)
-            print(response)
-            return response
     except Exception as e:
         init_employee_info = {
             'id' : 0,
@@ -83,9 +77,9 @@ def LoginEmployee(email_address, password):
         cur.close()
         connection.close()
     
+    response = json.dumps(response)
     print(response)
     return response
-
 
 @rpc_method
 def GetEmployees(selected_sorting, current_page):
