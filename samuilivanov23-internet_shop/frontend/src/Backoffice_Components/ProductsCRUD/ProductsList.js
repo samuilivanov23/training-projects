@@ -30,6 +30,9 @@ function ProductsList (props){
     const [price_slider, set_price_slider] = useState([]);
     const [max_quantity, set_max_quantity] = useState(0);
     const [max_price, set_max_price] = useState(0);
+    const [product_id, set_product_id] = useState(null);
+    const [product_name, set_product_name] = useState('');
+    const [manufacturer_name, set_manufacturer_name] = useState('');
     const { employeeInfo } = useSelector(state=>state.employee);
     const dispatch = useDispatch();
 
@@ -53,8 +56,15 @@ function ProductsList (props){
             set_products(response['products']);
             set_pages_count(response['pages_count']);
             set_selected_sorting(selected_sorting);
-            set_quantity_slider([0, response['max_quantity_instock']]);
-            set_price_slider([0, response['max_price']]);
+
+            if(!(Array.isArray(price_slider) && price_slider.length)){
+                set_price_slider([0, response['max_price']]);
+            }
+
+            if(!(Array.isArray(quantity_slider) && quantity_slider.length)){
+                set_quantity_slider([0, response['max_quantity_instock']]);
+            }
+
             set_max_quantity(response['max_quantity_instock'])
             set_max_price(response['max_price']);
 
@@ -110,13 +120,6 @@ function ProductsList (props){
         set_price_slider(newValie);
     }
 
-    const handlePageClick = (products) => {
-        let page_number = products.selected;
-        loadProducts(page_number, selected_sorting, []);
-        set_current_page(page_number);
-        window.scrollTo(0, 0);
-    }
-
     const handleFiltering = (event) => {
         event.preventDefault();
         event.stopPropagation();
@@ -127,6 +130,10 @@ function ProductsList (props){
             alert('Plese fill the input fileds!');
         }
         else{
+            set_product_id(form_data.id.value);
+            set_product_name(form_data.name.value);
+            set_manufacturer_name(form_data.manufacturer_name.value);
+
             loadProducts(current_page, selected_sorting, [
                 form_data.id.value,
                 form_data.name.value,
@@ -138,6 +145,19 @@ function ProductsList (props){
 
         setValidated(true);
     };
+
+    const handlePageClick = (products) => {
+        let page_number = products.selected;
+        loadProducts(page_number, selected_sorting, [
+            product_id,
+            product_name,
+            quantity_slider,
+            price_slider,
+            manufacturer_name
+        ]);
+        set_current_page(page_number);
+        window.scrollTo(0, 0);
+    }
 
     const useStyles = makeStyles({
         table: {
@@ -183,10 +203,6 @@ function ProductsList (props){
                                     defaultValue=""
                                 />
                                 <Form.Text> Use characters [0-9] </Form.Text>
-                                <Form.Control.Feedback>Looks good!</Form.Control.Feedback>
-                                <Form.Control.Feedback type="invalid">
-                                    Please enter Id.
-                                </Form.Control.Feedback>
                             </Col>
 
                             <Col>
@@ -198,10 +214,6 @@ function ProductsList (props){
                                     defaultValue=""
                                 />
                                 <Form.Text> Use characters [A-Z]/[a-z] </Form.Text>
-                                <Form.Control.Feedback>Looks good!</Form.Control.Feedback>
-                                <Form.Control.Feedback type="invalid">
-                                    Please enter Name.
-                                </Form.Control.Feedback>
                             </Col>
 
                             <Col>
@@ -242,10 +254,6 @@ function ProductsList (props){
                                     defaultValue=""
                                 />
                                 <Form.Text> Use characters [A-Z]/[a-z] </Form.Text>
-                                <Form.Control.Feedback>Looks good!</Form.Control.Feedback>
-                                <Form.Control.Feedback type="invalid">
-                                    Please enter Manufacturer name.
-                                </Form.Control.Feedback>
                             </Col>
 
                             <Col>

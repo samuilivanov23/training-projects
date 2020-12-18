@@ -58,9 +58,12 @@ function OrdersList (props){
             console.log(response);
             set_orders(response['orders']);
             set_pages_count(response['pages_count']);
-            
+
+            //Check if price_slider has not been used yet and sed it to zero and max
+            if(!(Array.isArray(price_slider) && price_slider.length)){
+                set_price_slider([0, response['max_price']]);
+            }
             set_selected_sorting(selected_sorting);
-            set_price_slider([0, response['max_price']]);
             set_max_price(response['max_price'])
 
             let ordering_param = selected_sorting.split(" ")[2];
@@ -213,10 +216,6 @@ function OrdersList (props){
                                     defaultValue=""
                                 />
                                 <Form.Text> Use characters [0-9] </Form.Text>
-                                <Form.Control.Feedback>Looks good!</Form.Control.Feedback>
-                                <Form.Control.Feedback type="invalid">
-                                    Please enter Id.
-                                </Form.Control.Feedback>
                             </Col>
 
                             <Col>
@@ -228,10 +227,6 @@ function OrdersList (props){
                                     defaultValue=""
                                 />
                                 <Form.Text> Use characters [A-Z][a-z] </Form.Text>
-                                <Form.Control.Feedback>Looks good!</Form.Control.Feedback>
-                                <Form.Control.Feedback type="invalid">
-                                    Please enter Customer first name.
-                                </Form.Control.Feedback>
                             </Col>
 
                             <Col>
@@ -243,10 +238,6 @@ function OrdersList (props){
                                     defaultValue=""
                                 />
                                 <Form.Text> Use characters [A-Z][a-z] </Form.Text>
-                                <Form.Control.Feedback>Looks good!</Form.Control.Feedback>
-                                <Form.Control.Feedback type="invalid">
-                                    Please enter Customer last name.
-                                </Form.Control.Feedback>
                             </Col>
 
                             <Col>
