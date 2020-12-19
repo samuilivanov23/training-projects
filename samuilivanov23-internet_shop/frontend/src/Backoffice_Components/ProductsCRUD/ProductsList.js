@@ -80,14 +80,17 @@ function ProductsList (props){
     }
 
     const getCurrentProduct = (current_product) => {
+        console.log(current_product);
+        
         dispatch(SetProductToUpdateDetails(
-            current_product.id,
-            current_product.name,
-            current_product.description,
-            current_product.count,
-            current_product.price,
-            current_product.image,
-            current_product.manufacturer_id
+            current_product.product_id,
+            current_product.product_name,
+            current_product.product_description,
+            current_product.product_count,
+            current_product.product_price,
+            current_product.product_image,
+            current_product.product_manufacturer_name,
+            current_product.product_manufacturer_id
         ));
     }
 
@@ -187,15 +190,15 @@ function ProductsList (props){
 
     const classes = useStyles();
     
-    const createData = (product_id, product_name, product_description, product_count, product_price, product_image, product_manufacturer_name, product_inserted_at) => {
-        return { product_id, product_name, product_description, product_count, product_price, product_image, product_manufacturer_name, product_inserted_at };
+    const createData = (product_id, product_name, product_description, product_count, product_price, product_image, product_manufacturer_name, product_manufacturer_id, product_inserted_at) => {
+        return { product_id, product_name, product_description, product_count, product_price, product_image, product_manufacturer_name, product_manufacturer_id, product_inserted_at };
     };
     
     const generateRows = () => {
         const rows = []
     
         products.forEach(product => {
-            rows.push(createData(product.id, product.name, product.description, product.count, product.price, product.image, product.manufacturer_name, product.inserted_at))
+            rows.push(createData(product['id'], product['name'], product['description'], product['count'], product['price'], product['image'], product['manufacturer_name'], product['manufacturer_id'], product['inserted_at']))
         });
     
         return rows;

@@ -46,6 +46,7 @@ const productToUpdateInfo = {
     count : 0,
     price : 0,
     image : 'init',
+    manufacturer_name : 'init',
     manufacturer_id : 0
 }
 

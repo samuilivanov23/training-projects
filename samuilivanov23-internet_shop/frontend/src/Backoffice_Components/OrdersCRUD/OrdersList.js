@@ -72,8 +72,6 @@ function OrdersList (props){
             ordering_param = ordering_param.split("_");
             
             set_sorting_label('Ordered by: ' + ordering_param[0] + " " + ordering_param[1] + " " + ordering_direction);
-
-            alert(response['msg']);
         }).catch(function(error){
             alert(error['msg']);
         });

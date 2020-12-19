@@ -104,107 +104,114 @@ function CreateProduct(props){
 
         console.log(selected_manufacturer);
         return (
-            <div className={'form-container'}>
-                <Form noValidate validated={validated} onSubmit={handleSubmit} className={'form-center'}>
-                    <Form.Label>Name</Form.Label>
-                    <Form.Control
-                        required
-                        type="text"
-                        name="name"
-                        placeholder="Name"
-                        defaultValue=""
-                    />
-                    <Form.Text> Use characters [A-Z]/[a-z] </Form.Text>
-                    <Form.Control.Feedback>Looks good!</Form.Control.Feedback>
-                    <Form.Control.Feedback type="invalid">
-                        Please enter Name.
-                    </Form.Control.Feedback>
-                    <br/>
-                    <br/>
-    
-    
-    
-                    <Form.Label>Description</Form.Label>
-                    <Form.Control
-                        required
-                        type="text"
-                        name="description"
-                        placeholder="Description"
-                        defaultValue=""
-                    />
-                    <Form.Text> Use characters [A-Z]/[a-z] </Form.Text>
-                    <Form.Control.Feedback>Looks good!</Form.Control.Feedback>
-                    <Form.Control.Feedback type="invalid">
-                        Please enter Description.
-                    </Form.Control.Feedback>
-                    <br/>
-                    <br/>
-    
-    
-    
-                    <Form.Label>Quantity</Form.Label>
-                    <Form.Control
-                        required
-                        type="text"
-                        name="count"
-                        placeholder="Quantity"
-                        defaultValue=""
-                    />
-                    <Form.Text> Integer </Form.Text>
-                    <Form.Control.Feedback>Looks good!</Form.Control.Feedback>
-                    <Form.Control.Feedback type="invalid">
-                        Please enter Quantity.
-                    </Form.Control.Feedback>
-                    <br/>
-                    <br/>
-    
-    
-    
-                    <Form.Label>Price</Form.Label>
-                    <Form.Control
-                        required
-                        type="text"
-                        name="price"
-                        placeholder="Price"
-                        defaultValue=""
-                    />
-                    <Form.Text> 2 floating point digits (For instance: 19.99) </Form.Text>
-                    <Form.Control.Feedback>Looks good!</Form.Control.Feedback>
-                    <Form.Control.Feedback type="invalid">
-                        Please enter Price.
-                    </Form.Control.Feedback>
-                    <br/>
-                    <br/>
-    
-    
-    
-                    <Form.Label>Image</Form.Label>
-                    <Form.Control
-                        required
-                        type="text"
-                        name="image_name"
-                        placeholder="Image"
-                        defaultValue=""
-                    />
-                    <Form.Control.Feedback>Looks good!</Form.Control.Feedback>
-                    <Form.Control.Feedback type="invalid">
-                        Please enter Image.
-                    </Form.Control.Feedback>
-                    <br/>
-                    <br/>
+
+            <div>
+                <div>
+                    <h5>Create product</h5>
+                </div>
+
+                <div className={'form-container'}>
+                    <Form noValidate validated={validated} onSubmit={handleSubmit} className={'form-center'}>
+                        <Form.Label>Name</Form.Label>
+                        <Form.Control
+                            required
+                            type="text"
+                            name="name"
+                            placeholder="Name"
+                            defaultValue=""
+                        />
+                        <Form.Text> Use characters [A-Z]/[a-z] </Form.Text>
+                        <Form.Control.Feedback>Looks good!</Form.Control.Feedback>
+                        <Form.Control.Feedback type="invalid">
+                            Please enter Name.
+                        </Form.Control.Feedback>
+                        <br/>
+                        <br/>
+        
+        
+        
+                        <Form.Label>Description</Form.Label>
+                        <Form.Control
+                            required
+                            type="text"
+                            name="description"
+                            placeholder="Description"
+                            defaultValue=""
+                        />
+                        <Form.Text> Use characters [A-Z]/[a-z] </Form.Text>
+                        <Form.Control.Feedback>Looks good!</Form.Control.Feedback>
+                        <Form.Control.Feedback type="invalid">
+                            Please enter Description.
+                        </Form.Control.Feedback>
+                        <br/>
+                        <br/>
+        
+        
+        
+                        <Form.Label>Quantity</Form.Label>
+                        <Form.Control
+                            required
+                            type="text"
+                            name="count"
+                            placeholder="Quantity"
+                            defaultValue=""
+                        />
+                        <Form.Text> Integer </Form.Text>
+                        <Form.Control.Feedback>Looks good!</Form.Control.Feedback>
+                        <Form.Control.Feedback type="invalid">
+                            Please enter Quantity.
+                        </Form.Control.Feedback>
+                        <br/>
+                        <br/>
+        
+        
+        
+                        <Form.Label>Price</Form.Label>
+                        <Form.Control
+                            required
+                            type="text"
+                            name="price"
+                            placeholder="Price"
+                            defaultValue=""
+                        />
+                        <Form.Text> 2 floating point digits (For instance: 19.99) </Form.Text>
+                        <Form.Control.Feedback>Looks good!</Form.Control.Feedback>
+                        <Form.Control.Feedback type="invalid">
+                            Please enter Price.
+                        </Form.Control.Feedback>
+                        <br/>
+                        <br/>
+        
+        
+        
+                        <Form.Label>Image</Form.Label>
+                        <Form.Control
+                            required
+                            type="text"
+                            name="image_name"
+                            placeholder="Image"
+                            defaultValue=""
+                        />
+                        <Form.Control.Feedback>Looks good!</Form.Control.Feedback>
+                        <Form.Control.Feedback type="invalid">
+                            Please enter Image.
+                        </Form.Control.Feedback>
+                        <br/>
+                        <br/>
 
 
-                    <Form.Label>Manufacturer</Form.Label>
-                    <select value={selected_manufacturer} onChange={changeManufacturer}>
-                        {options}
-                    </select>
-                    <br/>
-                    <br/>
-    
-                    <Button variant="primary" type="submit">
-                        Create product
-                    </Button>
-                </Form>
+                        <Form.Label>Manufacturer</Form.Label>
+                        <select value={selected_manufacturer} onChange={changeManufacturer}>
+                            {options}
+                        </select>
+                        <br/>
+                        <br/>
+        
+                        <Button variant="primary" type="submit">
+                            Create product
+                        </Button>
+                    </Form>
+                </div>
             </div>
         );
     }

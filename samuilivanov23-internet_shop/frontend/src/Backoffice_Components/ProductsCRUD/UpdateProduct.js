@@ -28,7 +28,6 @@ function UpdateProduct (props) {
         ).then(function(response){
             response = JSON.parse(response);
             console.log(response);
-            //console.log(response['manufacturers']);
             set_manufacturers(response['manufacturers']);
             console.log(response['msg']);
         }).catch(function(error){
@@ -48,6 +47,7 @@ function UpdateProduct (props) {
         else{
             console.log('Updating product');
 
+            console.log(productToUpdateInfo);
             updateProduct(productToUpdateInfo.id,
                         form_data.name.value,
                         form_data.description.value,
@@ -90,14 +90,20 @@ function UpdateProduct (props) {
     const generateManufacturerSelectElements = () => {
         const options = [];
 
+        options.push(<option key={-1} value={productToUpdateInfo.manufacturer_id}> {productToUpdateInfo.manufacturer_name} </option>);
+
         if(manufacturers.length !== 0){
             manufacturers.forEach((manufacturer, idx) => {
-                options.push(<option key={idx} value={manufacturer['id']}> {manufacturer['name']} </option>)
+                if(manufacturer['id'] !== productToUpdateInfo.manufacturer_id){
+                    options.push(<option key={idx} value={manufacturer['id']}> {manufacturer['name']} </option>)
+                }
             });
         }
 
         return options;
     }
+
+    console.log(productToUpdateInfo);
 
     if(manufacturers.length === 0){
         return(
@@ -108,104 +114,105 @@ function UpdateProduct (props) {
         const options = generateManufacturerSelectElements();
 
         return (
-            <div className={'form-container'}>
-                <Form noValidate validated={validated} onSubmit={handleSubmit} className={'form-center'}>
-                    <Form.Label>Name</Form.Label>
-                    <Form.Control
-                        required
-                        type="text"
-                        name="name"
-                        placeholder="Name"
-                        defaultValue={productToUpdateInfo.name}
-                    />
-                    <Form.Text> Use characters [A-Z]/[a-z] </Form.Text>
-                    <Form.Control.Feedback>Looks good!</Form.Control.Feedback>
-                    <Form.Control.Feedback type="invalid">
-                        Please enter Name.
-                    </Form.Control.Feedback>
-                    <br/>
-                    <br/>
-    
-    
-    
-                    <Form.Label>Description</Form.Label>
-                    <Form.Control
-                        required
-                        type="text"
-                        name="description"
-                        placeholder="Description"
-                        defaultValue={productToUpdateInfo.description}
-                    />
-                    <Form.Text> Use characters [A-Z]/[a-z] </Form.Text>
-                    <Form.Control.Feedback>Looks good!</Form.Control.Feedback>
-                    <Form.Control.Feedback type="invalid">
-                        Please enter Description.
-                    </Form.Control.Feedback>
-                    <br/>
-                    <br/>
-    
-    
-    
-                    <Form.Label>Quantity</Form.Label>
-                    <Form.Control
-                        required
-                        type="text"
-                        name="count"
-                        placeholder="Quantity"
-                        defaultValue={productToUpdateInfo.count}
-                    />
-                    <Form.Control.Feedback>Looks good!</Form.Control.Feedback>
-                    <Form.Control.Feedback type="invalid">
-                        Please enter Quantity.
-                    </Form.Control.Feedback>
-                    <br/>
-                    <br/>
-    
-    
-    
-                    <Form.Label>Price</Form.Label>
-                    <Form.Control
-                        required
-                        type="text"
-                        name="price"
-                        placeholder="Price"
-                        defaultValue={productToUpdateInfo.price}
-                    />
-                    <Form.Control.Feedback>Looks good!</Form.Control.Feedback>
-                    <Form.Control.Feedback type="invalid">
-                        Please enter Price.
-                    </Form.Control.Feedback>
-                    <br/>
-                    <br/>
-    
-    
-    
-                    <Form.Label>Image</Form.Label>
-                    <Form.Control
-                        required
-                        type="text"
-                        name="image"
-                        placeholder="Image"
-                        defaultValue={productToUpdateInfo.image}
-                    />
-                    <Form.Control.Feedback>Looks good!</Form.Control.Feedback>
-                    <Form.Control.Feedback type="invalid">
-                        Please enter Image.
-                    </Form.Control.Feedback>
-                    <br/>
-                    <br/>
+            <div>
+                <div>
+                    <h1 style={{marginLeft : '40%'}}>Edit Product {productToUpdateInfo.name}</h1>
+                </div>
+
+                <div className={'form-container'}>
+                    <Form noValidate validated={validated} onSubmit={handleSubmit} className={'form-center'}>
+                        <Form.Label>Name</Form.Label>
+                        <Form.Control
+                            type="text"
+                            name="name"
+                            placeholder="Name"
+                            defaultValue={productToUpdateInfo.name}
+                        />
+                        <Form.Text> Use characters [A-Z]/[a-z] </Form.Text>
+                        <Form.Control.Feedback>Looks good!</Form.Control.Feedback>
+                        <Form.Control.Feedback type="invalid">
+                            Please enter Name.
+                        </Form.Control.Feedback>
+                        <br/>
+                        <br/>
+        
+        
+        
+                        <Form.Label>Description</Form.Label>
+                        <Form.Control
+                            type="text"
+                            name="description"
+                            placeholder="Description"
+                            defaultValue={productToUpdateInfo.description}
+                        />
+                        <Form.Text> Use characters [A-Z]/[a-z] </Form.Text>
+                        <Form.Control.Feedback>Looks good!</Form.Control.Feedback>
+                        <Form.Control.Feedback type="invalid">
+                            Please enter Description.
+                        </Form.Control.Feedback>
+                        <br/>
+                        <br/>
+        
+        
+        
+                        <Form.Label>Quantity</Form.Label>
+                        <Form.Control
+                            type="text"
+                            name="count"
+                            placeholder="Quantity"
+                            defaultValue={productToUpdateInfo.count}
+                        />
+                        <Form.Control.Feedback>Looks good!</Form.Control.Feedback>
+                        <Form.Control.Feedback type="invalid">
+                            Please enter Quantity.
+                        </Form.Control.Feedback>
+                        <br/>
+                        <br/>
+        
+        
+        
+                        <Form.Label>Price</Form.Label>
+                        <Form.Control
+                            type="text"
+                            name="price"
+                            placeholder="Price"
+                            defaultValue={productToUpdateInfo.price}
+                        />
+                        <Form.Control.Feedback>Looks good!</Form.Control.Feedback>
+                        <Form.Control.Feedback type="invalid">
+                            Please enter Price.
+                        </Form.Control.Feedback>
+                        <br/>
+                        <br/>
+        
+        
+        
+                        <Form.Label>Image</Form.Label>
+                        <Form.Control
+                            type="text"
+                            name="image"
+                            placeholder="Image"
+                            defaultValue={productToUpdateInfo.image}
+                        />
+                        <Form.Control.Feedback>Looks good!</Form.Control.Feedback>
+                        <Form.Control.Feedback type="invalid">
+                            Please enter Image.
+                        </Form.Control.Feedback>
+                        <br/>
+                        <br/>
 
 
-                    <select value={selected_manufacturer} onChange={changeManufacturer}>
-                        {options}
-                    </select>
-                    <br/>
-                    <br/>
-    
-                    <Button variant="primary" type="submit">
-                        Update product
-                    </Button>
-                </Form>
+                        <select value={selected_manufacturer} onChange={changeManufacturer}>
+                            {options}
+                        </select>
+                        <br/>
+                        <br/>
+        
+                        <Button variant="primary" type="submit">
+                            Update product
+                        </Button>
+                    </Form>
+                </div>
             </div>
         );
     }

@@ -9,9 +9,9 @@ const SetSelectedCount = (selected_count) => async(dispatch) => {
     dispatch({type : 'SET_SELECTED_COUNT', data: {selected_count}});
 }
 
-const SetProductToUpdateDetails = (id, name, description, count, price, image,  manufacturer_id) => async(dispatch) => {
+const SetProductToUpdateDetails = (id, name, description, count, price, image,  manufacturer_name, manufacturer_id) => async(dispatch) => {
     console.log('SetProductToUpdateDetails action');
-    dispatch({type : 'SET_PRODUCT_TO_UPDATE_DETAILS', data : {id, name, description, count, price, image, manufacturer_id}});
+    dispatch({type : 'SET_PRODUCT_TO_UPDATE_DETAILS', data : {id, name, description, count, price, image, manufacturer_name, manufacturer_id}});
 }
 
 export { SetProductDetails, SetSelectedCount, SetProductToUpdateDetails }

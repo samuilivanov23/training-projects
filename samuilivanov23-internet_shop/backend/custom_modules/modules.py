@@ -435,7 +435,7 @@ class FiltersParser:
                         from employees as e join roles as r on e.role_id=r.id 
                         join permissions as p on r.permission_id=p.id where e.is_deleted=false '''
         
-        filters_dict = {'e.id' : filtering_params[0], "e.first_name" : filtering_params[1], "e.last_name" : filtering_params[2], "e.email_address" : filtering_params[3], "r.name" : filtering_params[4]}
+        filters_dict = {'e.id' : filtering_params[0], "e.first_name" : filtering_params[1], "e.last_name" : filtering_params[2], "e.email_address" : filtering_params[3], "r.name" : (filtering_params[4]).lower()}
         sql_filters = ""
         sql_execution_params = []
 
@@ -716,7 +716,7 @@ class EmployeesCRUD:
 
         #2) Add entry into roles table
         try:
-            sql = 'insert into roles (name, permission_id) values(%s, %s) RETURNING id'
+            sql = 'insert into roles (name, permission_id) values(lower(%s), %s) RETURNING id'
             cur.execute(sql, (role_name, permission_id, ))
             role_id = cur.fetchone()[0]
         except Exception as e:
