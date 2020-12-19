@@ -67,8 +67,6 @@ function EmployeesList (props){
 
         var permission_list = []
         Object.keys(current_employee.employee_permissions).forEach(permission => {
-            console.log(current_employee.employee_permissions[permission]);
-            console.log(permission);
             if(current_employee.employee_permissions[permission]){
                 permission_list.push(permission);
             }

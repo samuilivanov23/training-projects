@@ -14,7 +14,7 @@ function UpdateEmployee (props) {
     const { employeeToUpdateInfo } = useSelector(state=>state.employeeToUpdate);
 
     var permissions_selected = Object.keys(employeeToUpdateInfo.permissions);
-    console.log(employeeToUpdateInfo.permissions);
+    console.log(employeeToUpdateInfo);
     console.log(permissions_selected);
 
     const changeSelectedPermissions = (event) => {
@@ -55,9 +55,7 @@ function UpdateEmployee (props) {
         if (form_data.checkValidity() === false) {
             alert('Plese fill all input fileds!');
         }
-        else{
-            console.log('Updating employee');
-            
+        else{            
             updateEmployee(employee_to_update_id,
                         form_data.first_name.value,
                         form_data.last_name.value,
@@ -107,101 +105,103 @@ function UpdateEmployee (props) {
     const options = generateCountSelectElements();
 
     return (
-        <div className={'form-container'}>
-            <Form noValidate validated={validated} onSubmit={handleSubmit} className={'form-center'}>
-                <Form.Label>First Name</Form.Label>
-                <Form.Control
-                    required
-                    type="text"
-                    name="first_name"
-                    placeholder="First name"
-                    defaultValue={employeeToUpdateInfo.first_name}
-                />
-                <Form.Text> Use characters [A-Z]/[a-z] </Form.Text>
-                <Form.Control.Feedback>Looks good!</Form.Control.Feedback>
-                <Form.Control.Feedback type="invalid">
-                    Please enter First Name.
-                </Form.Control.Feedback>
-                <br/>
-                <br/>
+        <div>
+            <div>
+                <h1 style={{marginLeft : '40%'}}>Edit Employee {employeeToUpdateInfo.first_name}</h1>
+            </div>
+
+            <div className={'form-container'}>
+                <Form noValidate validated={validated} onSubmit={handleSubmit} className={'form-center'}>
+                    <Form.Label>First Name</Form.Label>
+                    <Form.Control
+                        type="text"
+                        name="first_name"
+                        placeholder="First name"
+                        defaultValue={employeeToUpdateInfo.first_name}
+                    />
+                    <Form.Text> Use characters [A-Z]/[a-z] </Form.Text>
+                    <Form.Control.Feedback>Looks good!</Form.Control.Feedback>
+                    <Form.Control.Feedback type="invalid">
+                        Please enter First Name.
+                    </Form.Control.Feedback>
+                    <br/>
+                    <br/>
 
 
 
-                <Form.Label>Last Name</Form.Label>
-                <Form.Control
-                    required
-                    type="text"
-                    name="last_name"
-                    placeholder="Last name"
-                    defaultValue={employeeToUpdateInfo.last_name}
-                />
-                <Form.Text> Use characters [A-Z]/[a-z] </Form.Text>
-                <Form.Control.Feedback>Looks good!</Form.Control.Feedback>
-                <Form.Control.Feedback type="invalid">
-                    Please enter Last Name.
-                </Form.Control.Feedback>
-                <br/>
-                <br/>
+                    <Form.Label>Last Name</Form.Label>
+                    <Form.Control
+                        type="text"
+                        name="last_name"
+                        placeholder="Last name"
+                        defaultValue={employeeToUpdateInfo.last_name}
+                    />
+                    <Form.Text> Use characters [A-Z]/[a-z] </Form.Text>
+                    <Form.Control.Feedback>Looks good!</Form.Control.Feedback>
+                    <Form.Control.Feedback type="invalid">
+                        Please enter Last Name.
+                    </Form.Control.Feedback>
+                    <br/>
+                    <br/>
 
 
 
-                <Form.Label>Email address</Form.Label>
-                <Form.Control
-                    required
-                    type="text"
-                    name="email_address"
-                    placeholder="Email address"
-                    defaultValue={employeeToUpdateInfo.email_address}
-                />
-                <Form.Control.Feedback>Looks good!</Form.Control.Feedback>
-                <Form.Control.Feedback type="invalid">
-                    Please enter email address.
-                </Form.Control.Feedback>
-                <br/>
-                <br/>
+                    <Form.Label>Email address</Form.Label>
+                    <Form.Control
+                        type="text"
+                        name="email_address"
+                        placeholder="Email address"
+                        defaultValue={employeeToUpdateInfo.email_address}
+                    />
+                    <Form.Control.Feedback>Looks good!</Form.Control.Feedback>
+                    <Form.Control.Feedback type="invalid">
+                        Please enter email address.
+                    </Form.Control.Feedback>
+                    <br/>
+                    <br/>
 
 
 
-                <Form.Label>Password</Form.Label>
-                <Form.Control
-                    type="password"
-                    name="password"
-                    placeholder="Password"
-                    defaultValue=""
-                />
-                <br/>
-                <br/>
+                    <Form.Label>Password</Form.Label>
+                    <Form.Control
+                        type="password"
+                        name="password"
+                        placeholder="Password"
+                        defaultValue=""
+                    />
+                    <br/>
+                    <br/>
 
 
 
-                <Form.Label>Role name</Form.Label>
-                <Form.Control
-                    required
-                    type="role_name"
-                    name="role_name"
-                    placeholder="Role name"
-                    defaultValue={employeeToUpdateInfo.role_name}
-                />
-                <Form.Control.Feedback>Looks good!</Form.Control.Feedback>
-                <Form.Control.Feedback type="invalid">
-                    Please enter role name.
-                </Form.Control.Feedback>
-                <br/>
-                <br/>
+                    <Form.Label>Role name</Form.Label>
+                    <Form.Control
+                        type="text"
+                        name="role_name"
+                        placeholder="Role name"
+                        defaultValue={employeeToUpdateInfo.role_name}
+                    />
+                    <Form.Control.Feedback>Looks good!</Form.Control.Feedback>
+                    <Form.Control.Feedback type="invalid">
+                        Please enter role name.
+                    </Form.Control.Feedback>
+                    <br/>
+                    <br/>
 
-                <select multiple={true} value={permissions_selected} onChange={changeSelectedPermissions}>
-                    {options}
-                </select>
-                <Button style={{marginBottom : '5em', marginLeft : '1em'}}variant="primary" onClick={clearPermissions}>
-                    Clear
-                </Button>
-                <br/>
-                <br/>
+                    <select multiple={true} value={permissions_selected} onChange={changeSelectedPermissions}>
+                        {options}
+                    </select>
+                    <Button style={{marginBottom : '5em', marginLeft : '1em'}}variant="primary" onClick={clearPermissions}>
+                        Clear
+                    </Button>
+                    <br/>
+                    <br/>
 
-                <Button variant="primary" type="submit">
-                    Update employee
-                </Button>
-            </Form>
+                    <Button variant="primary" type="submit">
+                        Update employee
+                    </Button>
+                </Form>
+            </div>
         </div>
     );
 }

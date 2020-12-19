@@ -20,10 +20,10 @@ const SetEmployeeToUpdateDetails = (first_name, last_name, email_address, role_n
     
     dispatch( { type : 'SET_EMPLOYEE_TO_UPDATE_DETAILS', 
                 data : {
-                    first_name, 
-                    last_name, 
-                    email_address, 
-                    role_name, 
+                    first_name,
+                    last_name,
+                    email_address,
+                    role_name,
                     permissions
     }});
 };

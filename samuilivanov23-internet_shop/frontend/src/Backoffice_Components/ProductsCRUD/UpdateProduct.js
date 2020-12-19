@@ -29,7 +29,6 @@ function UpdateProduct (props) {
             response = JSON.parse(response);
             console.log(response);
             set_manufacturers(response['manufacturers']);
-            console.log(response['msg']);
         }).catch(function(error){
             alert(error['msg']);
         });
@@ -45,9 +44,6 @@ function UpdateProduct (props) {
             alert('Plese fill all input fileds!');
         }
         else{
-            console.log('Updating product');
-
-            console.log(productToUpdateInfo);
             updateProduct(productToUpdateInfo.id,
                         form_data.name.value,
                         form_data.description.value,
@@ -102,8 +98,6 @@ function UpdateProduct (props) {
 
         return options;
     }
-
-    console.log(productToUpdateInfo);
 
     if(manufacturers.length === 0){
         return(
