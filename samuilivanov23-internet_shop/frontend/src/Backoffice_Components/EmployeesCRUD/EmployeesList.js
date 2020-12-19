@@ -2,7 +2,7 @@ import '../../App.css';
 import React from 'react';
 import JsonRpcClient from 'react-jsonrpc-client';
 import { useState, useEffect } from 'react';
-import { Button } from 'react-bootstrap';
+import { Button, Form, Row, Col } from 'react-bootstrap';
 import { SetEmployeeToUpdateDetails } from '../../Components/actions/EmployeeActions';
 import { useSelector, useDispatch } from 'react-redux';
 import ReactPaginate from '../../../node_modules/react-paginate'
@@ -18,19 +18,25 @@ import Paper from '@material-ui/core/Paper';
 
 function EmployeesList (props){
 
+    const [validated, setValidated] = useState(false);
     const [employees, set_employees] = useState([]);
     const [selected_sorting, set_selected_sorting] = useState('Sort by employee_id asc');
     const [pages_count, set_pages_count] = useState(0);
     const [current_page, set_current_page] = useState(0);
     const [sorting_label, set_sorting_label] = useState('employee id asc')
+    const [employee_id, set_employee_id] = useState(null);
+    const [employee_first_name, set_employee_first_name] = useState('');
+    const [employee_last_name, set_employee_last_name] = useState('');
+    const [employee_email_address, set_employee_email_address] = useState('');
+    const [employee_role, set_employee_role] = useState('');
     const { employeeInfo } = useSelector(state=>state.employee);
     const dispatch = useDispatch();
 
     useEffect(() => {
-        loadEmployees(current_page, selected_sorting);
+        loadEmployees(current_page, selected_sorting, []);
     }, [])
 
-    const loadEmployees = (current_page, selected_sorting) => {
+    const loadEmployees = (current_page, selected_sorting, filtering_params) => {
         const django_rpc = new JsonRpcClient({
             endpoint : 'http://127.0.0.1:8000/backoffice/rpc/',
         });
@@ -39,6 +45,7 @@ function EmployeesList (props){
             'GetEmployees',
             selected_sorting,
             current_page,
+            filtering_params
         ).then(function(response){
             response = JSON.parse(response);
             set_employees(response['employees']);
@@ -53,7 +60,7 @@ function EmployeesList (props){
         }).catch(function(error){
             alert(error['msg']);
         });
-    }
+    };
 
     const getCurrentEmployee = (current_employee) => {
 
@@ -78,7 +85,7 @@ function EmployeesList (props){
             current_employee.employee_role_name,
             permission_dict,
         ));
-    }
+    };
 
     const deleteEmployee = (id) => {
         const django_rpc = new JsonRpcClient({
@@ -91,23 +98,69 @@ function EmployeesList (props){
         ).then(function(response){
             response = JSON.parse(response);
             alert(response['msg']);
-            loadEmployees(current_page, selected_sorting);
+            loadEmployees(current_page, selected_sorting, [
+                parseInt(employee_id),
+                employee_first_name,
+                employee_last_name,
+                employee_email_address,
+                employee_role
+            ]);
         }).catch(function(error){
             alert(error['msg']);
         });
-    }
+    };
 
-    const FilterProducts = (event) => {
+    const sortProducts = (event) => {
         const filter = event.target.value;
-        loadEmployees(current_page, filter);
-    }
+        loadEmployees(current_page, filter, [
+            parseInt(employee_id),
+            employee_first_name,
+            employee_last_name,
+            employee_email_address,
+            employee_role
+        ]);
+    };
+
+    const handleFiltering = (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const form_data = event.currentTarget;
+
+        if(form_data.checkValidity() === false){
+            alert('Please fill the input fields');
+        }
+        else{
+            set_employee_id(form_data.id.value);
+            set_employee_first_name(form_data.first_name.value);
+            set_employee_last_name(form_data.last_name.value);
+            set_employee_email_address(form_data.email_address.value);
+            set_employee_role(form_data.role_name.value);
+
+            loadEmployees(current_page, selected_sorting, [
+                parseInt(form_data.id.value),
+                form_data.first_name.value,
+                form_data.last_name.value,
+                form_data.email_address.value,
+                form_data.role_name.value
+            ]);
+        }
+        
+        setValidated(true);
+    };
 
     const handlePageClick = (employee) => {
         let page_number = employee.selected;
-        loadEmployees(page_number, selected_sorting);
+        loadEmployees(page_number, selected_sorting, [
+            parseInt(employee_id),
+            employee_first_name,
+            employee_last_name,
+            employee_email_address,
+            employee_role
+        ]);
         set_current_page(page_number);
         window.scrollTo(0, 0);
-    }
+    };
 
     const useStyles = makeStyles({
         table: {
@@ -129,18 +182,85 @@ function EmployeesList (props){
         });
     
         return rows;
-    }
+    };
 
     if(typeof(employees) === 'undefined'){
         return(
             <div>Loading...</div>
         );
-    }    
+    }
     else{
         const rows = generateRows();
 
         return(
             <div>
+                <div>
+                    <Form noValidate validated={validated} onSubmit={handleFiltering} style={{marginBottom : '2em', marginLeft : '2em'}}>
+                        <Row>
+                            <Col>
+                                <Form.Label>Id</Form.Label>
+                                <Form.Control
+                                    type="text"
+                                    name="id"
+                                    placeholder="Id"
+                                    defaultValue=""
+                                />
+                                <Form.Text> Use characters [0-9] </Form.Text>
+                            </Col>
+
+                            <Col>
+                                <Form.Label>First name</Form.Label>
+                                <Form.Control
+                                    type="text"
+                                    name="first_name"
+                                    placeholder="First name"
+                                    defaultValue=""
+                                />
+                                <Form.Text> Use characters [A-Z]/[a-z] </Form.Text>
+                            </Col>
+
+                            <Col>
+                                <Form.Label>Last name</Form.Label>
+                                <Form.Control
+                                    type="text"
+                                    name="last_name"
+                                    placeholder="Last name"
+                                    defaultValue=""
+                                />
+                                <Form.Text> Use characters [A-Z]/[a-z] </Form.Text>
+                            </Col>
+
+                            <Col>
+                                <Form.Label>Email address</Form.Label>
+                                <Form.Control
+                                    type="text"
+                                    name="email_address"
+                                    placeholder="Email address"
+                                    defaultValue=""
+                                />
+                                <Form.Text> Use characters [A-Z]/[a-z] </Form.Text>
+                            </Col>
+
+                            <Col>
+                                <Form.Label>Role</Form.Label>
+                                <Form.Control
+                                    type="text"
+                                    name="role_name"
+                                    placeholder="Role"
+                                    defaultValue=""
+                                />
+                                <Form.Text> Use characters [A-Z]/[a-z] </Form.Text>
+                            </Col>
+
+                            <Col>
+                                <Button variant="primary" type="submit" className={'filter-button-center'}>
+                                    Filter product
+                                </Button>
+                            </Col>
+                        </Row>
+                    </Form>
+                </div>
+
                 <div style={{textAlign : 'center'}}>
                     <h5>{sorting_label}</h5>
                 </div>
@@ -152,35 +272,35 @@ function EmployeesList (props){
                                 <TableRow>
                                     <TableCell align="center">
                                         Id
-                                        <select style={{marginLeft : '0.5em'}} id="SortFilter" name={'sort_filter'} value={selected_sorting} onChange={FilterProducts}>
+                                        <select style={{marginLeft : '0.5em'}} id="SortFilter" name={'sort_filter'} value={selected_sorting} onChange={sortProducts}>
                                             <option key={1} value={'Sort by employee_id asc'}>↗</option>
                                             <option key={2} value={'Sort by employee_id desc'}>↘</option>
                                         </select>
                                     </TableCell>
                                     <TableCell align="center">
                                         Inserted
-                                        <select style={{marginLeft : '0.5em'}} id="SortFilter" name={'sort_filter'} value={selected_sorting} onChange={FilterProducts}>
+                                        <select style={{marginLeft : '0.5em'}} id="SortFilter" name={'sort_filter'} value={selected_sorting} onChange={sortProducts}>
                                             <option key={1} value={'Sort by inserted_at asc'}>↗</option>
                                             <option key={2} value={'Sort by inserted_at desc'}>↘</option>
                                         </select>
                                     </TableCell>
                                     <TableCell align="center">
                                         Name
-                                        <select style={{marginLeft : '0.5em'}} id="SortFilter" name={'sort_filter'} value={selected_sorting} onChange={FilterProducts}>
+                                        <select style={{marginLeft : '0.5em'}} id="SortFilter" name={'sort_filter'} value={selected_sorting} onChange={sortProducts}>
                                             <option key={1} value={'Sort by customer_name asc'}>↗</option>
                                             <option key={2} value={'Sort by customer_name desc'}>↘</option>
                                         </select>
                                     </TableCell>
                                     <TableCell align="center">
                                         Email
-                                        <select style={{marginLeft : '0.5em'}} id="SortFilter" name={'sort_filter'} value={selected_sorting} onChange={FilterProducts}>
+                                        <select style={{marginLeft : '0.5em'}} id="SortFilter" name={'sort_filter'} value={selected_sorting} onChange={sortProducts}>
                                             <option key={1} value={'Sort by email_address asc'}>↗</option>
                                             <option key={2} value={'Sort by email_address desc'}>↘</option>
                                         </select>
                                     </TableCell>
                                     <TableCell align="center">
                                         Role
-                                        <select style={{marginLeft : '0.5em'}} id="SortFilter" name={'sort_filter'} value={selected_sorting} onChange={FilterProducts}>
+                                        <select style={{marginLeft : '0.5em'}} id="SortFilter" name={'sort_filter'} value={selected_sorting} onChange={sortProducts}>
                                             <option key={1} value={'Sort by role_name asc'}>↗</option>
                                             <option key={2} value={'Sort by role_name desc'}>↘</option>
                                         </select>

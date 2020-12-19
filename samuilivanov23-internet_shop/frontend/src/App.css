@@ -75,20 +75,18 @@
 
 .product-list-container {
   width: 98%;
-  background: aqua;
   margin : 1em;
   padding: 10px;
 }
 
 .menu-section {
   width: 15%;
-  background: red;
   float: left;
 }
 
 .products-section {
   margin-left: 16%;
-  background: black;
+  background:#dbf1f6;
 }
 
 .sort-filter {

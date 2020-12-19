@@ -193,7 +193,7 @@ function Home2(props) {
                                 <Form.Text> Use characters [A-Z]/[a-z] </Form.Text>
 
 
-                                <Button variant="primary" type="submit" className={'filter-button-center'}>
+                                <Button variant="primary" type="submit" style={{marginLeft : '15%', marginTop : '1em'}}>
                                     Filter product
                                 </Button>
                             </Col>

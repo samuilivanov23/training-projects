@@ -398,7 +398,8 @@ class FiltersParser:
 
         sql = sql_start + sql_filters + sql_sorting
         return sql, sql_execution_params
-    
+
+
     def GenerateSqlOnOrderFilters(self, filtering_params, sorting_parameter, sorting_direction, offset, orders_per_page):
         print(filtering_params)
 
@@ -423,8 +424,29 @@ class FiltersParser:
         sql_sorting = '''order by ''' + sorting_parameter + ' ' + sorting_direction + ''' offset ''' + offset + ''' limit ''' + orders_per_page
 
         sql = sql_start + sql_filters + sql_sorting
-        print(sql)
-        print(sql_execution_params)
+        return sql, sql_execution_params
+
+
+    def GenerateSqlOnEmployeeFilters(self, filtering_params, sorting_parameter, sorting_direction, offset, orders_per_page):
+        print(filtering_params)
+
+        sql_start  = '''select e.id as employee_id, e.first_name, e.last_name, e.email_address as email_address, r.name as role_name, 
+                        p.create_perm, p.read_perm, p.update_perm, p.delete_perm, e.inserted_at as inserted_at 
+                        from employees as e join roles as r on e.role_id=r.id 
+                        join permissions as p on r.permission_id=p.id where e.is_deleted=false '''
+        
+        filters_dict = {'e.id' : filtering_params[0], "e.first_name" : filtering_params[1], "e.last_name" : filtering_params[2], "e.email_address" : filtering_params[3], "r.name" : filtering_params[4]}
+        sql_filters = ""
+        sql_execution_params = []
+
+        for key in filters_dict:
+            if not filters_dict[key] == '' and not filters_dict[key] is None:
+                sql_filters += "and " + key + "=%s "
+                sql_execution_params.append(filters_dict[key])
+
+        sql_sorting = '''order by ''' + sorting_parameter + ' ' + sorting_direction + ''' offset ''' + offset + ''' limit ''' + orders_per_page
+
+        sql = sql_start + sql_filters + sql_sorting
         return sql, sql_execution_params
 
 
@@ -579,24 +601,30 @@ class EmployeesCRUD:
     def __init__(self):
         pass
 
-    def ReadEmployees(self, selected_sorting, offset, products_per_page, cur):
+    def ReadEmployees(self, selected_sorting, offset, products_per_page, filtering_params, cur):
         try:
+            print(filtering_params)
             filterParser = FiltersParser()
             #parameter: date/price/customer_name...
             #direction: asc/desc
-            parameter, sorting_direction = filterParser.ParseSortFilter(selected_sorting)
+            sorting_parameter, sorting_direction = filterParser.ParseSortFilter(selected_sorting)
 
-            if parameter == 'customer_name':
-                if sorting_direction == 'asc':
-                    parameter = 'e.first_name asc, e.last_name'
-                else:
-                    parameter = 'e.first_name desc, e.last_name'
+            if filtering_params:
+                sql, sql_execution_params = filterParser.GenerateSqlOnEmployeeFilters(filtering_params, sorting_parameter, sorting_direction, offset, products_per_page)
+                cur.execute(sql, sql_execution_params)
+            else:
+                if sorting_parameter == 'customer_name':
+                    if sorting_direction == 'asc':
+                        sorting_parameter = 'e.first_name asc, e.last_name'
+                    else:
+                        sorting_parameter = 'e.first_name desc, e.last_name'
 
-            sql ='''select e.id as employee_id, e.first_name, e.last_name, e.email_address as email_address, r.name as role_name, 
-                    p.create_perm, p.read_perm, p.update_perm, p.delete_perm, e.inserted_at as inserted_at 
-                    from employees as e join roles as r on e.role_id=r.id 
-                    join permissions as p on r.permission_id=p.id where e.is_deleted=false order by ''' + parameter + ' ' + sorting_direction + ''' offset ''' + offset + ''' limit ''' + products_per_page
-            cur.execute(sql, )
+                sql ='''select e.id as employee_id, e.first_name, e.last_name, e.email_address as email_address, r.name as role_name, 
+                        p.create_perm, p.read_perm, p.update_perm, p.delete_perm, e.inserted_at as inserted_at 
+                        from employees as e join roles as r on e.role_id=r.id 
+                        join permissions as p on r.permission_id=p.id where e.is_deleted=false order by ''' + sorting_parameter + ' ' + sorting_direction + ''' offset ''' + offset + ''' limit ''' + products_per_page
+                cur.execute(sql, )
+            
             employees_records = cur.fetchall()
 
             sql = 'select count(*) from employees'
