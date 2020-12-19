@@ -609,16 +609,16 @@ class EmployeesCRUD:
             #direction: asc/desc
             sorting_parameter, sorting_direction = filterParser.ParseSortFilter(selected_sorting)
 
+            if sorting_parameter == 'customer_name':
+                if sorting_direction == 'asc':
+                    sorting_parameter = 'e.first_name asc, e.last_name'
+                else:
+                    sorting_parameter = 'e.first_name desc, e.last_name'
+
             if filtering_params:
                 sql, sql_execution_params = filterParser.GenerateSqlOnEmployeeFilters(filtering_params, sorting_parameter, sorting_direction, offset, products_per_page)
                 cur.execute(sql, sql_execution_params)
             else:
-                if sorting_parameter == 'customer_name':
-                    if sorting_direction == 'asc':
-                        sorting_parameter = 'e.first_name asc, e.last_name'
-                    else:
-                        sorting_parameter = 'e.first_name desc, e.last_name'
-
                 sql ='''select e.id as employee_id, e.first_name, e.last_name, e.email_address as email_address, r.name as role_name, 
                         p.create_perm, p.read_perm, p.update_perm, p.delete_perm, e.inserted_at as inserted_at 
                         from employees as e join roles as r on e.role_id=r.id 

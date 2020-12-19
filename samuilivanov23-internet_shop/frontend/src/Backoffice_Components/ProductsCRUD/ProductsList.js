@@ -1,7 +1,7 @@
 import '../../App.css';
 import React from 'react';
 import JsonRpcClient from 'react-jsonrpc-client';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Form, Button, Row, Col } from 'react-bootstrap';
 import { SetProductToUpdateDetails } from '../../Components/actions/ProductActions';
 import ReactPaginate from '../../../node_modules/react-paginate'
@@ -21,6 +21,7 @@ import Typography from '@material-ui/core/Typography';
 function ProductsList (props){
 
     const [validated, setValidated] = useState(false);
+    const formRef = useRef(null);
     const [products, set_products] = useState([]);
     const [selected_sorting, set_selected_sorting] = useState('Sort by product_id asc');
     const [pages_count, set_pages_count] = useState(0);
@@ -38,7 +39,7 @@ function ProductsList (props){
 
     useEffect(() => {
         //current page is 0 when the component first loads
-        loadProducts(current_page, selected_sorting, []);
+        loadProducts(current_page, selected_sorting, []); // empty array -> no filtering params
     }, [])
 
     const loadProducts = (current_page, selected_sorting, filtering_params) => {
@@ -152,6 +153,19 @@ function ProductsList (props){
         setValidated(true);
     };
 
+    const clearFilters = () => {
+        formRef.current.reset();
+
+        setValidated(false);
+        set_quantity_slider([0, max_quantity]);
+        set_price_slider([0, max_price]);
+        set_product_id(null);
+        set_product_name('');
+        set_manufacturer_name('');
+
+        loadProducts(current_page, selected_sorting, []) // empty array -> no filtering params
+    };
+
     const handlePageClick = (products) => {
         let page_number = products.selected;
         loadProducts(page_number, selected_sorting, [
@@ -198,7 +212,7 @@ function ProductsList (props){
         return(
             <div>
                 <div>
-                    <Form noValidate validated={validated} onSubmit={handleFiltering} style={{marginBottom : '2em', marginLeft : '2em'}}>
+                    <Form ref={formRef} noValidate validated={validated} onSubmit={handleFiltering} style={{marginBottom : '2em', marginLeft : '2em'}}>
                         <Row>
                             <Col>
                                 <Form.Label>Id</Form.Label>
@@ -265,6 +279,10 @@ function ProductsList (props){
                             <Col>
                                 <Button variant="primary" type="submit" className={'filter-button-center'}>
                                     Filter product
+                                </Button>
+
+                                <Button variant="primary" className={'filter-button-center'} onClick={clearFilters}>
+                                    Clear
                                 </Button>
                             </Col>
                         </Row>

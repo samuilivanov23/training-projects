@@ -2,7 +2,7 @@ import '../App.css';
 import React from 'react';
 import JsonRpcClient from '../../node_modules/react-jsonrpc-client/jsonrpcclient'
 import ReactPaginate from '../../node_modules/react-paginate'
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import ProductList from './ProductList'
 import Slider from '@material-ui/core/Slider';
 import Typography from '@material-ui/core/Typography';
@@ -11,6 +11,7 @@ import { Form, Button, Row, Col } from 'react-bootstrap';
 function Home2(props) {
 
     const [validated, setValidated] = useState(false);
+    const formRef = useRef(null);
     const [pages_count, set_pages_count] = useState(0);
     const [products, set_products] = useState([]);
     const [selected_sorting, set_selected_sorting] = useState('Sort by product_name asc');
@@ -25,10 +26,10 @@ function Home2(props) {
 
     useEffect(() => {
         window.scrollTo(0, 0);
-        loadInitialProductsList(current_page, selected_sorting, []);
+        loadProducts(current_page, selected_sorting, []); // empty array -> no filtering params
     }, []);
 
-    const loadInitialProductsList = (current_page, selected_sorting, filtering_params) => {
+    const loadProducts = (current_page, selected_sorting, filtering_params) => {
         var django_rpc = new JsonRpcClient({
             endpoint: 'http://127.0.0.1:8000/shop/rpc/',
         });
@@ -64,7 +65,7 @@ function Home2(props) {
 
     const sortProducts = (event) => {
         const sort_filter = event.target.value;
-        loadInitialProductsList(current_page, sort_filter, [
+        loadProducts(current_page, sort_filter, [
             product_id,
             product_name,
             quantity_slider,
@@ -96,7 +97,7 @@ function Home2(props) {
             set_products_name(form_data.name.value);
             set_manufacturer_name(form_data.manufacturer_name.value);
 
-            loadInitialProductsList(current_page, selected_sorting, [
+            loadProducts(current_page, selected_sorting, [
                 product_id,
                 form_data.name.value,
                 quantity_slider,
@@ -108,9 +109,22 @@ function Home2(props) {
         setValidated(true);
     };
 
+    const clearFilters = () => {
+      formRef.current.reset();
+      
+      setValidated(false);
+      set_quantity_slider([0, max_quantity]);
+      set_price_slider([0, max_price]);
+      set_product_id(null);
+      set_products_name('');
+      set_manufacturer_name('');
+      
+      loadProducts(current_page, selected_sorting, []); // empty array -> no filtering params
+    };
+
     const handlePageClick = (products) => {
         let page_number = products.selected;
-        loadInitialProductsList(page_number, selected_sorting, [
+        loadProducts(page_number, selected_sorting, [
             product_id,
             product_name,
             quantity_slider,
@@ -143,7 +157,7 @@ function Home2(props) {
             <section className={"product-list-container"}>
       
                 <div className={"menu-section"}>
-                    <Form noValidate validated={validated} onSubmit={handleFiltering} style={{marginBottom : '2em', marginLeft : '2em'}}>
+                    <Form ref={formRef} noValidate validated={validated} onSubmit={handleFiltering} style={{marginBottom : '2em', marginLeft : '2em'}}>
                         <Row>
                             <Col>
                                 <Form.Label>Name</Form.Label>
@@ -195,6 +209,10 @@ function Home2(props) {
 
                                 <Button variant="primary" type="submit" style={{marginLeft : '15%', marginTop : '1em'}}>
                                     Filter product
+                                </Button>
+
+                                <Button variant="primary" style={{marginLeft : '25%', marginTop : '1em'}} onClick={clearFilters}>
+                                    Clear
                                 </Button>
                             </Col>
                         </Row>

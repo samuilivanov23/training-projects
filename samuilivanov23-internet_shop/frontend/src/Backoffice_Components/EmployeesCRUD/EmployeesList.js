@@ -1,7 +1,7 @@
 import '../../App.css';
 import React from 'react';
 import JsonRpcClient from 'react-jsonrpc-client';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Button, Form, Row, Col } from 'react-bootstrap';
 import { SetEmployeeToUpdateDetails } from '../../Components/actions/EmployeeActions';
 import { useSelector, useDispatch } from 'react-redux';
@@ -19,6 +19,7 @@ import Paper from '@material-ui/core/Paper';
 function EmployeesList (props){
 
     const [validated, setValidated] = useState(false);
+    const formRef = useRef(null);
     const [employees, set_employees] = useState([]);
     const [selected_sorting, set_selected_sorting] = useState('Sort by employee_id asc');
     const [pages_count, set_pages_count] = useState(0);
@@ -33,7 +34,7 @@ function EmployeesList (props){
     const dispatch = useDispatch();
 
     useEffect(() => {
-        loadEmployees(current_page, selected_sorting, []);
+        loadEmployees(current_page, selected_sorting, []); // empty array -> no filtering params
     }, [])
 
     const loadEmployees = (current_page, selected_sorting, filtering_params) => {
@@ -149,6 +150,12 @@ function EmployeesList (props){
         setValidated(true);
     };
 
+    const clearFilters = () => {
+        formRef.current.reset();
+        setValidated(false);
+        loadEmployees(current_page, selected_sorting, []) // empty array -> no filtering params
+    };
+
     const handlePageClick = (employee) => {
         let page_number = employee.selected;
         loadEmployees(page_number, selected_sorting, [
@@ -195,7 +202,7 @@ function EmployeesList (props){
         return(
             <div>
                 <div>
-                    <Form noValidate validated={validated} onSubmit={handleFiltering} style={{marginBottom : '2em', marginLeft : '2em'}}>
+                    <Form ref={formRef} noValidate validated={validated} onSubmit={handleFiltering} style={{marginBottom : '2em', marginLeft : '2em'}}>
                         <Row>
                             <Col>
                                 <Form.Label>Id</Form.Label>
@@ -255,6 +262,10 @@ function EmployeesList (props){
                             <Col>
                                 <Button variant="primary" type="submit" className={'filter-button-center'}>
                                     Filter product
+                                </Button>
+
+                                <Button variant="primary" className={'filter-button-center'} onClick={clearFilters}>
+                                    Clear
                                 </Button>
                             </Col>
                         </Row>

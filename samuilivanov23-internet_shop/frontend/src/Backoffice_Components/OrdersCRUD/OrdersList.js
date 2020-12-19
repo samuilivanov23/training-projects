@@ -1,7 +1,7 @@
 import '../../App.css';
 import React from 'react';
 import JsonRpcClient from 'react-jsonrpc-client';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Form, Button, Row, Col } from 'react-bootstrap';
 import { SetOrderToUpdateDetails } from '../../Components/actions/OrderActions';
 import ReactPaginate from '../../../node_modules/react-paginate'
@@ -22,6 +22,7 @@ import DatePicker from 'react-date-picker';
 function OrdersList (props){
 
     const [validated, setValidated] = useState(false);
+    const formRef = useRef(null);
     const [orders, set_orders] = useState([]);
     const [selected_sorting, set_selected_sorting] = useState('Sort by order_id asc');
     const [pages_count, set_pages_count] = useState(0);
@@ -40,7 +41,7 @@ function OrdersList (props){
     const dispatch = useDispatch();
 
     useEffect(() => {
-        loadOrders(current_page, selected_sorting, []);
+        loadOrders(current_page, selected_sorting, []); // empty array -> no filtering params
     }, [])
 
     const loadOrders = (current_page, selected_sorting, filtering_params) => {
@@ -106,7 +107,14 @@ function OrdersList (props){
 
     const sortProducts = (event) => {
         const filter = event.target.value;
-        loadOrders(current_page, filter, []);
+        loadOrders(current_page, filter, [
+            order_id,
+            customer_first_name,
+            customer_last_name,
+            price_slider,
+            [start_order_date, end_order_date],
+            [start_payment_date, end_payment_date]
+        ]);
     }
 
     const handlePriceSliderChange = (event, newValie) => {
@@ -157,6 +165,22 @@ function OrdersList (props){
         setValidated(true);
     };
 
+    const clearFilters = () => {
+        formRef.current.reset();
+
+        setValidated(false);
+        set_price_slider([0, max_price]);
+        set_start_order_date(null);
+        set_end_order_date(null);
+        set_start_payment_date(null);
+        set_end_payment_date(null);
+        set_order_id(null);
+        set_customer_first_name('');
+        set_customer_last_name('');
+        
+        loadOrders(current_page, selected_sorting, []) // empty array -> no filtering params
+    };
+
     const handlePageClick = (orders) => {
         let page_number = orders.selected;
         console.log(page_number, selected_sorting);
@@ -205,7 +229,7 @@ function OrdersList (props){
         return(
             <div>
                 <div>
-                    <Form id="order_filters" noValidate validated={validated} onSubmit={handleFiltering} style={{marginBottom : '2em', marginLeft : '2em'}}>
+                    <Form ref={formRef} id="order_filters" noValidate validated={validated} onSubmit={handleFiltering} style={{marginBottom : '2em', marginLeft : '2em'}}>
                         <Row>
                             <Col>
                                 <Form.Label>Id</Form.Label>
@@ -243,7 +267,8 @@ function OrdersList (props){
                             <Col>
                                 <Form.Label>Start order date</Form.Label>
                                 <DatePicker 
-                                    selected={start_order_date} 
+                                    selected={start_order_date}
+                                    value={start_order_date} 
                                     onChange={handleStartOrderDateChange}
                                 />
                             </Col>
@@ -251,7 +276,8 @@ function OrdersList (props){
                             <Col>
                                 <Form.Label>End order date</Form.Label>
                                 <DatePicker 
-                                    selected={end_order_date} 
+                                    selected={end_order_date}
+                                    value={end_order_date} 
                                     onChange={handleEndOrderDateChange}
                                 />
                             </Col>
@@ -274,7 +300,8 @@ function OrdersList (props){
                             <Col>
                                 <Form.Label>Start payment date</Form.Label>
                                 <DatePicker 
-                                    selected={start_payment_date} 
+                                    selected={start_payment_date}
+                                    value={start_payment_date}
                                     onChange={handleStartPaymentDateChange}
                                 />
                             </Col>
@@ -282,7 +309,8 @@ function OrdersList (props){
                             <Col>
                                 <Form.Label>End payment date</Form.Label>
                                 <DatePicker 
-                                    selected={end_payment_date} 
+                                    selected={end_payment_date}
+                                    value={end_payment_date}
                                     onChange={handleEndPaymentDateChange}
                                 />
                             </Col>
@@ -290,6 +318,10 @@ function OrdersList (props){
                             <Col>
                                 <Button variant="primary" type="submit" className={'filter-button-center'}>
                                     Filter
+                                </Button>
+
+                                <Button variant="primary" className={'filter-button-center'} onClick={clearFilters}>
+                                    Clear
                                 </Button>
                             </Col>
                         </Row>
