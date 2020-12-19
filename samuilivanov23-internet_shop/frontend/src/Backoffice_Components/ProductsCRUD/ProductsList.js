@@ -109,16 +109,22 @@ function ProductsList (props){
 
     const sortProducts = (event) => {
         const sort_filter = event.target.value;
-        loadProducts(current_page, sort_filter, []);
-    }
+        loadProducts(current_page, sort_filter, [
+            product_id,
+            product_name,
+            quantity_slider,
+            price_slider,
+            manufacturer_name
+        ]);
+    };
 
-    const handleQuantitySliderChange = (event, newValie) => {
-        set_quantity_slider(newValie);
-    }
+    const handleQuantitySliderChange = (event, newValue) => {
+        set_quantity_slider(newValue);
+    };
 
-    const handlePriceSliderChange = (event, newValie) => {
-        set_price_slider(newValie);
-    }
+    const handlePriceSliderChange = (event, newValue) => {
+        set_price_slider(newValue);
+    };
 
     const handleFiltering = (event) => {
         event.preventDefault();
@@ -157,7 +163,7 @@ function ProductsList (props){
         ]);
         set_current_page(page_number);
         window.scrollTo(0, 0);
-    }
+    };
 
     const useStyles = makeStyles({
         table: {
@@ -169,7 +175,7 @@ function ProductsList (props){
     
     const createData = (product_id, product_name, product_description, product_count, product_price, product_image, product_manufacturer_name, product_inserted_at) => {
         return { product_id, product_name, product_description, product_count, product_price, product_image, product_manufacturer_name, product_inserted_at };
-    }
+    };
     
     const generateRows = () => {
         const rows = []
@@ -179,7 +185,7 @@ function ProductsList (props){
         });
     
         return rows;
-    }
+    };
     
     if(typeof(products) === 'undefined'){
         return(

@@ -85,7 +85,7 @@ function CreateProduct(props){
     const generateManufacturerSelectElements = () => {
         const options = [];
 
-        if(manufacturers.length != 0){
+        if(manufacturers.length){
             manufacturers.forEach((manufacturer, idx) => {
                 options.push(<option key={idx} value={manufacturer['id']}> {manufacturer['name']} </option>)
             });

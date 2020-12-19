@@ -1,6 +1,6 @@
 import '../App.css';
 import React from 'react';
-import {Card, Button } from '../../node_modules/react-bootstrap';
+import { Card, Button } from '../../node_modules/react-bootstrap';
 import JsonRpcClient from '../../node_modules/react-jsonrpc-client/jsonrpcclient';
 import { useSelector, useDispatch } from 'react-redux';
 import { useState, useEffect } from 'react';
@@ -11,16 +11,8 @@ import { SetSelectedCount } from './actions/ProductActions';
 function ProductDetails (props) {
 
     const [in_stock, set_in_stock] = useState('');
-
     const { userInfo } = useSelector(state=>state.signInUser);
-    console.log(userInfo);
-
-    const { cartInfo } = useSelector(state=>state.cartProducts);
-    console.log(cartInfo);
-
     const { productInfo } = useSelector(state=>state.productDetails);
-    console.log(productInfo);
-
     const dispatch = useDispatch();
 
     const checkProductInStock = () => {

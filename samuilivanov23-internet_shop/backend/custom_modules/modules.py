@@ -390,7 +390,7 @@ class FiltersParser:
                 sql_filters += "and " + key + ">=%s and " + key + "<=%s "
                 sql_execution_params.append(filters_dict[key][0])
                 sql_execution_params.append(filters_dict[key][1])
-            elif not filters_dict[key] == '':
+            elif not filters_dict[key] == '' and not filters_dict[key] is None:
                 sql_filters += "and " + key + "=%s "
                 sql_execution_params.append(filters_dict[key])
 

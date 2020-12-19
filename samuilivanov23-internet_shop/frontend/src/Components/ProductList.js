@@ -1,17 +1,14 @@
 import '../App.css';
 import React from 'react';
-import { useSelector, useDispatch } from 'react-redux';
-import { Card, Button, Form, Row, Col } from '../../node_modules/react-bootstrap';
+import { useDispatch } from 'react-redux';
+import { Card, Button } from '../../node_modules/react-bootstrap';
 import { Link } from '../../node_modules/react-router-dom';
 import { SetProductDetails } from './actions/ProductActions';
-
+import { useHistory } from '../../node_modules/react-router-dom';
 
 function ProductList (props) {
 
-    const { orderInfo } = useSelector(state=>state.orderProducts);
-    console.log('orderInfo ---!!!---');
-    console.log(orderInfo);
-
+    const history = useHistory();
     const dispatch = useDispatch();
 
     const getCurrentProduct = (current_product) => {
@@ -22,8 +19,8 @@ function ProductList (props) {
                                     current_product['selected_count'],
                                     current_product['count'],
                                     current_product['image']));
-        
-        props.history.push(`/products/${current_product['id']}`);
+
+        history.push(`/shop//products/${current_product['id']}`);
     }
 
     return (
