@@ -4,6 +4,8 @@ import JsonRpcClient from '../../node_modules/react-jsonrpc-client/jsonrpcclient
 import ReactPaginate from '../../node_modules/react-paginate'
 import PropTypes from '../../node_modules/prop-types'
 import ProductList from './ProductList'
+import Slider from '@material-ui/core/Slider';
+import Typography from '@material-ui/core/Typography';
 
 class Home extends React.Component{
 
@@ -146,7 +148,77 @@ class Home extends React.Component{
       <section className={"product-list-container"}>
 
         <div className={"menu-section"}>
-          <p>Categories / filters</p>
+          <Form noValidate validated={validated} onSubmit={handleFiltering} style={{marginBottom : '2em', marginLeft : '2em'}}>
+            <Row>
+                <Col>
+                    <Form.Label>Id</Form.Label>
+                    <Form.Control
+                        type="text"
+                        name="id"
+                        placeholder="Id"
+                        defaultValue=""
+                    />
+                    <Form.Text> Use characters [0-9] </Form.Text>
+                </Col>
+
+                <Col>
+                    <Form.Label>Name</Form.Label>
+                    <Form.Control
+                        type="text"
+                        name="name"
+                        placeholder="Name"
+                        defaultValue=""
+                    />
+                    <Form.Text> Use characters [A-Z]/[a-z] </Form.Text>
+                </Col>
+
+                <Col>
+                    <Typography id="discrete-slider-small-steps" gutterBottom>
+                        Quantity
+                    </Typography>
+                    <Slider
+                        value={quantity_slider}
+                        min={0}
+                        max={max_quantity}
+                        onChange={handleQuantitySliderChange}
+                        valueLabelDisplay="auto"
+                        aria-labelledby="range-slider"
+                    />
+                </Col>
+
+                <Col>
+                    <Typography id="discrete-slider-small-steps" gutterBottom>
+                        Price [BGN]
+                    </Typography>
+                    <Slider
+                        value={price_slider}
+                        min={0}
+                        step={0.01}
+                        max={max_price}
+                        onChange={handlePriceSliderChange}
+                        valueLabelDisplay="auto"
+                        aria-labelledby="range-slider"
+                    />
+                </Col>
+
+                <Col>
+                    <Form.Label>Manufacturer name</Form.Label>
+                    <Form.Control
+                        type="text"
+                        name="manufacturer_name"
+                        placeholder="Manufacturer name"
+                        defaultValue=""
+                    />
+                    <Form.Text> Use characters [A-Z]/[a-z] </Form.Text>
+                </Col>
+
+                <Col>
+                    <Button variant="primary" type="submit" className={'filter-button-center'}>
+                        Filter product
+                    </Button>
+                </Col>
+            </Row>
+          </Form>
         </div>
 
         <div className={"products-section"}>

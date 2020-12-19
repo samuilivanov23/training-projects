@@ -66,11 +66,11 @@ function CartProduct(props){
     const options = generateCountSelectElements(props.product.count);
 
     return (
-        <Card style={{ width: '50rem', margin: '1em' }}>
-            <Container style={{ width: '50rem', margin: '1em' }}>
+        <Card style={{ width: '60rem', margin: '1em' }}>
+            <Container style={{ width: '50rem', height : '10em', margin: '1em' }}>
                 <Row>
                     <Col>
-                        <Card.Img variant="left" src={`/images/${props.product.image}`} alt={`${props.product.name}`} />
+                        <Card.Img style={{width : '80%', height : '50%', marginLeft : '10%', marginTop : '5%'}} variant="left" src={`/images/${props.product.image}`} alt={`${props.product.name}`} />
                     </Col>
                     
                     <Col>
@@ -91,7 +91,15 @@ function CartProduct(props){
                     </Col>
 
                     <Col>
-                        <p style={{'marginRight' : '1em', 'width' : '12em'}}>Price: {(props.product.selected_count*props.product.price).toFixed(2)} BGN.</p>
+                        <Card.Text>
+                            <Link style={{'textDecoration' : 'none', 'color' : 'black'}} to={`/shop/products/${props.product.id}`} onClick={() => getCurrentProduct(props.product)}>
+                                Price {props.product.price}
+                            </Link>
+                        </Card.Text>
+                    </Col>
+
+                    <Col>
+                        <p style={{'marginRight' : '1em', 'width' : '12em'}}>Total: {(props.product.selected_count*props.product.price).toFixed(2)} BGN.</p>
                     </Col>
                 </Row>
             </Container>

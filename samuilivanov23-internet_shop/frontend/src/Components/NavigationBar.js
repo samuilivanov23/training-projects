@@ -43,7 +43,6 @@ function NavigationBar(props) {
             <Navbar.Brand to="/">Video Surveillance shop</Navbar.Brand>
             <Nav className="mr-auto">
                 <Link className={'nav-link'} to="/shop/products">Products</Link>
-                <Link className={'nav-link'} to="/shop/tags">Categories</Link>
             </Nav>
             <Nav className="ml-auto">
                 <Link className={'nav-link'} to="/shop/register">Register</Link>

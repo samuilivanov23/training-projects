@@ -41,6 +41,12 @@ function ProductDetails (props) {
             endpoint: 'http://127.0.0.1:8000/shop/rpc/',
         });
 
+        if(typeof selected_count === 'undefined'){
+            selected_count = 1;
+        }
+
+        console.log(typeof selected_count);
+
         django_rpc.request(
             "AddProductToCart",
             product_id,
@@ -60,6 +66,7 @@ function ProductDetails (props) {
                                             response.product_to_add.image));
             }
 
+            alert(response.msg);
         }).catch(function(error){
             console.log(error);
         });
@@ -86,7 +93,7 @@ function ProductDetails (props) {
 
             <div>
                 <Card className={"product-details-card"}>
-                    <Card.Img variant="top" src={`/images/${productInfo.image}`} alt={`${productInfo.name}`}/>
+                    <Card.Img style={{width : '80%', height : '50%', marginLeft : '10%', marginTop : '5%'}} variant="top" src={`/images/${productInfo.image}`} alt={`${productInfo.name}`}/>
                     <Card.Body>
                         <Card.Title>Name: {productInfo.name}</Card.Title>
                         <Card.Text>Description: {productInfo.description}</Card.Text>

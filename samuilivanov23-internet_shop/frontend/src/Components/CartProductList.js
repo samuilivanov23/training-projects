@@ -12,15 +12,8 @@ import { EmptyCart } from './actions/CartActions';
 function CartProductList (props) {
 
     const [total_price, set_total_price] = useState(0);
-
     const { cartInfo } = useSelector(state=>state.cartProducts);
-    console.log('CartProductsList -------');
-    console.log(cartInfo);
-
     const { userInfo } = useSelector(state=>state.signInUser);
-    console.log('Userinfo -------');
-    console.log(userInfo);
-
     const dispatch = useDispatch();
 
     const calculateTotalPrice = () => {
@@ -91,12 +84,12 @@ function CartProductList (props) {
             <Container fluid>
                 <Row>
                     <Col>
-                        <Card className={'outer-card'} style={{ width: '55rem', margin: '0.5em' }}>
+                        <Card className={'outer-card'} style={{ width: '65rem', margin: '0.5em' }}>
                             {cartInfo.map((product, idx) => (
                                 <CartProduct key={idx} {...props} product={product}/>    
                             ))}
                             <h5 className="ml-auto" style={{'marginRight' : '5em' }}>
-                                Total: {total_price.toFixed(2)} BGN.
+                                ORDER TOTAL: {total_price.toFixed(2)} BGN.
                             </h5>
                         </Card>
                     </Col>
@@ -113,7 +106,7 @@ function CartProductList (props) {
                             </Card.Body>
     
                             <Card.Footer className="text-center outer-card font-weight-bold">
-                                TOTAL: {total_price.toFixed(2)} BGN.
+                                ORDER TOTAL: {total_price.toFixed(2)} BGN.
                                     <Button>
                                         <Link style={{color:'white'}} onClick={() => createOrder(userInfo.cart_id)}>
                                             Proceed with payment

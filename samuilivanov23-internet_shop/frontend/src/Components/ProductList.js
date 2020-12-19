@@ -1,7 +1,7 @@
 import '../App.css';
 import React from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { Card, Button } from '../../node_modules/react-bootstrap';
+import { Card, Button, Form, Row, Col } from '../../node_modules/react-bootstrap';
 import { Link } from '../../node_modules/react-router-dom';
 import { SetProductDetails } from './actions/ProductActions';
 
@@ -42,7 +42,7 @@ function ProductList (props) {
                                 <Link style={{color:'white'}} to={`/shop/products/${product['id']}`} onClick={() => getCurrentProduct(product)}>
                                     Veiw details
                                 </Link>
-                            </Button>             
+                            </Button>  
                         </Card.Body>
                     </Card>
                 </div>

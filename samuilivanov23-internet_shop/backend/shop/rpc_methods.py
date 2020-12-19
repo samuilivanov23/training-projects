@@ -93,7 +93,10 @@ def AddProductToCart(product_id, selected_count, product_count, cart_id):
             response = {'status': 'OK', 'msg' : 'Successful', 'product_to_add' : product_to_add_data}
         except Exception as e:
             print(traceback.format_exc())
-            response = {'status': 'Fail', 'msg' : 'Unable to add product to cart', 'product_to_add' : {}}
+            if cart_id == 0:
+                response = {'status': 'Fail', 'msg' : 'Unable to add product to cart. Please login', 'product_to_add' : {}}
+            else:
+                response = {'status': 'Fail', 'msg' : 'Unable to add product to cart', 'product_to_add' : {}}
         
         if(connection):
             cur.close()

@@ -11,6 +11,8 @@
 
 .product-details-card{
   width : 36em;
+  height: 40em;
+  margin : 2em;
 }
 
 .per-grid-card {
