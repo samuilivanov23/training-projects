@@ -7,6 +7,9 @@ import JsonRpcClient from 'react-jsonrpc-client';
 function CreateEmployee(props){
 
     const [validated, setValidated] = useState(false);
+    const [input_fields, set_input_fields] = useState({});
+    const [input_errors, set_input_errors] = useState({});
+
     var permissions_selected = [];
 
     const changeSelectedPermissions = (event) => {
@@ -33,27 +36,105 @@ function CreateEmployee(props){
         permissions_selected = [];
     };
 
+    const checkFormValidation = (event) => {
+        let fields = input_fields;
+        let errors = {};
+        let formIsValid = true;
+
+        //first name validation
+        if(!fields["first_name"]){
+            formIsValid = false;
+            errors["first_name"] = "First name can't be empty";
+        }
+
+        if(typeof fields["first_name"] !== "undefined"){
+            if(!fields["first_name"].match(/^[a-zA-Z]+$/)){
+                formIsValid = false;
+                errors["first_name"] = "Last name should contain only letters [a-ZA-Z]."
+            }
+        }
+
+        //last_name validation
+        if(!fields["last_name"]){
+            formIsValid = false;
+            errors["last_name"] = "Last name can't be empty";
+        }
+
+        if(typeof fields["last_name"] !== "undefined"){
+            if(!fields["last_name"].match(/^[a-zA-Z]+$/)){
+                formIsValid = false;
+                errors["last_name"] = "Last name should contain only letters [a-ZA-Z]."
+            }
+        }
+
+        //email validation
+        if(!fields["email_address"]){
+            formIsValid = false;
+            errors["email_address"] = "Email address can't be empty";
+        }
+
+        if(typeof fields["email_address"] !== "undefined"){
+            if(!fields["email_address"].match(/^[a-zA-Z0-9]+@(?:[a-zA-Z0-9]+[-_][a-zA-Z0-9]+\.)+[A-Za-z]+$/)){
+                formIsValid = false;
+                errors["email_address"] = "Email address should be as xxx@xxx.xx"
+            }
+        }
+
+        //last_name validation
+        if(!fields["password"]){
+            formIsValid = false;
+            errors["password"] = "Password can't be empty";
+        }
+
+        if(typeof fields["password"] !== "undefined"){
+            if(!fields["password"].match(/^[a-zA-Z0-9]+$/)){
+                formIsValid = false;
+                errors["password"] = "Last name should contain only letters [a-ZA-Z]."
+            }
+        }
+
+        //role name validation
+        if(!fields["role_name"]){
+            formIsValid = false;
+            errors["role_name"] = "Role name can't be empty";
+        }
+
+        if(typeof fields["role_name"] !== "undefined"){
+            if(!fields["role_name"].match(/^[a-zA-Z]+$/)){
+                formIsValid = false;
+                errors["role_name"] = "Role name should contain only letters [a-ZA-Z]."
+            }
+        }
+
+        set_input_errors(errors);
+        return formIsValid;
+    };
+
     const handleSubmit = (event) => {
         event.preventDefault();
         event.stopPropagation();
 
-        const form_data = event.currentTarget;
+        if(checkFormValidation()){
+            insertEmployee(input_fields["first_name"],
+                input_fields["last_name"],
+                input_fields["email_address"],
+                input_fields["password"],
+                input_fields["role_name"],
+                permissions_selected);
 
-        if (form_data.checkValidity() === false) {
-            alert('Plese fill all input fileds!');
+            alert('Form submitted');
         }
         else{
-            console.log('Creating employee');
-            
-            insertEmployee(form_data.first_name.value,
-                        form_data.last_name.value,
-                        form_data.email_address.value,
-                        form_data.password.value,
-                        form_data.role_name.value,
-                        permissions_selected);
+            alert('Form has errors');
         }
+    };
 
-        setValidated(true);
+    const handleChange = (event, field) => {
+        let fields = input_fields;
+        fields[field] = event.target.value;
+        set_input_fields(fields);
+
+        console.log(input_fields);
     };
 
     const insertEmployee = (first_name, last_name, email_address, password, role_name, permissions_selected) => {
@@ -103,13 +184,15 @@ function CreateEmployee(props){
                     type="text"
                     name="first_name"
                     placeholder="First name"
-                    defaultValue=""
+                    defaultValue={input_fields["first_name"]}
+                    onChange={ (event) => handleChange(event, "first_name")}
                 />
                 <Form.Text> Use characters [A-Z]/[a-z] </Form.Text>
                 <Form.Control.Feedback>Looks good!</Form.Control.Feedback>
                 <Form.Control.Feedback type="invalid">
                     Please enter First Name.
                 </Form.Control.Feedback>
+                <span style={{color: "red"}}>{input_errors["first_name"]}</span>
                 <br/>
                 <br/>
 
@@ -121,16 +204,18 @@ function CreateEmployee(props){
                     type="text"
                     name="last_name"
                     placeholder="Last name"
-                    defaultValue=""
+                    defaultValue={input_fields["last_name"]}
+                    onChange={ (event) => handleChange(event, "last_name")}
+                    className={'form-control'}
                 />
                 <Form.Text> Use characters [A-Z]/[a-z] </Form.Text>
                 <Form.Control.Feedback>Looks good!</Form.Control.Feedback>
                 <Form.Control.Feedback type="invalid">
                     Please enter Last Name.
                 </Form.Control.Feedback>
+                <span style={{color: "red"}}>{input_errors["last_name"]}</span>
                 <br/>
                 <br/>
-
 
 
                 <Form.Label>Email address</Form.Label>
@@ -139,12 +224,14 @@ function CreateEmployee(props){
                     type="text"
                     name="email_address"
                     placeholder="Email address"
-                    defaultValue=""
+                    defaultValue={input_fields["email_address"]}
+                    onChange={ (event) => handleChange(event, "email_address")}
                 />
                 <Form.Control.Feedback>Looks good!</Form.Control.Feedback>
                 <Form.Control.Feedback type="invalid">
                     Please enter email address.
                 </Form.Control.Feedback>
+                <span style={{color: "red"}}>{input_errors["email_address"]}</span>
                 <br/>
                 <br/>
 
@@ -156,12 +243,15 @@ function CreateEmployee(props){
                     type="password"
                     name="password"
                     placeholder="Password"
-                    defaultValue=""
+                    defaultValue={input_fields["password"]}
+                    onChange={ (event) => handleChange(event, "password")}
                 />
+                <Form.Text> Use characters [A-Z]/[a-z][0-9] </Form.Text>
                 <Form.Control.Feedback>Looks good!</Form.Control.Feedback>
                 <Form.Control.Feedback type="invalid">
                     Please enter password.
                 </Form.Control.Feedback>
+                <span style={{color: "red"}}>{input_errors["password"]}</span>
                 <br/>
                 <br/>
 
@@ -173,12 +263,15 @@ function CreateEmployee(props){
                     type="role_name"
                     name="role_name"
                     placeholder="Role name"
-                    defaultValue=""
+                    defaultValue={input_fields["role_name"]}
+                    onChange={(event) => handleChange(event, "role_name")}
                 />
+                <Form.Text> Use characters [A-Z]/[a-z] </Form.Text>
                 <Form.Control.Feedback>Looks good!</Form.Control.Feedback>
                 <Form.Control.Feedback type="invalid">
                     Please enter role name.
                 </Form.Control.Feedback>
+                <span style={{color: "red"}}>{input_errors["role_name"]}</span>
                 <br/>
                 <br/>
 
