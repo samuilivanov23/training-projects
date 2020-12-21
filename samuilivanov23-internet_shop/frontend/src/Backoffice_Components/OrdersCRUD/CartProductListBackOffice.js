@@ -1,10 +1,10 @@
 import '../../App.css';
 import React from 'react';
 import { useState, useEffect } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { Link } from '../../../node_modules/react-router-dom';
 import { Card, Container, Row, Col, Button } from 'react-bootstrap';
-import CartProductBackoffice from './CartProduct';
+import CartProductBackoffice from './CartProductBackoffice';
 
 function CartProductListBackoffice (props) {
 
@@ -30,7 +30,7 @@ function CartProductListBackoffice (props) {
             <Container fluid>
                 <Row>
                     <Col>
-                        <Card className={'outer-card'} style={{ width: '65rem', margin: '0.5em' }}>
+                        <Card className={'outer-card'} style={{ width: '62rem', margin: '0.5em' }}>
                             {cartInfo.map((product, idx) => (
                                 <CartProductBackoffice key={idx} {...props} product={product}/>    
                             ))}

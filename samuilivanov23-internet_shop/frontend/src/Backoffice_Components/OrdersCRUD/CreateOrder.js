@@ -6,7 +6,7 @@ import { Link } from '../../../node_modules/react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { useEffect, useState } from 'react';
 import { EmptyCart } from '../../Components/actions/CartActions';
-import CartProductBackoffice from './CartProductListBackOffice';
+import CartProductBackoffice from './CartProductBackoffice';
 
 
 function CreateOrder(props){
@@ -59,7 +59,9 @@ function CreateOrder(props){
 
             <Container fluid>
                 <Row>
-                    <h3>This order will be assigned to: {userBackofficeInfo.id}</h3>
+                    <Col>
+                        <h3>This order will be assigned to: {userBackofficeInfo.id}</h3>
+                    </Col>        
                 </Row>
 
                 <Row>
@@ -76,19 +78,23 @@ function CreateOrder(props){
                 </Row>
 
                 <Row>
-                    <Button style={{marginLeft : '2em'}}>
-                        <Link style={{color:'white'}} to={'/backoffice/orders/products'}>
-                            Browse products
-                        </Link>
-                    </Button>
+                    <Col>
+                        <Button style={{marginLeft : '2em'}}>
+                            <Link style={{color:'white'}} to={'/backoffice/orders/products'}>
+                                Browse products
+                            </Link>
+                        </Button>
+                    </Col>
                 </Row>
 
                 <Row>
-                    <Button style={{marginLeft : '2em'}}>
-                        <Link style={{color:'white'}} to={'/backoffice/orders'} onClick={() => createOrder(userBackofficeInfo.id, cartInfo, employeeInfo.id)}>
-                            Create order
-                        </Link>
-                    </Button>
+                    <Col>
+                        <Button style={{marginLeft : '2em'}}>
+                            <Link style={{color:'white'}} to={'/backoffice/orders'} onClick={() => createOrder(userBackofficeInfo.id, cartInfo, employeeInfo.id)}>
+                                Create order
+                            </Link>
+                        </Button>
+                    </Col>
                 </Row>
             </Container>
         </div>
