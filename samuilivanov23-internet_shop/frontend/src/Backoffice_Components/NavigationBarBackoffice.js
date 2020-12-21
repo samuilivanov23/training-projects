@@ -23,15 +23,22 @@ function NavigationBarBackoffice(props) {
         else{
             return <Link className={'nav-link'} to="/backoffice/login" onClick={logoutEmployee}>Logout</Link>;
         }
-    }
+    };
+
+    const generateCartLink = () => {
+        if(employeeInfo.email_address !== 'init' && typeof(employeeInfo.email_address) !== 'undefined'){
+            return <Link className={'nav-link'} to={'/backoffice/cart'}>Cart</Link>
+        }
+    };
 
     const Welcome = () => {
         if(employeeInfo.email_address !== 'init' && typeof(employeeInfo.email_address) !== 'undefined'){
             return <p key={0} style={{'color' : 'white', 'marginTop' : '0.5em'}}> Hello {employeeInfo.email_address} </p>;
         }
-    }
+    };
 
     const LogInLogoutLink = generateLoginLogoutLink();
+    const CartLink = generateCartLink();
     const welcome = Welcome();
 
     return (
@@ -52,6 +59,7 @@ function NavigationBarBackoffice(props) {
             </Nav>
             <Nav className="ml-auto">
                 {LogInLogoutLink}
+                {CartLink}
                 {welcome}
             </Nav>
         </Navbar>

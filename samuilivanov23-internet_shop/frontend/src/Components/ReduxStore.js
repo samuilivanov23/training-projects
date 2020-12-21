@@ -17,6 +17,7 @@ const userInfo = {
 const employeeInfo = {
     id : 0,
     email_address : 'init',
+    cart_id : 0,
     permissions : {},
 };
 

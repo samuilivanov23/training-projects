@@ -1,6 +1,6 @@
-const SignInEmployee = (id, email_address, permissions) => async (dispatch) => {
+const SignInEmployee = (id, email_address, cart_id, permissions) => async (dispatch) => {
     console.log('SignInEmployee action');
-    dispatch({type : 'EMPLOYEE_SIGNIN', data : {id, email_address, permissions}});
+    dispatch({type : 'EMPLOYEE_SIGNIN', data : {id, email_address, cart_id, permissions}});
 }
 
 const LogoutEmployee = () => async (dispatch) => {

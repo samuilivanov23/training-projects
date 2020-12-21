@@ -15,7 +15,7 @@ function OrdersCRUD (props) {
                     <h1 style={{textAlign : 'center'}}> Orders </h1>
 
                     <Button variant="info" style={{'margin' : '2em'}}>
-                        <Link style={{color:'white'}} to={'/backoffice/orders/create'}>
+                        <Link style={{color:'white'}} to={'/backoffice/orders/products'}>
                             <img 
                             src='https://cdn2.iconfinder.com/data/icons/media-controls-5/100/add-512.png'
                             alt="Create order"

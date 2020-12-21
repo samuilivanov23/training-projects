@@ -29,7 +29,7 @@ def LoginEmployee(email_address, password):
     try:
         hashed_password = dbOperator.MakePasswordHash(password+salt)
 
-        sql = 'select id, email_address, role_id from employees where email_address=%s and password=%s'
+        sql = 'select id, email_address, role_id, cart_id from employees where email_address=%s and password=%s'
         cur.execute(sql, (email_address, hashed_password, ))
         employee_record = cur.fetchone()
 
@@ -37,6 +37,7 @@ def LoginEmployee(email_address, password):
             employee_id = employee_record[0]
             email_address = employee_record[1]
             role_id = employee_record[2]
+            cart_id = employee_record[3]
 
             sql = 'select p.create_perm, p.read_perm, p.update_perm, p.delete_perm from roles as r left join permissions as p on r.permission_id=p.id where r.id=%s'
             cur.execute(sql, (role_id, ))
@@ -45,12 +46,13 @@ def LoginEmployee(email_address, password):
             sign_in_employee = {
                 'id' : employee_id,
                 'email_address' : email_address,
+                'cart_id' : cart_id,
                 'permissions' : {
                     'create_perm' : permissions[0],
                     'read_perm' : permissions[1],
                     'update_perm' : permissions[2],
                     'delete_perm' : permissions[3],
-                }, 
+                },
             }
 
             response = {'status' : 'OK', 'msg' : 'Successful', 'employeeInfo' : sign_in_employee}
@@ -59,7 +61,8 @@ def LoginEmployee(email_address, password):
             init_employee_info = {
                 'id' : 0,
                 'email_address' : 'init',
-                'permissions' : {}, 
+                'cart_id' : 0,
+                'permissions' : {},
             }
 
             response = {'status' : 'Fail', 'msg' : 'Incorrect email/password', 'employeeInfo' : init_employee_info}
@@ -67,10 +70,11 @@ def LoginEmployee(email_address, password):
         init_employee_info = {
             'id' : 0,
             'email_address' : 'init',
-            'permissions' : {}, 
+            'cart_id' : 0,
+            'permissions' : {},
         }
 
-        response = {'status' : 'Fail', 'msg' : 'Unable to get products', 'employeeInfo' : init_employee_info}
+        response = {'status' : 'Fail', 'msg' : 'Unable to get employee', 'employeeInfo' : init_employee_info}
         print(e)
     
     if connection:

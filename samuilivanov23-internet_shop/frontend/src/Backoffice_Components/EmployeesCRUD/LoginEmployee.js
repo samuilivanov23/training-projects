@@ -50,6 +50,7 @@ function LoginEmployee(props) {
                 dispatch(SignInEmployee(
                     response['employeeInfo']['id'],
                     response['employeeInfo']['email_address'],
+                    response['employeeInfo']['cart_id'],
                     response['employeeInfo']['permissions']
                 ));
 

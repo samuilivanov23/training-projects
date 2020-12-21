@@ -1,12 +1,12 @@
-import '../App.css';
+import '../../App.css';
 import React from 'react';
 import { useDispatch } from 'react-redux';
-import { Card, Button } from '../../node_modules/react-bootstrap';
-import { Link } from '../../node_modules/react-router-dom';
-import { SetProductDetails } from './actions/ProductActions';
-import { useHistory } from '../../node_modules/react-router-dom';
+import { Card, Button } from 'react-bootstrap';
+import { Link } from 'react-router-dom';
+import { SetProductDetails } from '../../Components/actions/ProductActions';
+import { useHistory } from 'react-router-dom';
 
-function ProductList (props) {
+function ProductListBackoffice (props) {
 
     const history = useHistory();
     const dispatch = useDispatch();
@@ -20,7 +20,7 @@ function ProductList (props) {
                                     current_product['count'],
                                     current_product['image']));
 
-        history.push(`/shop/products/${current_product['id']}`);
+        history.push(`/backoffice/orders/products/${current_product['id']}`);
     }
 
     return (
@@ -36,7 +36,7 @@ function ProductList (props) {
                             <Card.Text>Price: {product['price']} BGN.</Card.Text>
 
                             <Button>
-                                <Link style={{color:'white'}} to={`/shop/products/${product['id']}`} onClick={() => getCurrentProduct(product)}>
+                                <Link style={{color:'white'}} to={`/backoffice/orders/products/${product['id']}`} onClick={() => getCurrentProduct(product)}>
                                     Veiw details
                                 </Link>
                             </Button>  
@@ -48,4 +48,4 @@ function ProductList (props) {
     );
 }
 
-export default ProductList;
+export default ProductListBackoffice;

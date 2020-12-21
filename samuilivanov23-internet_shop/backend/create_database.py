@@ -94,6 +94,7 @@ def createTables(cur, connection):
         "email_address" text UNIQUE,
         "password" text,
         "role_id" int
+        "cart_id" bigserial UNIQUE
     );
 
     CREATE TABLE IF NOT EXISTS roles(
@@ -119,6 +120,9 @@ def createTables(cur, connection):
         "send_date" timestamp
     );
 
+
+    ALTER TABLE users ADD FOREIGN KEY (cart_id) REFERENCES carts (id);
+
     ALTER TABLE products ADD FOREIGN KEY (manufacturer_id) REFERENCES manufacturers (id);
 
     ALTER TABLE orders ADD FOREIGN KEY (user_id) REFERENCES users (id);
@@ -126,6 +130,8 @@ def createTables(cur, connection):
     ALTER TABLE orders ADD FOREIGN KEY (payment_id) REFERENCES payments (id);
 
     ALTER TABLE employees ADD FOREIGN KEY (role_id) REFERENCES roles (id);
+
+    ALTER TABLE employees ADD FOREIGN KEY (cart_id) REFERENCES carts (id);
 
     ALTER TABLE roles ADD FOREIGN KEY (permission_id) REFERENCES permissions (id);
 
