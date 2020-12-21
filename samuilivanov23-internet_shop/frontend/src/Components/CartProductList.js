@@ -28,9 +28,6 @@ function CartProductList (props) {
 
     //takse the signed in user cart_id as argument
     const createOrder = (cart_id) => {
-
-        alert('Product pdded to cart');
-
         var django_rpc = new JsonRpcClient({
             endpoint: 'http://127.0.0.1:8000/shop/rpc/',
         })

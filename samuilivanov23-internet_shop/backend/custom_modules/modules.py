@@ -127,6 +127,10 @@ class JSONParser:
                 'id' : records[i][0],
                 'first_name' : records[i][1],
                 'last_name' : records[i][2],
+                'username' : records[i][3],
+                'email_address' : records[i][4],
+                'authenticated' : records[i][5],
+                'inserted_at' : str(records[i][6])
             })
 
             i+=1
@@ -269,9 +273,6 @@ class DbOperations:
             else:
                 try:
                     sql = 'delete from orders_products where order_id=%s'
-                    cur.execute(sql, (order_id, ))
-                    
-                    sql = 'delete from orders where id=%s'
                     cur.execute(sql, (order_id, ))
                 except Exception as e:
                     print(e)
@@ -428,8 +429,6 @@ class FiltersParser:
 
 
     def GenerateSqlOnEmployeeFilters(self, filtering_params, sorting_parameter, sorting_direction, offset, orders_per_page):
-        print(filtering_params)
-
         sql_start  = '''select e.id as employee_id, e.first_name, e.last_name, e.email_address as email_address, r.name as role_name, 
                         p.create_perm, p.read_perm, p.update_perm, p.delete_perm, e.inserted_at as inserted_at 
                         from employees as e join roles as r on e.role_id=r.id 
@@ -449,6 +448,26 @@ class FiltersParser:
         sql = sql_start + sql_filters + sql_sorting
         return sql, sql_execution_params
 
+    
+    def GenerateSqlOnUserFilters(self, filtering_params, sorting_parameter, sorting_direction, offset, orders_per_page):
+        print(filtering_params)
+
+        sql_start = '''select u.id, u.first_name, u.last_name, u.username, u.email_address, u.authenticated, u.inserted_at from users as u 
+                        where u.is_deleted=false '''
+        
+        filters_dict = {'u.id' : filtering_params[0], 'u.first_name' : filtering_params[1], 'u.last_name' : filtering_params[2], 'u.username' : filtering_params[3], 'u.email_address' : filtering_params[4]}
+        sql_filters = ""
+        sql_execution_params = []
+
+        for key in filters_dict:
+            if not filters_dict[key] == '' and not filters_dict[key] is None:
+                sql_filters += "and " + key + "=%s "
+                sql_execution_params.append(filters_dict[key])
+
+        sql_sorting = '''order by ''' + sorting_parameter + ' ' + sorting_direction + ''' offset ''' + offset + ''' limit ''' + orders_per_page
+
+        sql = sql_start + sql_filters + sql_sorting
+        return sql, sql_execution_params
 
 class Payment: 
     def __init__(self):
@@ -603,8 +622,8 @@ class EmployeesCRUD:
 
     def ReadEmployees(self, selected_sorting, offset, products_per_page, filtering_params, cur):
         try:
-            print(filtering_params)
             filterParser = FiltersParser()
+
             #parameter: date/price/customer_name...
             #direction: asc/desc
             sorting_parameter, sorting_direction = filterParser.ParseSortFilter(selected_sorting)
@@ -726,10 +745,14 @@ class EmployeesCRUD:
 
         #3) Add the employee into the database
         try:
-            sql = 'insert into employees (first_name, last_name, email_address, password, role_id) values(%s, %s, %s, %s, %s)'
+            sql = 'insert into carts default values'
+            cur.execute(sql, )
+            cart_id = cur.fetchone()[0]
+
+            sql = 'insert into employees (first_name, last_name, email_address, password, role_id, cart_id) values(%s, %s, %s, %s, %s, %s)'
             dbOperator = DbOperations()
             hashed_password = dbOperator.MakePasswordHash(password + salt)
-            cur.execute(sql, (first_name, last_name, email_address, hashed_password, role_id))
+            cur.execute(sql, (first_name, last_name, email_address, hashed_password, role_id, cart_id))
             response = {'status' : 'OK', 'msg' : 'Successfull'}
         except Exception as e:
             print(e)
@@ -911,19 +934,52 @@ class UsersCRUD:
     def __init__(self):
         pass
 
-    def ReadUsers(self, cur):
+    def ReadUsers(self, selected_sorting, offset, products_per_page, filtering_params, cur):
         try:
-            sql = 'select * from users'
-            cur.execute(sql, )
+            filterParser = FiltersParser()
+            
+            #parameter: date/price/customer_name...
+            #direction: asc/desc
+            sorting_parameter, sorting_direction = filterParser.ParseSortFilter(selected_sorting)
+
+            if sorting_parameter == 'customer_name':
+                if sorting_direction == 'asc':
+                    sorting_parameter = 'u.first_name asc, u.last_name'
+                else:
+                    sorting_parameter = 'u.first_name desc, u.last_name'
+
+            print(sorting_parameter)
+            print(sorting_direction)
+
+            if filtering_params:
+                sql, sql_execution_params = filterParser.GenerateSqlOnUserFilters(filtering_params, sorting_parameter, sorting_direction, offset, products_per_page)
+                cur.execute(sql, sql_execution_params)
+            else:
+                sql =  '''select u.id, u.first_name, u.last_name, u.username, u.email_address, u.authenticated, u.inserted_at from users as u 
+                        where u.is_deleted=false order by ''' + sorting_parameter + ' ' + sorting_direction + ''' offset ''' + offset + ''' limit ''' + products_per_page
+                print(sql)
+                cur.execute(sql, )
+
+            print(sql)
             users_records = cur.fetchall()
 
-            jsonParser = JSONParser()
-            users_json = jsonParser.GetAllUsersJSON(users_records)
-            response = {'status' : 'OK', 'msg' : 'Successfull', 'users' : users_json}
+            sql = 'select count(*) from users'
+            cur.execute(sql, )
+            users_count = cur.fetchone()[0]
+            pages_count = math.ceil(users_count / int(products_per_page))
+
+            try:
+                jsonParser = JSONParser()
+                users_json = jsonParser.GetAllUsersJSON(users_records)
+                response = {'status' : 'OK', 'msg' : 'Successfull', 'users' : users_json, 'pages_count' : pages_count}
+            except Exception as e:
+                print(e)
+                response = {'status' : 'Fail', 'msg' : 'No users in database', 'users' : []}
         except Exception as e:
             print(e)
-            response = {'status' : 'Fail', 'msg' : 'Unable to get users', 'users' : []}
+            response = {'status' : 'Fail', 'msg' : 'Internal server error', 'users' : []}
 
+        print(response)
         return response
 
 class OrdersCRUD:
@@ -971,6 +1027,66 @@ class OrdersCRUD:
 
         return response
     
+    def CreateOrder(self, products, user_id, employee_id, cur):
+        try:
+            print(products)
+            total_price = self.CalculateTotalPrice(products)
+            print(total_price)
+
+            sql = 'insert into orders(total_price, user_id) values(%s, %s) RETURNING id'
+            cur.execute(sql, (total_price, user_id))
+            order_id = cur.fetchone()[0]
+
+            sql = 'select cart_id from employees where id=%s'
+            cur.execute(sql, (employee_id, ))
+            cart_id = cur.fetchone()[0]
+
+           #get products in the employee's car
+            sql ='''select cp.product_id, p.name, p.description, p.price, cp.count, p.count, p.image_name from carts_products as cp
+                        join products as p on cp.product_id=p.id where cp.cart_id=%s'''
+
+            cur.execute(sql, (cart_id, ))
+            cart_products = cur.fetchall()
+
+            for i in range(len(cart_products)):
+                product_id = cart_products[i][0]
+                selected_count = cart_products[i][4]
+                count_in_stock = cart_products[i][5]
+
+                if(self.CheckProductInStock(selected_count, count_in_stock)):
+                    try:
+                        sql = 'insert into orders_products (order_id, product_id, count) values(%s, %s, %s)'
+                        cur.execute(sql, (order_id, product_id, selected_count))
+                    except Exception as e:
+                        print(e)
+                        response = {'status' : 'Fail', 'msg' : 'Unable to insert product into order'}
+                        return response
+                else:
+                    try:
+                        sql = 'delete from orders_products where order_id=%s'
+                        cur.execute(sql, (order_id, ))
+                    except:
+                        print(e)
+                        response = {'status' : 'Fail', 'msg' : 'Unable to remove product from order'}
+                        return response
+                    
+                    product_name = cart_products[i][1]
+                    if count_in_stock == 0:
+                        msg = 'Product ' + product_name + ' is out of stock'
+                    else:
+                        msg = 'Select less than ' + str(count_in_stock) + ' count from: ' + product_name + ' product'
+                    
+                    response = {'status' : 'Fail', 'msg' : msg}
+                    return response
+        except Exception as e:
+            print(e)
+            response = {'status' : 'Fail', 'msg' : 'Internal Server error'}
+        
+        response = {'status' : 'OK', 'msg' : 'Successfully created order'}
+        print(response)
+        return response
+
+    
     def DeleteOrders(self, id, cur):
         try:
             sql = 'update orders set is_deleted=true where id=%s'
@@ -981,4 +1097,18 @@ class OrdersCRUD:
             response = {'status' : 'Fail', 'msg' : 'Unable to delete order'}
         
         return response
+
+    
+    def CalculateTotalPrice(self, products):
+        total_price = 0
+        for product in products:
+            total_price += float(product['price']) * int(product['selected_count'])
+
+        return total_price
+
+    def CheckProductInStock(self, selected_count, count_in_stock):
+        if selected_count <= count_in_stock:
+            return True
+        else:
+            return False
 

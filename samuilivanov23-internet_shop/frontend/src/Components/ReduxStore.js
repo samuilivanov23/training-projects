@@ -1,6 +1,6 @@
 import { createStore, combineReducers, applyMiddleware } from 'redux';
 import thunk from 'redux-thunk';
-import { signInUserReducer } from './reducers/UserReducers';
+import { signInUserReducer, userBackofficeOrderReducer } from './reducers/UserReducers';
 import { cartReducer } from './reducers/CartReducers';
 import { productReducer, productUpdateReducer } from './reducers/ProductReducers';
 import { orderReducer } from './reducers/OrderReducers';
@@ -49,13 +49,17 @@ const productToUpdateInfo = {
     image : 'init',
     manufacturer_name : 'init',
     manufacturer_id : 0
-}
+};
 
 const orderInfo = {
     id : 0,
     user_id : 0,
     total_price : 0,
     products : []
+};
+
+const userBackofficeInfo = {
+    id : 0
 };
 
 const initial_state = { 
@@ -65,11 +69,13 @@ const initial_state = {
     cartProducts : {cartInfo}, 
     productDetails : {productInfo},
     productToUpdate : {productToUpdateInfo},
-    orderProducts : {orderInfo}
+    orderProducts : {orderInfo},
+    userBackoffice : {userBackofficeInfo}
 };
 
 const reducer = combineReducers({
     signInUser : signInUserReducer,
+    userBackoffice : userBackofficeOrderReducer,
     employee : employeeReducer,
     employeeToUpdate : employeeUpdateReducer,
     cartProducts : cartReducer,

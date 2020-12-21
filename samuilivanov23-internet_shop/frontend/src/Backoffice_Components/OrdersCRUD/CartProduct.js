@@ -86,7 +86,7 @@ function CartProductBackoffice(props){
                             <select id="selectedCount" name={'selected_count'} value={props.product.selected_count} onChange={changeProductSelectCount}>
                                 {options}
                             </select>
-                            <label for="selectedCount">Quantity</label>
+                            <label>Quantity</label>
                         </div>
                     </Col>
 

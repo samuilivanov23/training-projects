@@ -11,4 +11,14 @@ function signInUserReducer(state = {}, action){
     }
 }
 
-export {signInUserReducer}
+function userBackofficeOrderReducer(state = {}, action){
+    switch(action.type){
+        case 'ASSIGN_USER_BACKOFFICE_ORDER':
+            return {userBackofficeInfo : action.data}
+        
+        default:
+            return state;
+    }
+}
+
+export {signInUserReducer, userBackofficeOrderReducer }

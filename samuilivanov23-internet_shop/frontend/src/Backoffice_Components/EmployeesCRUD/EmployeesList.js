@@ -109,7 +109,7 @@ function EmployeesList (props){
         });
     };
 
-    const sortProducts = (event) => {
+    const sortEmployees = (event) => {
         const filter = event.target.value;
         loadEmployees(current_page, filter, [
             parseInt(employee_id),
@@ -151,6 +151,13 @@ function EmployeesList (props){
     const clearFilters = () => {
         formRef.current.reset();
         setValidated(false);
+        
+        set_employee_id(null);
+        set_employee_first_name('');
+        set_employee_last_name('');
+        set_employee_email_address('');
+        set_employee_role('');
+        
         loadEmployees(current_page, selected_sorting, []) // empty array -> no filtering params
     };
 
@@ -281,35 +288,35 @@ function EmployeesList (props){
                                 <TableRow>
                                     <TableCell align="center">
                                         Id
-                                        <select style={{marginLeft : '0.5em'}} id="SortFilter" name={'sort_filter'} value={selected_sorting} onChange={sortProducts}>
+                                        <select style={{marginLeft : '0.5em'}} id="SortFilter" name={'sort_filter'} value={selected_sorting} onChange={sortEmployees}>
                                             <option key={1} value={'Sort by employee_id asc'}>↗</option>
                                             <option key={2} value={'Sort by employee_id desc'}>↘</option>
                                         </select>
                                     </TableCell>
                                     <TableCell align="center">
                                         Inserted
-                                        <select style={{marginLeft : '0.5em'}} id="SortFilter" name={'sort_filter'} value={selected_sorting} onChange={sortProducts}>
+                                        <select style={{marginLeft : '0.5em'}} id="SortFilter" name={'sort_filter'} value={selected_sorting} onChange={sortEmployees}>
                                             <option key={1} value={'Sort by inserted_at asc'}>↗</option>
                                             <option key={2} value={'Sort by inserted_at desc'}>↘</option>
                                         </select>
                                     </TableCell>
                                     <TableCell align="center">
                                         Name
-                                        <select style={{marginLeft : '0.5em'}} id="SortFilter" name={'sort_filter'} value={selected_sorting} onChange={sortProducts}>
+                                        <select style={{marginLeft : '0.5em'}} id="SortFilter" name={'sort_filter'} value={selected_sorting} onChange={sortEmployees}>
                                             <option key={1} value={'Sort by customer_name asc'}>↗</option>
                                             <option key={2} value={'Sort by customer_name desc'}>↘</option>
                                         </select>
                                     </TableCell>
                                     <TableCell align="center">
                                         Email
-                                        <select style={{marginLeft : '0.5em'}} id="SortFilter" name={'sort_filter'} value={selected_sorting} onChange={sortProducts}>
+                                        <select style={{marginLeft : '0.5em'}} id="SortFilter" name={'sort_filter'} value={selected_sorting} onChange={sortEmployees}>
                                             <option key={1} value={'Sort by email_address asc'}>↗</option>
                                             <option key={2} value={'Sort by email_address desc'}>↘</option>
                                         </select>
                                     </TableCell>
                                     <TableCell align="center">
                                         Role
-                                        <select style={{marginLeft : '0.5em'}} id="SortFilter" name={'sort_filter'} value={selected_sorting} onChange={sortProducts}>
+                                        <select style={{marginLeft : '0.5em'}} id="SortFilter" name={'sort_filter'} value={selected_sorting} onChange={sortEmployees}>
                                             <option key={1} value={'Sort by role_name asc'}>↗</option>
                                             <option key={2} value={'Sort by role_name desc'}>↘</option>
                                         </select>

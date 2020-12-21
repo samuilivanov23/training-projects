@@ -368,9 +368,7 @@ def GetOrders(selected_sorting, current_page, filtering_params):
         cur = connection.cursor()
     except Exception as e:
         print(e)
-        
-    print(filtering_params)
-
+    
     products_per_page = 20
     offset = current_page * products_per_page
     response = ordersCRUD.ReadOrders(selected_sorting, str(offset), str(products_per_page), filtering_params, cur)
@@ -380,6 +378,29 @@ def GetOrders(selected_sorting, current_page, filtering_params):
         connection.close()
     
     response = json.dumps(response)
+    return response
+
+@rpc_method
+def CreateOrderBackoffice(products, user_id, employee_id):
+    #Connect to database
+    try:
+        connection = psycopg2.connect("dbname='" + onlineShop_dbname + 
+                                    "' user='" + onlineShop_dbuser + 
+                                    "' password='" + onlineShop_dbpassword + "'")
+
+        connection.autocommit = True
+        cur = connection.cursor()
+    except Exception as e:
+        print(e)
+
+    response = ordersCRUD.CreateOrder(products, user_id, employee_id, cur)
+
+    if connection:
+        cur.close()
+        connection.close()
+    
+    response = json.dumps(response)
+    print(response)
     return response
 
 @rpc_method
@@ -405,7 +426,7 @@ def DeleteOrder(id):
     return response
 
 @rpc_method
-def GetUsers():
+def GetUsers(selected_sorting, current_page, filtering_params):
     #Connect to database
     try:
         connection = psycopg2.connect("dbname='" + onlineShop_dbname + 
@@ -417,7 +438,10 @@ def GetUsers():
     except Exception as e:
         print(e)
     
-    response = usersCRUD.ReadUsers(cur)
+    products_per_page = 20
+    offset = current_page * products_per_page
+    response = usersCRUD.ReadUsers(selected_sorting, str(offset), str(products_per_page), filtering_params, cur)
+    # response = usersCRUD.ReadUsers(cur)
 
     if connection:
         cur.close()

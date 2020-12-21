@@ -17,4 +17,9 @@ const LogoutUser = () => async (dispatch) => {
     dispatch({type : 'USER_LOGOUT', data : { userInfo }});
 }
 
-export { SignIn, LogoutUser }
+const AssignUserBackofficeOrder = (id) => async(dispatch) => {
+    console.log('AssignUserBackofficeOrded');
+    dispatch({type : 'ASSIGN_USER_BACKOFFICE_ORDER', data : {id}});
+}
+
+export { SignIn, LogoutUser, AssignUserBackofficeOrder }

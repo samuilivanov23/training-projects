@@ -24,6 +24,7 @@ import CreateOrder from './Backoffice_Components/OrdersCRUD/CreateOrder';
 import ProductDetailsBackoffice from './Backoffice_Components/OrdersCRUD/ProductDetailsBackoffice';
 import CartProductListBackoffice from './Backoffice_Components/OrdersCRUD/CartProductListBackOffice';
 import ChooseProductsBackoffice from './Backoffice_Components/OrdersCRUD/ChooseProductsBackoffice';
+import UsersList from './Backoffice_Components/OrdersCRUD/ChooseOrderCustomer';
 
 function App (props) {
 
@@ -52,6 +53,7 @@ function App (props) {
       <Route path={"/backoffice/products/update/:id"} render={(props) => <UpdateProduct {...props}/>} />
       <Route exact path={"/backoffice/orders"} render={(props) => <OrdersCRUD {...props}/>} />
       <Route exact path={"/backoffice/orders/products"} render={(props) => <ChooseProductsBackoffice {...props} per_page={20}/>} />
+      <Route path={"/backoffice/orders/choose-customer"} render={(props) => <UsersList {...props}/>} />
       <Route path={"/backoffice/orders/products/:id"} render={(props) => <ProductDetailsBackoffice {...props}/>} />
       <Route path={"/backoffice/orders/create"} render={(props) => <CreateOrder {...props}/>} />
     </div>
