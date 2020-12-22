@@ -4,7 +4,13 @@ import { useHistory } from '../../node_modules/react-router-dom';
 function PrivateReroute(){
     const history = useHistory();
     console.log(history);
-    history.push('/shop/products');
+    
+    console.log(history.location.pathname);
+    console.log(history.location.pathname.indexOf("/shop/confirm/"));
+
+    if(!(history.location.pathname.indexOf("/shop/confirm/") >= 0)) {
+        history.push('/shop/products');
+    }
 
     return(
         null
