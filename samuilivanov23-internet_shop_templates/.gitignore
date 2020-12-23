@@ -1,0 +1,4 @@
+internet_shop/internet_shop/dbconfig.py
+internet_shop/internet_shop/__pycache__/
+internet_shop/shop/__pycache__/
+internet_shop/shop/migrations/
