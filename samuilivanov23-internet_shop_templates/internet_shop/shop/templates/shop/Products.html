@@ -2,17 +2,27 @@
 
 {% block content %}
     {% if products %}
-        {% for product in products %}
-            <div class="flex-container">
-                <div class="card">
-                    <p>{{product.id}}</p>
-                    <h4><b>{{product.name}}</b></h4> 
-                    <p>{{product.description}}</p>
-                    <p>{{product.price}}</p>
-                    <a href="/shop/products/{{ product.id }}">Product Details</a>
-                </div>
-            </div>
-        {% endfor %}
+        <table id="products-table-style">
+            <tr>
+                <th>Id</th>
+                <th>Name</th>
+                <th>Description</th>
+                <th>Count</th>
+                <th>Price [BGN]</th>
+                <th> --- </th>
+            </tr>
+
+            {% for product in products %}
+                <tr>
+                    <td>{{ product.id }}</td>
+                    <td>{{ product.name }}</td>
+                    <td>{{ product.description }}</td>
+                    <td>{{ product.count }}</td>
+                    <td>{{ product.price }}</td>
+                    <td><a href="/shop/products/{{ product.id }}/"><button class="details-button-style"> Product Details </button></a></td>
+                </tr>
+            {% endfor %}
+        </table>
     {% else %}
         <p>No polls are available.</p>
     {% endif %}

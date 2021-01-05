@@ -2,3 +2,5 @@ internet_shop/internet_shop/dbconfig.py
 internet_shop/internet_shop/__pycache__/
 internet_shop/shop/__pycache__/
 internet_shop/shop/migrations/
+internet_shop/shop/custom_views/__pycache__/
+internet_shop/shop/custom_views/modules/__pycache__/
