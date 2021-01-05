@@ -10,8 +10,13 @@ dbOperator = database_operations.DbOperations()
 responsePayloadOperator = response_payload.ResponsePayloadOperations()
 
 def Products(request):
-    cur, connection = dbOperator.ConnectToDb(onlineShop_dbname, onlineShop_dbuser, onlineShop_dbpassword)
+    try:
+        print(request.session['sign_in_customer'])
+    except Exception as e:
+        print(e)
 
+    cur, connection = dbOperator.ConnectToDb(onlineShop_dbname, onlineShop_dbuser, onlineShop_dbpassword)
+    
     try:
         sql = 'select id, name, description, count, price from products where is_deleted=false limit 3'
         cur.execute(sql, )
@@ -32,6 +37,11 @@ def Products(request):
         print(e)
 
 def ProductDetails(request, product_id, *args):
+    try:
+        print(request.session)
+    except Exception as e:
+        print(e)
+    
     cur, connection = dbOperator.ConnectToDb(onlineShop_dbname, onlineShop_dbuser, onlineShop_dbpassword)
 
     try:

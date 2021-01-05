@@ -1,0 +1,12 @@
+{% extends 'shop/base.html' %}
+
+{% block content %}
+    {% if msg %}
+        <p> {{ msg }} </p>
+    {% endif %}
+    <form action="/shop/login/" method="post">
+        {% csrf_token %}
+        {{ form }}
+        <input type="submit" value="Submit">
+    </form>
+{% endblock content %}

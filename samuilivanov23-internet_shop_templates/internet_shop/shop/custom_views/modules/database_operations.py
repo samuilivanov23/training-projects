@@ -1,4 +1,5 @@
 import psycopg2
+import hashlib
 
 class DbOperations:
     def ConnectToDb(self, onlineShop_dbname, onlineShop_dbuser, onlineShop_dbpassword):
@@ -13,3 +14,7 @@ class DbOperations:
             print(e)
         
         return cur, connection
+    
+    def MakePasswordHash(self, password):
+        hashed_password = hashlib.sha256(str.encode(password)).hexdigest()
+        return hashed_password
