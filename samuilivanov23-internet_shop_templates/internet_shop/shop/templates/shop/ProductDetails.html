@@ -1,17 +1,24 @@
 {% extends 'shop/base.html' %}
 
 {% block content %}
-    {% if products %}
-        {% for product in products %}
-            <div class="flex-container">
-                <div class="card">
-                    <h4><b>1</b></h4> 
-                    <p>2</p>
-                    <p>3</p>
-                </div>
+    {% if product %}
+        <div class="flex-container">
+            <div class="card">
+                <h4><b>{{product.id}}</b></h4> 
+                <p>{{product.name}}</p>
+                <p>{{product.description}}</p>
+                <p>{{product.manufacturer_name}}</p>
+                <p>{{product.price}}</p>
+
+                {% if product.count > 0 %}
+                    <p>{{product.count}}</p>
+                {% else %}
+                    <p>Product not in stock</p>
+                {% endif %}
+                            
             </div>
-        {% endfor %}
+        </div>
     {% else %}
-        <p>No polls are available.</p>
+        <p>Product data not fetched</p>
     {% endif %}
 {% endblock content %}

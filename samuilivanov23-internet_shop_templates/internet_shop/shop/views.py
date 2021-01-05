@@ -24,11 +24,11 @@ def ProductsJSON(records):
 
 def ProductDetailsJSON(record): 
     product = {
-        'id' : records[0],
-        'name' : records[1],
-        'description': records[2],
-        'count' : records[3],
-        'price' : float(records[4]),
+        'id' : record[0],
+        'name' : record[1],
+        'description': record[2],
+        'count' : record[3],
+        'price' : float(record[4]),
         'manufacturer_name' : record[5]
     }
     
@@ -80,18 +80,34 @@ def Products(request):
     except Exception as e:
         print(e)
 
+    
+    try:
+        connection.close()
+        cur.close()
+    except Exception as e:
+        print(e)
+
 def ProductDetails(request, product_id, *args):
     cur, connection = ConnectToDatabase()
+    print(product_id)
 
     try:
         sql ='''select p.id, p.name, p.description, p.count, p.price, m.name from products as p 
                 join manufacturers as m on p.manufacturer_id=m.id where p.is_deleted=false and p.id=%s'''
         cur.execute(sql, (product_id, ))
         product = cur.fetchone()
+        product = ProductDetailsJSON(product)
+        
         print(product)
 
         context = {'product' : product}
         return render(request, 'shop/ProductDetails.html', context)
-    except:
+    except Exception as e:
+        print(e)
+        raise Http404("Product info not fetched")
 
-    return render(request, 'shop/ProductDetails.html')
+    try:
+        connection.close()
+        cur.close()
+    except Exception as e:
+        print(e)
