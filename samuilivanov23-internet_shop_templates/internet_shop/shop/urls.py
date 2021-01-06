@@ -8,4 +8,5 @@ urlpatterns = [
     path('products/', product_views.Products, name='products'),
     path('products/<int:product_id>/', product_views.ProductDetails, name='productDedails'),
     path('login/', customer_views.LoginCustomer, name='loginCustomer'),
+    path('logout/', customer_views.LogoutCustomer, name='logoutCustomer'),
 ]

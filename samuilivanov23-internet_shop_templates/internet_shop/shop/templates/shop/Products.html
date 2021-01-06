@@ -1,5 +1,13 @@
 {% extends 'shop/base.html' %}
 
+{% block navbar %}
+    {% if sign_in_user %}
+        {% include 'shop/navbar.html' with user=sign_in_user%}
+    {% else %}
+        {% include 'shop/navbar.html' with user=none%}
+    {% endif %}
+{% endblock navbar %}
+
 {% block content %}
     {% if products %}
         <table id="products-table-style">
@@ -19,7 +27,7 @@
                     <td>{{ product.description }}</td>
                     <td>{{ product.count }}</td>
                     <td>{{ product.price }}</td>
-                    <td><a href="/shop/products/{{ product.id }}/"><button class="details-button-style"> Product Details </button></a></td>
+                    <td><a href="{% url 'productDedails' product.id %}"><button class="details-button-style"> Product Details </button></a></td>
                 </tr>
             {% endfor %}
         </table>

@@ -12,11 +12,6 @@ dbOperator = database_operations.DbOperations()
 responsePayloadOperator = response_payload.ResponsePayloadOperations()
 
 def LoginCustomer(request):
-    try:
-        print(request.session)
-    except Exception as e:
-        print(e)
-    
     if request.method == 'POST':
         form = LoginCustomerForm(request.POST)
 
@@ -26,10 +21,8 @@ def LoginCustomer(request):
 
             hashed_password = dbOperator.MakePasswordHash(form.cleaned_data['password'] + salt)
             sql = 'select id, username, cart_id from users where email_address=%s and password=%s'
-            print(form.cleaned_data['email_address'], hashed_password)
             cur.execute(sql, (form.cleaned_data['email_address'], hashed_password, ))
             user_record = cur.fetchone()
-            print('user')
             print(user_record)
 
             try:
@@ -40,9 +33,9 @@ def LoginCustomer(request):
 
             try:
                 sign_in_customer = {
-                    'customer_id' : user_record[0],
-                    'customer_username' : user_record[1],
-                    'customer_cart_id' : user_record[2]
+                    'id' : user_record[0],
+                    'username' : user_record[1],
+                    'cart_id' : user_record[2]
                 }
             except Exception as e:
                 print(e)
@@ -63,3 +56,11 @@ def LoginCustomer(request):
         context = {'form' : form}
 
     return render(request, 'shop/LoginCustomer.html', context)
+
+def LogoutCustomer(request):
+    try:
+        del request.session['sign_in_customer']
+        return HttpResponseRedirect('/shop/products/')
+    except Exception as e:
+        print(e)
+        return HttpResponseRedirect('/shop/products/')

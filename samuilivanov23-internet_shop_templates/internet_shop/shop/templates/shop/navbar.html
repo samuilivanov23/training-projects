@@ -1,0 +1,12 @@
+<header>
+    <ul id="navbar-style">
+        <li><a class="nav-float-left" href="{% url 'products' %}">Products</a></li>
+        {% if user %}
+            <li><a class="nav-float-right" href="{% url 'logoutCustomer' %}">Log out</a></li>
+            {% comment %} <li><a class="nav-float-right" href="{% url 'cart' %}">Cart</a></li> {% endcomment %}
+            <li><a class="nav-float-right" href="{% url 'logoutCustomer' %}">Hi {{sign_in_user.username}}</a></li>
+        {% else %}
+            <li><a class="nav-float-right" href="{% url 'loginCustomer' %}">Login</a></li>
+        {% endif %}
+    </ul>
+</header>

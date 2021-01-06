@@ -1,5 +1,20 @@
 {% extends 'shop/base.html' %}
 
+{% block header %}
+    <header>
+        <ul id="navbar-style">
+            <li><a class="nav-float-left" href="/shop/products/">Products</a></li>
+            {% if sign_in_user %}
+                <li><a class="nav-float-right" href="">Sign Up</a></li>
+            {% else %}
+                <li>Hi signed_in_user.username</li>
+                <li><a class="nav-float-right" href="/shop/login/">Login</a></li>
+                <li><a class="nav-float-right" href="/shop/cart/">Cart</a></li>
+            {% endif %}
+        </ul>
+    </header>
+{% endblock header %}
+
 {% block content %}
     {% if product %}
         <div class="flex-container">
@@ -15,7 +30,7 @@
                 {% else %}
                     <p>Product not in stock</p>
                 {% endif %}
-                            
+
             </div>
         </div>
     {% else %}

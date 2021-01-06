@@ -101,14 +101,11 @@
     </head>
 
     <body>
-    {# Navigation Menu #}
-        <header>
-            <ul id="navbar-style">
-                <li><a class="nav-float-left" href="/shop/products/">Products</a></li>
-                <li><a class="nav-float-right" href="/shop/login/">Login</a></li>
-                <li><a class="nav-float-right" href="">Sign Up</a></li>
-            </ul>
-        </header>
+        {# Navigation Menu #}
+        {% block navbar %}
+            if you see this, something is wrong!
+        {% endblock navbar %}
+
         {# The Document Body #}
         <div id="site-wrapper">
             {% block content %}

@@ -10,11 +10,6 @@ dbOperator = database_operations.DbOperations()
 responsePayloadOperator = response_payload.ResponsePayloadOperations()
 
 def Products(request):
-    try:
-        print(request.session['sign_in_customer'])
-    except Exception as e:
-        print(e)
-
     cur, connection = dbOperator.ConnectToDb(onlineShop_dbname, onlineShop_dbuser, onlineShop_dbpassword)
     
     try:
@@ -22,9 +17,13 @@ def Products(request):
         cur.execute(sql, )
         products = cur.fetchall()
         products = responsePayloadOperator.ProductsJSON(products)
-        #products = ProductsJSON(products);
 
-        context = {'products' : products}
+        try:
+            sign_in_user = request.session['sign_in_customer']
+            context = {'products' : products, 'sign_in_user' : sign_in_user}
+        except Exception as e:
+            print(e)
+            context = {'products' : products}
         return render(request, 'shop/Products.html', context)
     except Exception as e:
         print(e)
@@ -36,12 +35,7 @@ def Products(request):
     except Exception as e:
         print(e)
 
-def ProductDetails(request, product_id, *args):
-    try:
-        print(request.session)
-    except Exception as e:
-        print(e)
-    
+def ProductDetails(request, product_id, *args):  
     cur, connection = dbOperator.ConnectToDb(onlineShop_dbname, onlineShop_dbuser, onlineShop_dbpassword)
 
     try:
@@ -50,17 +44,22 @@ def ProductDetails(request, product_id, *args):
         cur.execute(sql, (product_id, ))
         product = cur.fetchone()
 
+        try:
+            connection.close()
+            cur.close()
+        except Exception as e:
+            print(e)
+
         product = responsePayloadOperator.ProductDetailsJSON(product)
-        #product = ProductDetailsJSON(product)
         
-        context = {'product' : product}
+        try:
+            sign_in_user = request.session['sign_in_customer']
+            context = {'product' : product, 'sign_in_user' : sign_in_user}
+        except Exception as e:
+            print(e)
+            context = {'product' : product}
+
         return render(request, 'shop/ProductDetails.html', context)
     except Exception as e:
         print(e)
         raise Http404("Product info not fetched")
-
-    try:
-        connection.close()
-        cur.close()
-    except Exception as e:
-        print(e)
