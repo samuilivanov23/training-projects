@@ -1,25 +1,18 @@
 {% extends 'shop/base.html' %}
 
-{% block header %}
-    <header>
-        <ul id="navbar-style">
-            <li><a class="nav-float-left" href="/shop/products/">Products</a></li>
-            {% if sign_in_user %}
-                <li><a class="nav-float-right" href="">Sign Up</a></li>
-            {% else %}
-                <li>Hi signed_in_user.username</li>
-                <li><a class="nav-float-right" href="/shop/login/">Login</a></li>
-                <li><a class="nav-float-right" href="/shop/cart/">Cart</a></li>
-            {% endif %}
-        </ul>
-    </header>
-{% endblock header %}
+{% block navbar %}
+    {% if sign_in_user %}
+        {% include 'shop/navbar.html' with user=sign_in_user%}
+    {% else %}
+        {% include 'shop/navbar.html' with user=none%}
+    {% endif %}
+{% endblock navbar %}
 
 {% block content %}
     {% if msg %}
         <p> {{ msg }} </p>
     {% endif %}
-    <form action="/shop/login/" method="post">
+    <form action="{% url 'loginCustomer' %}" method="post">
         {% csrf_token %}
         {{ form }}
         <input type="submit" value="Submit">

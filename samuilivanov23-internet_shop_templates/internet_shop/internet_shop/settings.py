@@ -67,6 +67,8 @@ TEMPLATES = [
     },
 ]
 
+print(os.path.join(BASE_DIR, 'shop/templates'))
+
 WSGI_APPLICATION = 'internet_shop.wsgi.application'
 
 
