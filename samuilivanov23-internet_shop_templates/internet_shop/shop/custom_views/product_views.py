@@ -1,6 +1,5 @@
 from django.shortcuts import render
 from django.http import HttpResponse, Http404, HttpResponseRedirect
-from django.template import loader
 from internet_shop.dbconfig import onlineShop_dbname, onlineShop_dbuser, onlineShop_dbpassword
 from internet_shop.conf import media_root
 import json, psycopg2, json
@@ -15,7 +14,7 @@ def Products(request):
     cur, connection = dbOperator.ConnectToDb(onlineShop_dbname, onlineShop_dbuser, onlineShop_dbpassword)
     
     try:
-        sql = 'select id, name, description, count, price from products where is_deleted=false limit 3'
+        sql = 'select id, name, description, count, price from products where is_deleted=false limit 10'
         cur.execute(sql, )
         products = cur.fetchall()
         products = responsePayloadOperator.ProductsJSON(products)
@@ -92,3 +91,36 @@ def ProductDetails(request, product_id, *args):
         except Exception as e:
             print(e)
             raise Http404("Product info not fetched")
+
+def CartProducts(request):
+    cur, connection = dbOperator.ConnectToDb(onlineShop_dbname, onlineShop_dbuser, onlineShop_dbpassword)
+
+    try:
+        sign_in_user = request.session['sign_in_customer']
+
+        try:
+            sql= '''select p.id, p.name, p.description, p.count, p.price, round((p.count*p.price), 2) from products as p 
+                    join carts_products as cp on p.id=cp.product_id where p.is_deleted=false and cp.cart_id=%s 
+                    union select Null as col1, Null as col2, Null as col3, Null as col4, Null as col5, round(sum(p.count * p.price), 2) from products as p 
+                    join carts_products as cp on p.id=cp.product_id where p.is_deleted=false and cp.cart_id=%s'''
+            
+            cur.execute(sql, (sign_in_user['cart_id'], sign_in_user['cart_id'],))
+            products = cur.fetchall()
+            cart = responsePayloadOperator.CartProductsJSON(products)
+            
+            context = {'cart' : cart, 'sign_in_user' : sign_in_user, 'media_root' : media_root} #TODO add form to chenge selected count for each product
+            return render(request, 'shop/CartProducts.html', context)
+        except Exception as e:
+            print('Unable to fetch products')
+            print(e)
+            return HttpResponseRedirect('/shop/products/')
+
+        try:
+            connection.close()
+            cur.close()
+        except Exception as e:
+            print(e)
+
+    except Exception as e:
+        print('User must log in first')
+        print(e)
