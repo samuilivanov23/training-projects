@@ -3,7 +3,7 @@ from django.http import HttpResponse, Http404, HttpResponseRedirect
 from django.template import loader
 from internet_shop.dbconfig import onlineShop_dbname, onlineShop_dbuser, onlineShop_dbpassword
 from internet_shop.conf import media_root
-import json, psycopg2
+import json, psycopg2, json
 from .modules import database_operations, response_payload, cart_actions
 from .forms import SelectProductQuantity
 
@@ -22,7 +22,8 @@ def Products(request):
 
         try:
             sign_in_user = request.session['sign_in_customer']
-            context = {'products' : products, 'sign_in_user' : sign_in_user, 'media_root' : media_root}
+            user = json.dumps(sign_in_user);
+            context = {'products' : products, 'sign_in_user' : sign_in_user, 'user' : user, 'media_root' : media_root}
         except Exception as e:
             print(e)
             context = {'products' : products, 'media_root' : media_root}
@@ -30,7 +31,6 @@ def Products(request):
     except Exception as e:
         print(e)
 
-    
     try:
         connection.close()
         cur.close()
@@ -51,16 +51,17 @@ def ProductDetails(request, product_id, *args):
             print(e)
             cart_id = -1
             product_count = -1
+            selected_count = -1
 
         selected_count = int(request.POST['quantity'])
         cartManager.AddProductToCard(product_id, selected_count, product_count, cart_id, cur)
-        
+
         try:
             connection.close()
             cur.close()
         except Exception as e:
             print(e)
-            
+          
         return HttpResponseRedirect('/shop/products/')
     else:
         try:
@@ -79,15 +80,12 @@ def ProductDetails(request, product_id, *args):
             
             try:
                 sign_in_user = request.session['sign_in_customer']
-                try:
-                    print(product['count'])
-                except Exception as e:
-                    print(e)
+                user = json.dumps(sign_in_user);
                 form = SelectProductQuantity(product['count'])
-               
-                context = {'form' : form, 'product' : product, 'sign_in_user' : sign_in_user, 'media_root' : media_root}
+                context = {'form' : form, 'product' : product, 'sign_in_user' : sign_in_user, 'user' : user, 'media_root' : media_root}
             except Exception as e:
                 print(e)
+                form = SelectProductQuantity(product['count'])
                 context = {'form' : form, 'product' : product, 'media_root' : media_root}
 
             return render(request, 'shop/ProductDetails.html', context)

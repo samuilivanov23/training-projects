@@ -37,6 +37,7 @@ def LoginCustomer(request):
                     'username' : user_record[1],
                     'cart_id' : user_record[2]
                 }
+                
             except Exception as e:
                 print(e)
                 form = LoginCustomerForm()

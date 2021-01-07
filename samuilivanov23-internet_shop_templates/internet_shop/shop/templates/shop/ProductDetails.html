@@ -1,5 +1,9 @@
 {% extends 'shop/base.html' %}
 
+{% block header_javascript %}
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+{% endblock header_javascript %}
+
 {% block navbar %}
     {% if sign_in_user %}
         {% include 'shop/navbar.html' with user=sign_in_user%}
@@ -24,7 +28,7 @@
                     <p>Product not in stock</p>
                 {% endif %}
 
-                <form action="{% url 'productDedails' product.id %}" method="post">
+                <form id="select_count" action="{% url 'productDedails' product.id %}" method="post">
                     {% csrf_token %}
                     {{ form }}
                     <input type="submit" value="Add to cart">
@@ -35,4 +39,18 @@
     {% else %}
         <p>Product data not fetched</p>
     {% endif %}
+
+    <script type="text/javascript">
+        $('#select_count').submit((event) => {
+            const form_data = $('form').serializeArray();
+            const selected_count = parseInt(form_data[1].value); 
+
+            sign_in_user = "{{ user|escapejs }}";
+
+            if (sign_in_user == "AnonymousUser"){
+                alert("Please log in first");
+                event.preventDefault();
+            }
+        });
+    </script>
 {% endblock content %}
