@@ -1,0 +1,38 @@
+{% extends 'shop/base.html' %}
+
+{% block navbar %}
+    {% if sign_in_user %}
+        {% include 'shop/navbar.html' with user=sign_in_user%}
+    {% else %}
+        {% include 'shop/navbar.html' with user=none%}
+    {% endif %}
+{% endblock navbar %}
+
+{% block content %}
+    {% if encoded %}
+        <form id="form" target="_blank" action="https://demo.epay.bg/" method="POST">
+            <input type="hidden" name="PAGE" value="paylogin"/>
+            <input type="hidden" name="DESCR" value="default"/>
+            <input type="hidden" name="ENCODED" value={{encoded}}/>
+            <input type="hidden" name="CHECKSUM" value={{checksum}}/>
+            <input type="hidden" name="URL_OK" value="https://www.epay.bg/?p=thanks"/>
+            <input type="hidden" name="URL_CANCEL" value="https://www.epay.bg/?p=cancel"/>
+            <button type="submit" form="form" value="Submit" onclick="redirectToHome()" class="form-button-position">Submit</button> 
+        </form>
+
+        <script type="text/javascript">
+            function redirectToHome() {
+                setTimeout(() => {
+                    window.location.href = "{% url 'products' %}";
+                }, 10);
+            }
+        </script>
+    {% else %}
+        <script type="text/javascript">
+            window.onload = () => {
+                alert("{{ message }}");
+                window.location.href = "{% url 'products' %}";;
+            };
+        </script>
+    {% endif %}
+{% endblock content %}

@@ -177,7 +177,7 @@ def ConfirmEmail(request, token_id):
             except Exception as e:
                 print(e)
                 form = RegisterCustomerForm()
-                context = {'form' : form, 'email_vefification_status' : 'Unable go get send date'}
+                context = {'form' : form, 'email_vefification_status' : 'Unable to get send date'}
                 print('Unable go get send date')
 
             try:

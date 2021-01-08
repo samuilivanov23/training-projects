@@ -9,6 +9,13 @@
 {% endblock navbar %}
 
 {% block content %}
+    {% if payment_request_message %}
+        <script type="text/javascript">
+            window.onload = () => {
+                alert("{{ payment_request_message }}");
+            };
+        </script>
+    {% endif %}
     {% if products %}
         <table id="products-table-style">
             <tr>

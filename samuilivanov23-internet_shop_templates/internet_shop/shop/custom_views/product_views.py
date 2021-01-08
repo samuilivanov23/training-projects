@@ -99,9 +99,9 @@ def CartProducts(request):
         sign_in_user = request.session['sign_in_customer']
 
         try:
-            sql= '''select p.id, p.name, p.description, p.count, p.price, round((p.count*p.price), 2) from products as p 
+            sql= '''select p.id, p.name, p.description, cp.count, p.price, round((cp.count*p.price), 2) from products as p 
                     join carts_products as cp on p.id=cp.product_id where p.is_deleted=false and cp.cart_id=%s 
-                    union select Null as col1, Null as col2, Null as col3, Null as col4, Null as col5, round(sum(p.count * p.price), 2) from products as p 
+                    union select Null as col1, Null as col2, Null as col3, Null as col4, Null as col5, round(sum(cp.count * p.price), 2) from products as p 
                     join carts_products as cp on p.id=cp.product_id where p.is_deleted=false and cp.cart_id=%s'''
             
             cur.execute(sql, (sign_in_user['cart_id'], sign_in_user['cart_id'],))

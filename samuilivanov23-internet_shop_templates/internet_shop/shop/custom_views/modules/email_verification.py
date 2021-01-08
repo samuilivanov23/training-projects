@@ -5,9 +5,6 @@ import traceback
 from . import database_operations
 
 class Verifier:
-    def __init__(self):
-        pass
-    
     def SendEmail(self, user_id, 
                         first_name, 
                         receiver_email, 

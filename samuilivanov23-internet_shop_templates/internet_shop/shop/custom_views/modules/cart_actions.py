@@ -1,7 +1,4 @@
 class Cart():
-    def __init__(self):
-        pass
-
     def AddProductToCard(self, product_id, selected_count, product_count, cart_id, cur):
         if int(selected_count) <= int(product_count) and selected_count > 0:
             #Add product to cart
@@ -38,7 +35,7 @@ class Cart():
                         print(e)
                 else:
                     response = 0
-                    return response
+                    return response, order_id
             
             try:
                 sql = 'delete from carts_products where cart_id=%s'
@@ -52,4 +49,4 @@ class Cart():
             print('Inable to add products into order')
             print(e)
         
-        return response
+        return response, order_id
