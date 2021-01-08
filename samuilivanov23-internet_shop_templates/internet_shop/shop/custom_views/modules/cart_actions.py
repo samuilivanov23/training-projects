@@ -40,6 +40,13 @@ class Cart():
                     response = 0
                     return response
             
+            try:
+                sql = 'delete from carts_products where cart_id=%s'
+                cur.execute(sql, (cart_id, ))
+            except Exception as e:
+                print('Unable to delete cart_products entries')
+                print(e)
+
             response = 1
         except Exception as e:
             print('Inable to add products into order')

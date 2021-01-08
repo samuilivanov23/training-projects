@@ -47,6 +47,11 @@
             </tr>
         </table>
     {% else %}
-        <p>No products are available.</p>
+        <script type="text/javascript">
+            window.onload = () => {
+                alert('Cart is empty');
+                window.location.href = "{% url 'products' %}";
+            };
+        </script>
     {% endif %}
 {% endblock content %}
