@@ -12,9 +12,9 @@
     {% if msg %}
         <p> {{ msg }} </p>
     {% endif %}
-    <form action="{% url 'loginCustomer' %}" method="post">
+    <form id="form" action="{% url 'loginCustomer' %}" method="post">
         {% csrf_token %}
         {{ form }}
-        <input type="submit" value="Submit">
+        <button type="submit" form="form" value="Submit" class="form-button-position">Submit</button> 
     </form>
 {% endblock content %}

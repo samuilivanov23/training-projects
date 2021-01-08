@@ -13,7 +13,6 @@
         <table id="products-table-style">
             <tr>
                 <th>Id</th>
-                <th>Image</th>
                 <th>Name</th>
                 <th>Description</th>
                 <th>Count</th>
@@ -24,7 +23,6 @@
             {% for product in products %}
                 <tr>
                     <td>{{ product.id }}</td>
-                    <td> <img src="{{media_root}}/wifi_camera.png"> </td>
                     <td>{{ product.name }}</td>
                     <td>{{ product.description }}</td>
                     <td>{{ product.count }}</td>

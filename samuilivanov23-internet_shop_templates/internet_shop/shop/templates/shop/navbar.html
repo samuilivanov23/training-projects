@@ -6,6 +6,7 @@
             <li><a class="nav-float-right" href="{% url 'cartProducts' %}">Cart</a></li>
             <li><a class="nav-float-right" href="{% url 'logoutCustomer' %}">Hi {{sign_in_user.username}}</a></li>
         {% else %}
+            <li><a class="nav-float-right" href="{% url 'registerCustomer' %}">Register</a></li>
             <li><a class="nav-float-right" href="{% url 'loginCustomer' %}">Login</a></li>
         {% endif %}
     </ul>

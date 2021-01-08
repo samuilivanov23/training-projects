@@ -1,0 +1,29 @@
+{% extends 'shop/base.html' %}
+
+{% block navbar %}
+    {% if sign_in_user %}
+        {% include 'shop/navbar.html' with user=sign_in_user%}
+    {% else %}
+        {% include 'shop/navbar.html' with user=none%}
+    {% endif %}
+{% endblock navbar %}
+
+{% block content %}
+    {% if email_vefification_status %}
+        <script type="text/javascript">
+            window.onload = () => {
+                alert("{{ email_vefification_status }}");
+                window.location.href = "{% url 'products' %}";;
+            };
+        </script>
+    {% else %}
+        {% if msg %}
+            <p> {{ msg }} </p>
+        {% endif %}
+        <form id="form" action="{% url 'registerCustomer' %}" method="post">
+            {% csrf_token %}
+            {{ form }}
+            <button type="submit" form="form" value="Submit" class="form-button-position">Submit</button> 
+        </form>
+    {% endif %}
+{% endblock content %}
