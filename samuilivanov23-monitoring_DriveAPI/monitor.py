@@ -9,7 +9,7 @@ import subprocess
 t1 = Timeloop()
 monitor_data = namedtuple('cputemp', 'name temp max critical')
 
-@t1.job(interval=(timedelta(seconds=5)))
+@t1.job(interval=(timedelta(minutes=1)))
 def InsertCpuData():
     #connect to the database
     connection = psycopg2.connect("dbname='" + monitoring_dbname + 
@@ -57,7 +57,7 @@ def ParseHddTemp(output):
     return name, temp
 
 
-@t1.job(interval=(timedelta(seconds=2)))
+@t1.job(interval=(timedelta(minutes=1)))
 def HddData():
     #connect to the database
     connection = psycopg2.connect("dbname='" + monitoring_dbname + 
