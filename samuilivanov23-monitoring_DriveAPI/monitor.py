@@ -151,6 +151,11 @@ def InsertHddIntoSpreadsheet(drive_name, drive_temp):
         print("hdd insertion not working")
 
 if __name__ == '__main__':
-    service = CreateService(CLIENT_SECRET_FILE, API_NAME, API_VERSION, SCOPES)
-    sheet = service.spreadsheets()
-    t1.start(block=True)
+    while True:
+        try:
+            service = CreateService(CLIENT_SECRET_FILE, API_NAME, API_VERSION, SCOPES)
+            sheet = service.spreadsheets()
+            t1.start(block=True)
+        except Exception as e:
+            print("Unable authenticate with sheet api and create service")
+            print(e)
