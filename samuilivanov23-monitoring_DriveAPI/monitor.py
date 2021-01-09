@@ -5,11 +5,19 @@ import time
 from timeloop import Timeloop
 from datetime import timedelta
 import subprocess
+from google_drive.create_google_service import CreateService
+
+
+CLIENT_SECRET_FILE = "credentials.json"
+API_NAME = "sheets"
+API_VERSION = "v4"
+SCOPES = ["https://www.googleapis.com/auth/spreadsheets"]
+SAMPLE_SPREADSHEET_ID = '1yswSl01QjXgNik8fNkSyaAyux6kTe1rmaOfgnIpLI6w'
 
 t1 = Timeloop()
 monitor_data = namedtuple('cputemp', 'name temp max critical')
 
-@t1.job(interval=(timedelta(minutes=1)))
+@t1.job(interval=(timedelta(seconds=15)))
 def InsertCpuData():
     #connect to the database
     connection = psycopg2.connect("dbname='" + monitoring_dbname + 
@@ -42,6 +50,11 @@ def InsertCpuData():
             connection.commit()
         except Exception as e:
             print(e)
+        
+        try:
+            InsertCpuIntoSpreadsheet(label, temp, max_, crit)
+        except Exception as e:
+            print(e)
 
     try:
         cur.close()
@@ -49,15 +62,7 @@ def InsertCpuData():
     except Exception as e:
         print(e)
 
-def ParseHddTemp(output):
-    output = output.split(' ')
-    name = output[1] + output[2]
-    temp = float(output[3].strip('°C'))
-
-    return name, temp
-
-
-@t1.job(interval=(timedelta(minutes=1)))
+@t1.job(interval=(timedelta(seconds=10)))
 def HddData():
     #connect to the database
     connection = psycopg2.connect("dbname='" + monitoring_dbname + 
@@ -80,6 +85,11 @@ def HddData():
             connection.commit()
         except Exception as e:
             print(e)
+
+        try:
+            InsertHddIntoSpreadsheet(drive_name, drive_temp)
+        except Exception as e:
+            print(e)
     
     try:
         cur.close()
@@ -87,5 +97,60 @@ def HddData():
     except Exception as e:
         print(e)
 
+def ParseHddTemp(output):
+    output = output.split(' ')
+    name = output[1] + output[2]
+    temp = float(output[3].strip('°C'))
+
+    return name, temp
+
+def InsertCpuIntoSpreadsheet(label, temp, max_, crit):
+    values = [
+        [label, temp, max_, crit]
+    ]
+    
+    body = { 'values' : values }
+    value_input_option = "USER_ENTERED"
+    insert_data_option = "INSERT_ROWS"
+
+    update_range = "Sheet1!A2:D2"
+    result = sheet.values().append(
+        spreadsheetId=SAMPLE_SPREADSHEET_ID,
+        range=update_range,
+        valueInputOption=value_input_option,
+        insertDataOption=insert_data_option,
+        body=body
+    ).execute()
+
+    if result:
+        print(result)
+    else:
+        print("cpu insertion not working")
+
+def InsertHddIntoSpreadsheet(drive_name, drive_temp):
+    values = [
+        [drive_name, drive_temp]
+    ]
+    
+    body = { 'values' : values }
+    value_input_option = "USER_ENTERED"
+    insert_data_option = "INSERT_ROWS"
+
+    update_range = "Sheet2!A2:B2"
+    result = sheet.values().append(
+        spreadsheetId=SAMPLE_SPREADSHEET_ID,
+        range=update_range,
+        valueInputOption=value_input_option,
+        insertDataOption=insert_data_option,
+        body=body
+    ).execute()
+
+    if result:
+        print(result)
+    else:
+        print("hdd insertion not working")
+
 if __name__ == '__main__':
+    service = CreateService(CLIENT_SECRET_FILE, API_NAME, API_VERSION, SCOPES)
+    sheet = service.spreadsheets()
     t1.start(block=True)
