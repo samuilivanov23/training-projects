@@ -28,29 +28,3 @@ def CreateService(CLIENT_SECRET_FILE, API_NAME, API_VERSION, SCOPES):
 
     service = build(API_NAME, API_VERSION, credentials=creds)
     return service
-
-    # sheet = service.spreadsheets()
-    
-    # values = [
-    #     ["tes1", "Testiiing"]
-    # ]
-    
-    # body = { 'values' : values }
-    # value_input_option = "USER_ENTERED"
-
-    # for row in range(2, 5):
-    #     update_range = "A" + str(row) + ":B" + str(row)
-    #     result = sheet.values().update(
-    #         spreadsheetId=SAMPLE_SPREADSHEET_ID,
-    #         range=update_range,
-    #         valueInputOption=value_input_option,
-    #         body=body
-    #     ).execute()
-
-    # if result:
-    #     print(result)
-    # else:
-    #     print("not working")
-
-# if __name__ == '__main__':
-#     CreateService()
