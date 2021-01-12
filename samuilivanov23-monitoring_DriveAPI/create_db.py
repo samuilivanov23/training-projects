@@ -6,18 +6,22 @@ def CreateTables(cur, connection):
     command = ('''
         CREATE TABLE IF NOT EXISTS cpu_temp (
             "id" bigserial PRIMARY KEY,
-            "inserted_at" timestamp NOT NULL DEFAULT NOW(),
-            "label" text,
-            "temp" numeric NOT NULL,
-            "max_temp" numeric NOT NULL,
-            "critical_temp" numeric NOT NULL
+            "measured_at" timestamp,
+            "temperature" numeric NOT NULL
         );
 
         CREATE TABLE IF NOT EXISTS hdd_temp (
             "id" bigserial PRIMARY KEY,
-            "inserted_at" timestamp NOT NULL DEFAULT NOW(),
+            "measured_at" timestamp,
             "label" text,
-            "temp" numeric NOT NULL
+            "temperature" numeric NOT NULL
+        );
+
+        CREATE TABLE IF NOT EXISTS ssd_temp (
+            "id" bigserial PRIMARY KEY,
+            "measured_at" timestamp,
+            "label" text,
+            "temperature" numeric NOT NULL
         );
     ''')
 
