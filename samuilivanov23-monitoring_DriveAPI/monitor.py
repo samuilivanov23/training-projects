@@ -11,9 +11,6 @@ API_VERSION = "v4"
 SCOPES = ["https://www.googleapis.com/auth/spreadsheets"]
 SAMPLE_SPREADSHEET_ID = '1yswSl01QjXgNik8fNkSyaAyux6kTe1rmaOfgnIpLI6w'
 
-t1 = Timeloop()
-monitor_data = namedtuple('cputemp', 'name temp max critical')
-
 def ConnectToDatabase():
     connection = psycopg2.connect("dbname='" + monitoring_dbname + 
                                 "' user='" + monitoring_dbuser + 
@@ -26,40 +23,59 @@ def CloseDbConnection(cur, connection):
     cur.close()
     connection.close()
 
-def GetCputMonitorDir():
-    hwmon_base = '/sys/devices/platform/coretemp.0/hwmon'
-    hwmon_dir = os.listdir(hwmon_base)[0]
-    cpu_monitor_dir = os.path.join(hwmon_base, hwmon_dir)
-    return cpu_monitor_dir
+def GetCpuAndDiskData():
+    timestamp = str(datetime.now())
+    result = subprocess.run(['iostat', '-p', 'sda', 'sdb'], stdout=subprocess.PIPE, shell=False, stderr=subprocess.PIPE)
+    stdout = result.stdout.decode('utf-8').strip('\n').split('\n')
 
-def GetCpuData():
-    cpu_monitor_dir = GetCputMonitorDir()
-    cat = lambda file: open(file, 'r').read().strip()
-    temperature = int(cat(os.path.join(cpu_monitor_dir, 'temp1_input'))) / 1000
-    return temperature, str(datetime.now())
+    cpu_load = stdout[3].strip(' ').replace('   ', ' ').split(' ')
+    cpu_info = {
+        'user' : cpu_load[0],
+        'system' : cpu_load[4],
+        'iowait' : cpu_load[6]
+    }
 
-def GetDriveData(drive_path):
-    result = subprocess.run(['sudo', 'hddtemp', drive_path], stdout=subprocess.PIPE)
-    output = result.stdout.decode('utf-8').strip('\n')
-    drive_name, drive_temperature = ParseHddTemp(output)
-    return drive_name, drive_temperature, str(datetime.now())
+    hdd_load = stdout[6].split('        ')
+    ssd_load = stdout[7].split('       ')
+    
+    hdd_info = {
+        'read_ps' : hdd_load[2].strip(' '),
+        'wrtn_ps' : hdd_load[3].strip(' '),
+    }
+    ssd_info = {
+        'read_ps' : ssd_load[3].strip(' '),
+        'wrtn_ps' : ssd_load[4].strip(' '),
+    }
+    
+    return timestamp, cpu_info, hdd_info, ssd_info
 
-def ParseHddTemp(output):
-    output = output.split(' ')
-    name = output[1] + output[2]
-    temp = float(output[3].strip('°C'))
-    return name, temp
+def GetMemoryData():
+    timestamp = str(datetime.now())
+    result = subprocess.run(['vmstat', '-s'], stdout=subprocess.PIPE, shell=False, stderr=subprocess.PIPE)
+    stdout = result.stdout.decode('utf-8').split('\n')
+
+    memory_info = {
+        'used' : round(float(int(stdout[1].strip(' ').split(' ')[0]) / 1000000), 2),
+        'active' : round(float(stdout[2].strip(' ').split(' ')[0]) / 1000000, 2),
+        'inactive' : round(float(stdout[3].strip(' ').split(' ')[0]) / 1000000, 2),
+        'free' : round(float(stdout[4].strip(' ').split(' ')[0]) / 1000000, 2),
+    }
+    
+    return timestamp, memory_info
 
 def InsertDataIntoDb(table_name, args):
     try:
         cur, connection = ConnectToDatabase()
         try:
-            if table_name == 'cpu_temp':
-                sql = "insert into " + table_name + " (measured_at, temperature) values(%s, %s)"
-                cur.execute(sql, (args[1], args[0]))
+            if table_name == 'cpu':
+                sql = "insert into " + table_name + " (measured_at, user_load, system, iowait) values(%s, %s, %s, %s)"
+                cur.execute(sql, (args[0], args[1], args[2], args[3]))
+            elif table_name == 'memory':
+                sql = "insert into " + table_name + " (measured_at, used_gb, active_gb, inactive_gb, free_gb) values(%s, %s, %s, %s, %s)"
+                cur.execute(sql, (args[0], args[1], args[2], args[3], args[4]))                
             else:
-                sql = "insert into " + table_name + " (measured_at, label, temperature) values(%s, %s, %s)"
-                cur.execute(sql, (args[2], args[0], args[1]))
+                sql = "insert into " + table_name + " (measured_at, label, read_ps, wrtn_ps) values(%s, %s, %s, %s)"
+                cur.execute(sql, (args[0], args[1], args[2], args[3]))
             connection.commit()
         except Exception as e:
             print(e)
@@ -71,25 +87,27 @@ def InsertDataIntoDb(table_name, args):
             print('Unable to connect ot Database')
             print(e)
 
-def InsertDataIntoSpreadsheet(sheet_number, args):
+def InsertDataIntoSpreadsheet(sheet_name, args):
     try:
-        if sheet_number == 1: ## The first sheet is for the CPU data
-            InsertIntoCpuSpreadSheet(sheet_number, args[0], args[1])
+        if sheet_name == 'cpu':
+            InsertIntoCpuSpreadSheet(sheet_name, args[0], args[1], args[2], args[3])
+        elif sheet_name == 'memory':
+            InsertIntoMemorySpreadSheets(sheet_name, args[0], args[1], args[2], args[3], args[4])
         else:
-            InsertIntoHardDriveSpreadSheets(sheet_number, args[0], args[1], args[2])
+            InsertIntoHardDriveSpreadSheets(sheet_name, args[0], args[1], args[2], args[3])
     except Exception as e:
         print(e)
 
-def InsertIntoCpuSpreadSheet(sheet_number, temperature, date):
+def InsertIntoCpuSpreadSheet(sheet_name, timestamp, user_load, system_load, iowait):
     values = [
-        [date, temperature]
+        [timestamp, user_load, system_load, iowait]
     ]
     
     body = { 'values' : values }
     value_input_option = "USER_ENTERED"
     insert_data_option = "INSERT_ROWS"
 
-    update_range = "Sheet%s!A2:B2" % str(sheet_number)
+    update_range = "%s!A2:D2" % sheet_name
     result = sheet.values().append(
         spreadsheetId=SAMPLE_SPREADSHEET_ID,
         range=update_range,
@@ -103,16 +121,39 @@ def InsertIntoCpuSpreadSheet(sheet_number, temperature, date):
     else:
         print("cpu insertion not working")
 
-def InsertIntoHardDriveSpreadSheets(sheet_number, drive_name, drive_temperature, date):
+def InsertIntoHardDriveSpreadSheets(sheet_name, timestamp, drive_name, read_ps, wrtn_ps):
     values = [
-        [date, drive_name, drive_temperature]
+        [timestamp, drive_name, read_ps, wrtn_ps]
     ]
     
     body = { 'values' : values }
     value_input_option = "USER_ENTERED"
     insert_data_option = "INSERT_ROWS"
 
-    update_range = "Sheet%s!A2:C2" % str(sheet_number)
+    update_range = "%s!A2:D2" % sheet_name
+    result = sheet.values().append(
+        spreadsheetId=SAMPLE_SPREADSHEET_ID,
+        range=update_range,
+        valueInputOption=value_input_option,
+        insertDataOption=insert_data_option,
+        body=body
+    ).execute()
+
+    if result:
+        print(result)
+    else:
+        print("hard drive insertion not working")
+
+def InsertIntoMemorySpreadSheets(sheet_name, timestamp, used, active, inactive, free):
+    values = [
+        [timestamp, used, active, inactive, free]
+    ]
+    
+    body = { 'values' : values }
+    value_input_option = "USER_ENTERED"
+    insert_data_option = "INSERT_ROWS"
+
+    update_range = "%s!A2:E2" % sheet_name
     result = sheet.values().append(
         spreadsheetId=SAMPLE_SPREADSHEET_ID,
         range=update_range,
@@ -129,13 +170,13 @@ def InsertIntoHardDriveSpreadSheets(sheet_number, drive_name, drive_temperature,
 if __name__ == '__main__':
     buffer = []
     for i in range(100):
-        temperature, cpu_measured_at = GetCpuData()
-        hdd_name, hdd_temperature, hdd_measured_at = GetDriveData('/dev/sda')
-        ssd_name, ssd_temperature, ssd_measured_at = GetDriveData('/dev/sdb')
+        timestamp_cpu_disks, cpu_info, hdd_info, ssd_info = GetCpuAndDiskData()
+        timestamp_memory,  memory_info = GetMemoryData()
 
-        InsertDataIntoDb('cpu_temp', [temperature, cpu_measured_at])
-        InsertDataIntoDb('hdd_temp', [hdd_name, hdd_temperature, hdd_measured_at])
-        InsertDataIntoDb('ssd_temp', [ssd_name, ssd_temperature, ssd_measured_at])
+        InsertDataIntoDb('cpu', [timestamp_cpu_disks, cpu_info['user'], cpu_info['system'], cpu_info['iowait']])
+        InsertDataIntoDb('hdd', [timestamp_cpu_disks, 'ST1000LM024 HN-M101MBB', hdd_info['read_ps'], hdd_info['wrtn_ps']])
+        InsertDataIntoDb('ssd', [timestamp_cpu_disks, 'ADATA SU800', ssd_info['read_ps'], ssd_info['wrtn_ps']])
+        InsertDataIntoDb('memory', [timestamp_memory, memory_info['used'], memory_info['active'], memory_info['inactive'], memory_info['free']])
 
         try:
             service = CreateService(CLIENT_SECRET_FILE, API_NAME, API_VERSION, SCOPES)
@@ -144,9 +185,10 @@ if __name__ == '__main__':
         except Exception as e:
             print('adding to buffer')
             buffer.append([
-                [temperature, cpu_measured_at], 
-                [hdd_name, hdd_temperature, hdd_measured_at], 
-                [ssd_name, ssd_temperature, ssd_measured_at]
+                [timestamp_cpu_disks, cpu_info['user'], cpu_info['system'], cpu_info['iowait']], 
+                [timestamp_cpu_disks, 'ST1000LM024 HN-M101MBB', hdd_info['read_ps'], hdd_info['wrtn_ps']], 
+                [timestamp_cpu_disks, 'ADATA SU800', ssd_info['read_ps'], ssd_info['wrtn_ps']],
+                [timestamp_memory, memory_info['used'], memory_info['active'], memory_info['inactive'], memory_info['free']]
             ])
             print("Unable authenticate with sheet api and create service")
             print(e)
@@ -157,17 +199,20 @@ if __name__ == '__main__':
             try:
                 if buffer:
                     for row in buffer:
-                        InsertDataIntoSpreadsheet(1, row[0])
-                        InsertDataIntoSpreadsheet(2, row[1])
-                        InsertDataIntoSpreadsheet(3, row[2])
-                    InsertDataIntoSpreadsheet(1, [temperature, cpu_measured_at])
-                    InsertDataIntoSpreadsheet(2, [hdd_name, hdd_temperature, hdd_measured_at])
-                    InsertDataIntoSpreadsheet(3, [ssd_name, ssd_temperature, ssd_measured_at])
+                        InsertDataIntoSpreadsheet('cpu', row[0]) #cpu
+                        InsertDataIntoSpreadsheet('hdd', row[1]) #hdd
+                        InsertDataIntoSpreadsheet('ssd', row[2]) #ssd
+                        InsertDataIntoSpreadsheet('memory', row[3]) #memory
+                    InsertDataIntoSpreadsheet('cpu', [timestamp_cpu_disks, cpu_info['user'], cpu_info['system'], cpu_info['iowait']])
+                    InsertDataIntoSpreadsheet('hdd', [timestamp_cpu_disks, 'ST1000LM024 HN-M101MBB', hdd_info['read_ps'], hdd_info['wrtn_ps']])
+                    InsertDataIntoSpreadsheet('ssd', [timestamp_cpu_disks, 'ADATA SU800', ssd_info['read_ps'], ssd_info['wrtn_ps']])
+                    InsertDataIntoSpreadsheet('memory', [timestamp_memory, memory_info['used'], memory_info['active'], memory_info['inactive'], memory_info['free']])
                     buffer = []
                 else:
-                    InsertDataIntoSpreadsheet(1, [temperature, cpu_measured_at])
-                    InsertDataIntoSpreadsheet(2, [hdd_name, hdd_temperature, hdd_measured_at])
-                    InsertDataIntoSpreadsheet(3, [ssd_name, ssd_temperature, ssd_measured_at])
+                    InsertDataIntoSpreadsheet('cpu', [timestamp_cpu_disks, cpu_info['user'], cpu_info['system'], cpu_info['iowait']])
+                    InsertDataIntoSpreadsheet('hdd', [timestamp_cpu_disks, 'ST1000LM024 HN-M101MBB', hdd_info['read_ps'], hdd_info['wrtn_ps']])
+                    InsertDataIntoSpreadsheet('ssd', [timestamp_cpu_disks, 'ADATA SU800', ssd_info['read_ps'], ssd_info['wrtn_ps']])
+                    InsertDataIntoSpreadsheet('memory', [timestamp_memory, memory_info['used'], memory_info['active'], memory_info['inactive'], memory_info['free']])
             except Exception as e:
                 print("Unable to authenticate with sheet api and create service")
                 print(e) 
