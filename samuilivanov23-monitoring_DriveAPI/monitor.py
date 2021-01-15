@@ -64,6 +64,12 @@ def GetMemoryData():
     
     return timestamp, memory_info
 
+def CallDatabaseInsertionFunction(args):
+    InsertDataIntoDb('cpu', args[0])
+    InsertDataIntoDb('hdd', args[1])
+    InsertDataIntoDb('ssd', args[2])   
+    InsertDataIntoDb('memory', args[3])
+
 def InsertDataIntoDb(table_name, args):
     try:
         cur, connection = ConnectToDatabase()
@@ -88,27 +94,27 @@ def InsertDataIntoDb(table_name, args):
             print('Unable to connect ot Database')
             print(e)
 
-def InsertDataIntoSpreadsheet(sheet_name, args):
+def CallSpreadSheetInsertionFunction(args):
+    InsertDataIntoSpreadsheet("cpu!A2:D2", args[0])
+    InsertDataIntoSpreadsheet("hdd!A2:D2", args[1])
+    InsertDataIntoSpreadsheet("ssd!A2:D2", args[2])
+    InsertDataIntoSpreadsheet("memory!A2:E2", args[3])
+
+def InsertDataIntoSpreadsheet(update_range, args):
     try:
-        if sheet_name == 'cpu':
-            InsertIntoCpuSpreadSheet(sheet_name, args[0], args[1], args[2], args[3])
-        elif sheet_name == 'memory':
-            InsertIntoMemorySpreadSheets(sheet_name, args[0], args[1], args[2], args[3], args[4])
-        else:
-            InsertIntoHardDriveSpreadSheets(sheet_name, args[0], args[1], args[2], args[3])
+        SendToSpreadSheet(update_range, args)
     except Exception as e:
         print(e)
 
-def InsertIntoCpuSpreadSheet(sheet_name, timestamp, user_load, system_load, iowait):
+def SendToSpreadSheet(update_range, args):
     values = [
-        [timestamp, user_load, system_load, iowait]
+        args
     ]
     
     body = { 'values' : values }
     value_input_option = "USER_ENTERED"
     insert_data_option = "INSERT_ROWS"
 
-    update_range = "%s!A2:D2" % sheet_name
     result = sheet.values().append(
         spreadsheetId=SAMPLE_SPREADSHEET_ID,
         range=update_range,
@@ -120,135 +126,83 @@ def InsertIntoCpuSpreadSheet(sheet_name, timestamp, user_load, system_load, iowa
     if result:
         print(result)
     else:
-        print("cpu insertion not working")
-
-def InsertIntoHardDriveSpreadSheets(sheet_name, timestamp, drive_name, read_ps, wrtn_ps):
-    values = [
-        [timestamp, drive_name, read_ps, wrtn_ps]
-    ]
-    
-    body = { 'values' : values }
-    value_input_option = "USER_ENTERED"
-    insert_data_option = "INSERT_ROWS"
-
-    update_range = "%s!A2:D2" % sheet_name
-    result = sheet.values().append(
-        spreadsheetId=SAMPLE_SPREADSHEET_ID,
-        range=update_range,
-        valueInputOption=value_input_option,
-        insertDataOption=insert_data_option,
-        body=body
-    ).execute()
-
-    if result:
-        print(result)
-    else:
-        print("hard drive insertion not working")
-
-def InsertIntoMemorySpreadSheets(sheet_name, timestamp, used, active, inactive, free):
-    values = [
-        [timestamp, used, active, inactive, free]
-    ]
-    
-    body = { 'values' : values }
-    value_input_option = "USER_ENTERED"
-    insert_data_option = "INSERT_ROWS"
-
-    update_range = "%s!A2:E2" % sheet_name
-    result = sheet.values().append(
-        spreadsheetId=SAMPLE_SPREADSHEET_ID,
-        range=update_range,
-        valueInputOption=value_input_option,
-        insertDataOption=insert_data_option,
-        body=body
-    ).execute()
-
-    if result:
-        print(result)
-    else:
-        print("hard drive insertion not working")
+        print("insertion not working")
 
 def SendDataToSlack(content):
     payload = '{"text" : "%s"}' % content 
     response = requests.post('https://hooks.slack.com/services/' + slack_webhook_token,
-                            data=payload)
+                            data=payload, timeout=2.5)
 if __name__ == '__main__':
-    timestamp_cpu_disks, cpu_info, hdd_info, ssd_info = GetCpuAndDiskData()
-    timestamp_memory,  memory_info = GetMemoryData()
+    buffer = []
+    while True:
+        # Post data to Slack test-samuil channel
+        timestamp_cpu_disks, cpu_info, hdd_info, ssd_info = GetCpuAndDiskData()
+        timestamp_memory,  memory_info = GetMemoryData()
 
-    user = cpu_info['user']
-    sys = cpu_info['system']
-    iowait = cpu_info['iowait']
-    hdd_label = "ST1000LM024 HN-M101MBB"
-    hdd_read_ps = hdd_info['read_ps']
-    hdd_wrtn_ps = hdd_info['wrtn_ps']
-    ssd_label = "ADATA SU800"
-    ssd_read_ps = ssd_info['read_ps']
-    ssd_wrtn_ps = ssd_info['wrtn_ps']
-    used = memory_info['used']
-    active = memory_info['active']
-    inactive = memory_info['inactive']
-    free = memory_info['free']
+        user = cpu_info['user']
+        sys = cpu_info['system']
+        iowait = cpu_info['iowait']
+        hdd_label = "ST1000LM024 HN-M101MBB"
+        hdd_read_ps = hdd_info['read_ps']
+        hdd_wrtn_ps = hdd_info['wrtn_ps']
+        ssd_label = "ADATA SU800"
+        ssd_read_ps = ssd_info['read_ps']
+        ssd_wrtn_ps = ssd_info['wrtn_ps']
+        used = memory_info['used']
+        active = memory_info['active']
+        inactive = memory_info['inactive']
+        free = memory_info['free']
+        
+        file = open("./slack_message_template.txt", "r")
+        content = f"{file.read()}".format(**locals())
+        file.close()
+        
+        slack_buffer = []
+
+        try:
+            if slack_buffer:
+                for slack_row in slack_buffer:
+                    SendDataToSlack(slack_row)
+                slack_buffer = []
+                SendDataToSlack(content)
+            else:
+                SendDataToSlack(content)
+        except Exception as e:
+            slack_buffer.append(content)
+            print(e)
+                
+        #Insert data into Database
+        row = [
+            [timestamp_cpu_disks, cpu_info['user'], cpu_info['system'], cpu_info['iowait']],
+            [timestamp_cpu_disks, 'ST1000LM024 HN-M101MBB', hdd_info['read_ps'], hdd_info['wrtn_ps']],
+            [timestamp_cpu_disks, 'ADATA SU800', ssd_info['read_ps'], ssd_info['wrtn_ps']],
+            [timestamp_memory, memory_info['used'], memory_info['active'], memory_info['inactive'], memory_info['free']]
+        ]
+
+        CallDatabaseInsertionFunction(row)
+        
+        #Post data to Google SpreadSheet
+        try:
+            service = CreateService(CLIENT_SECRET_FILE, API_NAME, API_VERSION, SCOPES)
+            sheet = service.spreadsheets()
+            connection_successfull = True
+        except Exception as e:
+            print('adding to buffer')
+            buffer.append(row)
+            print("Unable authenticate with sheet api and create service")
+            print(e)
+            connection_successfull = False
     
-    file = open("./slack_message_template.txt", "r")
-    content = f"{file.read()}".format(**locals())
-    file.close()
-    
-    print(content)
-    SendDataToSlack(content)
+        if connection_successfull:
+            try:
+                if buffer:
+                    for row_buffer in buffer:
+                        CallSpreadSheetInsertionFunction(row_buffer)
 
-
-
-    # buffer = []
-    # while True:
-    #     print('test')
-    #     time.sleep(10)
-        # timestamp_cpu_disks, cpu_info, hdd_info, ssd_info = GetCpuAndDiskData()
-        # timestamp_memory,  memory_info = GetMemoryData()
-
-        # #SendDataToSlack(timestamp_cpu_disks, timestamp_memory, cpu_info, hdd_info, ssd_info, memory_info)
-
-        # InsertDataIntoDb('cpu', [timestamp_cpu_disks, cpu_info['user'], cpu_info['system'], cpu_info['iowait']])
-        # InsertDataIntoDb('hdd', [timestamp_cpu_disks, 'ST1000LM024 HN-M101MBB', hdd_info['read_ps'], hdd_info['wrtn_ps']])
-        # InsertDataIntoDb('ssd', [timestamp_cpu_disks, 'ADATA SU800', ssd_info['read_ps'], ssd_info['wrtn_ps']])
-        # InsertDataIntoDb('memory', [timestamp_memory, memory_info['used'], memory_info['active'], memory_info['inactive'], memory_info['free']])
-
-        # try:
-        #     service = CreateService(CLIENT_SECRET_FILE, API_NAME, API_VERSION, SCOPES)
-        #     sheet = service.spreadsheets()
-        #     connection_successfull = True
-        # except Exception as e:
-        #     print('adding to buffer')
-        #     buffer.append([
-        #         [timestamp_cpu_disks, cpu_info['user'], cpu_info['system'], cpu_info['iowait']], 
-        #         [timestamp_cpu_disks, 'ST1000LM024 HN-M101MBB', hdd_info['read_ps'], hdd_info['wrtn_ps']], 
-        #         [timestamp_cpu_disks, 'ADATA SU800', ssd_info['read_ps'], ssd_info['wrtn_ps']],
-        #         [timestamp_memory, memory_info['used'], memory_info['active'], memory_info['inactive'], memory_info['free']]
-        #     ])
-        #     print("Unable authenticate with sheet api and create service")
-        #     print(e)
-        #     connection_successfull = False
-    
-        # if connection_successfull:
-        #     sheet_threads = []
-        #     try:
-        #         if buffer:
-        #             for row in buffer:
-        #                 InsertDataIntoSpreadsheet('cpu', row[0]) #cpu
-        #                 InsertDataIntoSpreadsheet('hdd', row[1]) #hdd
-        #                 InsertDataIntoSpreadsheet('ssd', row[2]) #ssd
-        #                 InsertDataIntoSpreadsheet('memory', row[3]) #memory
-        #             InsertDataIntoSpreadsheet('cpu', [timestamp_cpu_disks, cpu_info['user'], cpu_info['system'], cpu_info['iowait']])
-        #             InsertDataIntoSpreadsheet('hdd', [timestamp_cpu_disks, 'ST1000LM024 HN-M101MBB', hdd_info['read_ps'], hdd_info['wrtn_ps']])
-        #             InsertDataIntoSpreadsheet('ssd', [timestamp_cpu_disks, 'ADATA SU800', ssd_info['read_ps'], ssd_info['wrtn_ps']])
-        #             InsertDataIntoSpreadsheet('memory', [timestamp_memory, memory_info['used'], memory_info['active'], memory_info['inactive'], memory_info['free']])
-        #             buffer = []
-        #         else:
-        #             InsertDataIntoSpreadsheet('cpu', [timestamp_cpu_disks, cpu_info['user'], cpu_info['system'], cpu_info['iowait']])
-        #             InsertDataIntoSpreadsheet('hdd', [timestamp_cpu_disks, 'ST1000LM024 HN-M101MBB', hdd_info['read_ps'], hdd_info['wrtn_ps']])
-        #             InsertDataIntoSpreadsheet('ssd', [timestamp_cpu_disks, 'ADATA SU800', ssd_info['read_ps'], ssd_info['wrtn_ps']])
-        #             InsertDataIntoSpreadsheet('memory', [timestamp_memory, memory_info['used'], memory_info['active'], memory_info['inactive'], memory_info['free']])
-        #     except Exception as e:
-        #         print("Unable to authenticate with sheet api and create service")
-        #         print(e) 
-        # time.sleep(10)
+                    CallSpreadSheetInsertionFunction(row)
+                    buffer = []
+                else:
+                    CallSpreadSheetInsertionFunction(row)
+            except Exception as e:
+                print(e)
+        time.sleep(3600)
