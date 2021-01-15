@@ -1,9 +1,10 @@
 import os, psycopg2, subprocess, time
-from dbconf import monitoring_dbname, monitoring_dbuser, monitoring_dbpassword
+from conf import monitoring_dbname, monitoring_dbuser, monitoring_dbpassword, slack_webhook_token
 from collections import namedtuple
 from timeloop import Timeloop
 from datetime import datetime, timedelta
 from google_drive.create_google_service import CreateService
+import requests
 
 CLIENT_SECRET_FILE = "credentials.json"
 API_NAME = "sheets"
@@ -167,11 +168,43 @@ def InsertIntoMemorySpreadSheets(sheet_name, timestamp, used, active, inactive, 
     else:
         print("hard drive insertion not working")
 
+def SendDataToSlack(timestamp_cpu_disks, timestamp_memory, cpu_info, hdd_info, ssd_info, memory_info):
+    message = '''CPU INFO\n \tmeasured_at\t\tuser(%%) \tsystem(%%)\tiowait(%%) 
+%s\t%s\t\t%s\t\t%s''' % (timestamp_cpu_disks,  cpu_info['user'], cpu_info['system'], cpu_info['iowait'])
+
+    payload = '{"text" : "%s"}' % message 
+    response = requests.post('https://hooks.slack.com/services/' + slack_webhook_token,
+                            data=payload)
+
+    
+    message = '''HDD INFO\n \tmeasured_at \t\t\tlabel \t\t\tkB_read/s \tkB_write/s 
+%s\t%s\t\t%s\t\t%s''' % (timestamp_cpu_disks,  'ST1000LM024 HN-M101MBB', hdd_info['read_ps'], hdd_info['wrtn_ps'])
+
+    payload = '{"text" : "%s"}' % message 
+    response = requests.post('https://hooks.slack.com/services/' + slack_webhook_token,
+                            data=payload)
+    
+    message = '''SSD INFO\n \tmeasured_at \t\t\tlabel \t\t\tkB_read/s \tkB_write/s 
+%s\t%s\t\t%s\t\t%s''' % (timestamp_cpu_disks,  'ADATA SU800', ssd_info['read_ps'], ssd_info['wrtn_ps'])
+
+    payload = '{"text" : "%s"}' % message 
+    response = requests.post('https://hooks.slack.com/services/' + slack_webhook_token,
+                            data=payload)
+
+    message = '''RAM INFO\n \tmeasured_at \t\tused \t\tactive \t\tinactive \tfree 
+%s\t%s\t\t%s\t\t%s\t\t%s''' % (timestamp_memory, memory_info['used'], memory_info['active'], memory_info['inactive'], memory_info['free'])
+
+    payload = '{"text" : "%s"}' % message 
+    response = requests.post('https://hooks.slack.com/services/' + slack_webhook_token,
+                            data=payload)
+
 if __name__ == '__main__':
     buffer = []
-    for i in range(100):
+    for i in range(1):
         timestamp_cpu_disks, cpu_info, hdd_info, ssd_info = GetCpuAndDiskData()
         timestamp_memory,  memory_info = GetMemoryData()
+
+        #SendDataToSlack(timestamp_cpu_disks, timestamp_memory, cpu_info, hdd_info, ssd_info, memory_info)
 
         InsertDataIntoDb('cpu', [timestamp_cpu_disks, cpu_info['user'], cpu_info['system'], cpu_info['iowait']])
         InsertDataIntoDb('hdd', [timestamp_cpu_disks, 'ST1000LM024 HN-M101MBB', hdd_info['read_ps'], hdd_info['wrtn_ps']])

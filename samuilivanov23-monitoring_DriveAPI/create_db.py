@@ -1,5 +1,5 @@
 import psycopg2
-from dbconf import monitoring_dbname, monitoring_dbuser, monitoring_dbpassword
+from conf import monitoring_dbname, monitoring_dbuser, monitoring_dbpassword
 import threading
 
 def CreateTables(cur, connection):    

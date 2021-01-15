@@ -1,5 +1,5 @@
 __pycache__/
-dbconf.py
+conf.py
 google_drive/credentials.json
 google_drive/token.pickle
 credentials.json
