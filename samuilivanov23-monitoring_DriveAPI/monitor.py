@@ -1,10 +1,9 @@
-import os, psycopg2, subprocess, time
+import os, psycopg2, subprocess, time, re, requests
 from conf import monitoring_dbname, monitoring_dbuser, monitoring_dbpassword, slack_webhook_token
 from collections import namedtuple
 from timeloop import Timeloop
 from datetime import datetime, timedelta
 from google_drive.create_google_service import CreateService
-import requests
 
 CLIENT_SECRET_FILE = "credentials.json"
 API_NAME = "sheets"
@@ -29,23 +28,24 @@ def GetCpuAndDiskData():
     result = subprocess.run(['iostat', '-p', 'sda', 'sdb'], stdout=subprocess.PIPE, shell=False, stderr=subprocess.PIPE)
     stdout = result.stdout.decode('utf-8').strip('\n').split('\n')
 
-    cpu_load = stdout[3].strip(' ').replace('   ', ' ').split(' ')
+    cpu_load = re.sub(' +', ' ', stdout[3].strip(' ')).split(' ')
+
     cpu_info = {
         'user' : cpu_load[0],
-        'system' : cpu_load[4],
-        'iowait' : cpu_load[6]
+        'system' : cpu_load[2],
+        'iowait' : cpu_load[3]
     }
 
-    hdd_load = stdout[6].split('        ')
-    ssd_load = stdout[7].split('       ')
-    
+    hdd_load = re.sub(' +', ' ', stdout[6]).split(' ')
+    ssd_load = re.sub(' +', ' ', stdout[7]).split(' ')
+
     hdd_info = {
-        'read_ps' : hdd_load[2].strip(' '),
-        'wrtn_ps' : hdd_load[3].strip(' '),
+        'read_ps' : hdd_load[2],
+        'wrtn_ps' : hdd_load[3],
     }
     ssd_info = {
-        'read_ps' : ssd_load[3].strip(' '),
-        'wrtn_ps' : ssd_load[4].strip(' '),
+        'read_ps' : ssd_load[2],
+        'wrtn_ps' : ssd_load[3],
     }
     
     return timestamp, cpu_info, hdd_info, ssd_info
