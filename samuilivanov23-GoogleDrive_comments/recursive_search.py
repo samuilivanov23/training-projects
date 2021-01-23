@@ -1,15 +1,6 @@
-from google_drive.create_google_service import CreateService
-from pprint import pprint
+MAX_PARENTS = 500  # Set limit below Google max of 599 parents per query.
 
-CLIENT_SECRET_FILE = "credentials.json"
-API_NAME = "drive"
-API_VERSION = "v3"
-SCOPES = ["https://www.googleapis.com/auth/drive"]
-FOLDER_TO_SEARCH = '19nRmkeWo_ctDEV8d7ByMe5pdEZ-8SAyw'  # ID of folder to search
-MAX_PARENTS = 500  # Limit set safely below Google max of 599 parents per query.
-service = CreateService(CLIENT_SECRET_FILE, API_NAME, API_VERSION, SCOPES)
-
-def get_all_folders_in_drive():
+def get_all_folders_in_drive(service):
     """
     Return a dictionary of all the folder IDs in a drive mapped to their parent folder IDs (or to the
     drive itself if a top-level folder). That is, flatten the entire folder structure.
@@ -42,33 +33,38 @@ def get_subfolders_of_folder(folder_to_search, all_folders):
         yield from get_subfolders_of_folder(sub_folder, all_folders)  # Get subsubfolders etc
 
 
-def get_relevant_files(relevant_folders):
-    relevant_files = {}
+def get_relevant_files(relevant_folders, service):
+    relevant_files = []
     chunked_relevant_folders_list = [relevant_folders[i:i + MAX_PARENTS] for i in
                                      range(0, len(relevant_folders), MAX_PARENTS)]
     for folder_list in chunked_relevant_folders_list:
         query_term = ' in parents or '.join('"{0}"'.format(f) for f in folder_list) + ' in parents'
-        relevant_files.update(get_all_files_in_folders(query_term))
+        relevant_files += get_all_files_in_folders(query_term, service)
     return relevant_files
 
 
-def get_all_files_in_folders(parent_folders):
-    files_under_folder_dict = {}
+def get_all_files_in_folders(parent_folders, service):
+    files_under_folder = []
     page_token = None
     max_allowed_page_size = 1000
     just_files = f"mimeType != 'application/vnd.google-apps.folder' and trashed = false and ({parent_folders})"
     while True:
         results = service.files().list(
             pageSize=max_allowed_page_size,
-            fields="nextPageToken, files(id, name, mimeType, parents)",
+            fields="nextPageToken, files(id, name, parents, webViewLink)",
             includeItemsFromAllDrives=True, supportsAllDrives=True,
             pageToken=page_token,
             q=just_files).execute()
         files = results.get('files', [])
         page_token = results.get('nextPageToken', None)
         for file in files:
-            files_under_folder_dict[file['id']] = file['name']
+            files_under_folder.append({
+                'name' : file['name'],
+                'id' : file['id'],
+                'webViewLink' : file['webViewLink']
+            })
+            
         if page_token is None:
             break
             
-    return files_under_folder_dict
+    return files_under_folder
