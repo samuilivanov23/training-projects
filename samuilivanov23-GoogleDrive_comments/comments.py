@@ -36,9 +36,12 @@ def GetCommentsToSend():
                             emails_found = re.findall(email_regex, reply['content'])
 
                             if emails_found and (my_emails[0] in emails_found or my_emails[1] in emails_found):
+                                address_name = re.split('@', emails_found[0])[0]
+                                
                                 data_to_send.append({
                                     'author' : reply['author']['displayName'],
                                     'content' : reply['content'],
+                                    'mentioned' : address_name,
                                     'timestamp' : reply['createdTime'],
                                     'webViewLink' : file['webViewLink']
                                 })
@@ -49,13 +52,16 @@ def GetCommentsToSend():
                         emails_found = re.findall(email_regex, comment['content'])
 
                         if (not comment['author']['displayName'] == "My name here") and emails_found and (my_emails[0] in emails_found or my_emails[1] in emails_found):
+                            address_name = re.split('@', emails_found[0])[0]
+                            
                             data_to_send.append({
                                 'author' : comment['author']['displayName'],
                                 'content' : comment['content'],
+                                'mentioned' : address_name,
                                 'timestamp' : comment['createdTime'],
                                 'webViewLink' : file['webViewLink']
                             })
                         else:
-                            print("Don't send data to Slack")
+                            print("Don't send data to Slack")    
     
     return data_to_send
