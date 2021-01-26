@@ -18,8 +18,6 @@ app = Flask(__name__)
 @app.route('/drive-comments', methods=['POST'])
 def DriveComments():
     data = request.form
-    pprint(data)
-    print()
     
     # Get the folder_ID based on the folder name in the slack command
     command_parameter = data.get('text');
@@ -32,41 +30,48 @@ def DriveComments():
     relevant_folders_list = [folder_id]  # Start with the folder-to-archive
 
     for folder in get_subfolders_of_folder(folder_id, all_folders_dict):
-        print(folder)
         relevant_folders_list.append(folder)
     
-    print(relevant_folders_list)
 
     # Get all files from current folder and each subfolder
     relevant_files = get_relevant_files(relevant_folders_list, service)  # Get the files
+    message = ""
+    all_files_posts = []
+    all_files_comments = []
+    posts_count = comments_count = 0
 
     for file in relevant_files:
-        print("file id: " + file['id'])
-        print("file name: " + file['name'])
-
         comments_data = GetCommentsToSend(file, service)
-        pprint(comments_data)
         
-        message = ""
         if comments_data['my_posts']:
-            print("Here 1111")
-            message += "%s - %d коментара които си пуснал:\n" % (comments_data['my_posts'][0]['author'], len(comments_data['my_posts']))
-            for post in comments_data['my_posts']:
-                message += "%s - %s - %s - %s\n---------------------------------------------\n" % (file['name'], post['timestamp'], post['webViewLink'], post['content'])
-
+            posts_count += len(comments_data['my_posts'])
+            all_files_posts.append([comments_data, file['name']])
+            
         if comments_data['comments']:
-            print("Here 2222")
-            message += "%s - %d коментара, в които си тагнат и се чака отговор от теб:\n" % (comments_data['comments'][0]['author'], len(comments_data['comments']))
-            for comment in comments_data['comments']:
-                message += "%s - %s - %s - %s\n---------------------------------------------\n" % (file['name'], comment['timestamp'], comment['webViewLink'], comment['content'])
-        
-        print(message)
+            comments_count += len(comments_data['comments'])
+            all_files_comments.append([comments_data, file['name']])
+    
+    if all_files_posts:
+        message += "%s - %d коментара които си пуснал:\n" % (all_files_comments[0][0]['my_posts'][0]['author'].split('@')[0], posts_count)
+        for file_posts, file_name in all_files_posts:
+            for post in file_posts['my_posts']:
+                message += "%s - %s - <%s|файл> - %s\n---------------------------------------------\n" % (file_name, post['timestamp'], post['webViewLink'], post['content'])
 
-        # try:
-        #     client = slack.WebClient(token=SLACK_TOKEN)
-        #     client.chat_postMessage(channel='#test-samuil', text=message)
-        # except Exception as e:
-        #     print(e)
+    message +='\n\n'
+    if all_files_comments:
+        message += "%s - %d коментара, в които си тагнат и се чака отговор от теб:\n" % (all_files_comments[0][0]['comments'][0]['author'].split('@')[0], comments_count)
+        for file_comments, file_name in all_files_comments:
+            for comment in file_comments['comments']:
+                message += "%s - %s - <%s|файл> - %s\n---------------------------------------------\n" % (file_name, comment['timestamp'], comment['webViewLink'], comment['content'])
+                
+    print(message)
+
+    try:
+        client = slack.WebClient(token=SLACK_TOKEN)
+        client.chat_postMessage(channel='#test-samuil', text=message)
+    except Exception as e:
+        print(e)
+
     return Response(), 200
 
 def GetFolderID(folder_name):

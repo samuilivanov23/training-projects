@@ -43,7 +43,7 @@ def GetCommentsToSend(file, service):
                     })
 
 
-                if (not comment['author']['displayName'] == "My name here") and emails_found and (my_emails[0] in emails_found or my_emails[1] in emails_found):
+                if (not comment['author']['displayName'] == "Samuil Ivanov") and emails_found and (my_emails[0] in emails_found or my_emails[1] in emails_found):
                     address_name = re.split('@', emails_found[0])[0]
                     
                     data_to_send['comments'].append({
