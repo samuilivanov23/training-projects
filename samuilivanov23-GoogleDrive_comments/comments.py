@@ -35,19 +35,18 @@ def GetCommentsToSend(file, service):
                 
                 if(comment['author']['displayName'] == 'Samuil Ivanov'): # The case when i wrote the post
                     data_to_send['my_posts'].append({
-                        'author' : my_emails[1] if (not comment['author']['me'] is None) else comment['author']['emailAddress'],
+                        'author' : comment['author']['displayName'],
                         'content' : comment['content'],
                         'mentioned' : None,
                         'timestamp' : comment['createdTime'],
                         'webViewLink' : file['webViewLink']
                     })
 
-
                 if (not comment['author']['displayName'] == "Samuil Ivanov") and emails_found and (my_emails[0] in emails_found or my_emails[1] in emails_found):
                     address_name = re.split('@', emails_found[0])[0]
                     
                     data_to_send['comments'].append({
-                        'author' : my_emails[1] if (not comment['author']['me'] is None) else comment['author']['emailAddress'],
+                        'author' : comment['author']['displayName'],
                         'content' : comment['content'],
                         'mentioned' : address_name,
                         'timestamp' : comment['createdTime'],
