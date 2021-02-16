@@ -3,9 +3,8 @@ import re
 email_regex = r'[\w\.-]+@[\w\.-]+'
 my_emails = ["samuil.iv@arc-global.com", "samuil.iv@hackerschool-bg.com"]
 
-def GetCommentsToSend(file, service):
+def GetCommentsToSend(file, service, assignee, assignee_name):
     data_to_send = {}
-
     results = service.comments().list(fileId=file['id'], fields="comments(author, content, replies, createdTime)").execute()
     comments = results.get('comments', [])
 
@@ -19,32 +18,38 @@ def GetCommentsToSend(file, service):
                 for reply in reversed(comment['replies']):
                     emails_found = re.findall(email_regex, reply['content'])
 
-                    if emails_found and (my_emails[0] in emails_found or my_emails[1] in emails_found):
-                        address_name = re.split('@', emails_found[0])[0]
+                    if emails_found and assignee in emails_found:
+                        address_name = re.split('@', assignee)[0]
                         
                         data_to_send['comments'].append({
-                            'author' : my_emails[1] if (not comment['author']['me'] is None) else comment['author']['emailAddress'],
+                            'author' : comment['author']['displayName'],
                             'content' : reply['content'],
                             'mentioned' : address_name,
                             'timestamp' : reply['createdTime'],
                             'webViewLink' : file['webViewLink']
                         })
                         break
-            else:
+            else: # The case when there are no replies in the post
                 emails_found = re.findall(email_regex, comment['content'])
                 
-                if(comment['author']['displayName'] == 'Samuil Ivanov'): # The case when i wrote the post
+                if comment['author']['displayName'] == assignee_name: # The case when i wrote the post
+                    emails_found = re.findall(email_regex, comment['content'])
+                    
+                    if emails_found:
+                        address_name = emails_found[0]
+                    else:
+                        address_name = None
+                        
                     data_to_send['my_posts'].append({
                         'author' : comment['author']['displayName'],
                         'content' : comment['content'],
-                        'mentioned' : None,
+                        'mentioned' : address_name,
                         'timestamp' : comment['createdTime'],
                         'webViewLink' : file['webViewLink']
                     })
 
-                if (not comment['author']['displayName'] == "Samuil Ivanov") and emails_found and (my_emails[0] in emails_found or my_emails[1] in emails_found):
-                    address_name = re.split('@', emails_found[0])[0]
-                    
+                if (not comment['author']['displayName'] == assignee_name) and emails_found and assignee in emails_found:
+                    address_name = re.split('@', assignee)[0]                    
                     data_to_send['comments'].append({
                         'author' : comment['author']['displayName'],
                         'content' : comment['content'],
