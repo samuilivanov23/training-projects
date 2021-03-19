@@ -205,4 +205,4 @@ if __name__ == '__main__':
                     CallSpreadSheetInsertionFunction(row)
             except Exception as e:
                 print(e)
-        time.sleep(3600)
+        time.sleep(60)
