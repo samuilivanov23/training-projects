@@ -1,0 +1,23 @@
+count files with in dir with subdirs using FIND ||| find /etc -type f | wc -l
+kill multiple instances of same process ||| kill $(ps aux | grep -i "monitor.py" | grep -v grep | awk '{print $2}')
+renew ssh keys if warning message for dns spoofing is shown ||| ssh-keygen -f "/home/samuil2001ivanov/.ssh/known_hosts" -R "debian10hackerschool"/"yr.ip.ad.dr"
+disable suspend/sleep on debian server |||  sudo systemctl mask sleep.target suspend.target hibernate.target hybrid-sleep.target
+enable hibernate/sleep on debian server ||| sudo systemctl unmask sleep.target suspend.target hibernate.target hybrid-sleep.target
+install mod_perl2 on Debian/Ubuntu ||| apt-get -y install libapache2-mod-perl2
+Check linux version ||| lsb_release -a
+non-free contrib buster-backports packages ||| add them in /etc/apt/sources.list
+redmine log dir |||  /usr/share/redmine/instances/default/log
+count all occurance of a string in a given directory ||| for file in .txt; do grep -o 'Author' $file | echo "${file%.}" : $(wc -l); done
+folder disk space usage ||| du -sh
+run command as another user (start OTRS daemon for example) ||| su -c "/usr/share/otrs/bin/otrs.Daemon.pl start" -s /bin/bash otrs
+Check disk usage of devices ||| df -h
+Check disk usage of files folder etc ||| du -sh . (shows disk space used by the whole current dir)
+Check disk usage of files folder etc ||| du -sh * (shows disk space used per folder in current dir)
+get symlinks recursively from directory, print name and reference ||| cnt=0; for line in $(ls -laR | grep '->' | awk '{print $9, $11}'); do let cnt=cnt+1; if [ $cnt -eq 2 ]; then echo "Processing $line line..."; cnt=0; else echo "ProceSSing $line line..."; fi; done
+redirecting commands to files ||| cat tmp.txt > tmp2.txt (rewrites the file with new content)
+redirecting commands to files ||| cat tmp.txt >> tmp2.txt (appends the output of the command to the end of the file)
+grep by multiple expressions ||| ls -la | grep -E '.pl|.sh' | wc -l
+grep with Perl REGEX / AWK using AND logic for 2 patterns ||| find ./ | grep -P '^(?=.systemd)(?=.timer)' |||  find ./ | awk '/systemd/ && /timer/'
+zbx user parameter perl regex ||| megacli.virt[*],\s+\K.*
+IO commands (usefull) ||| iostat -hymx 1 4(1 per second, 4 iterations) ||| iotop -o (intsall iotop)
+grep in man page ||| man grep | grep -- -i
