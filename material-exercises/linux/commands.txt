@@ -21,3 +21,22 @@ grep with Perl REGEX / AWK using AND logic for 2 patterns ||| find ./ | grep -P 
 zbx user parameter perl regex ||| megacli.virt[*],\s+\K.*
 IO commands (usefull) ||| iostat -hymx 1 4(1 per second, 4 iterations) ||| iotop -o (intsall iotop)
 grep in man page ||| man grep | grep -- -i
+grep lines before/after ||| grep -A/-B <number> <file>
+create xen virtual machine ||| xen-create-image --hostname=samuil-test --size=10Gb --swap=1Gb --ip=10.20.1.130 --gateway=10.20.1.1 --netmask=255.255.255.0 --bridge=xenbr0 --password=Parola42 --memory=4Gb --vcpu=2 --pygrub --arch=amd64 --role=udev --dir=/home/sysadmin/xen --serial_device=hvc0 --disk_device=xvda --dist=buster --force
+AS ROOT install man, net-tools, sudo, vim on debian buster ||| apt install man net-tools sudo vim
+AS ROOT create user ||| adduser <username> (run as root)
+AS ROOT add user to sudoers ||| adduser <username> sudo
+----NGINX+APACHE+WORDPRESS----
+sudo apt-get install nginx
+edit /etc/nginx/sites-available/example (change root, location /, location ~ \.php$, add proxy_header_set and proxypass 127.0.0.1:8080, location ~ /\.ht deny all)
+sudo ln -s /etc/nginx/sites-available/example /etc/nginx/sites-enabled/example
+sudo rm /etc/nginx/sites-enabled/default
+sudo apt-get install apache2 php
+sudo vim /etc/apache2/ports.conf (set NameVirtualHost 127.0.0.1:8080; Listen 127.0.0.1:8080)
+sudo cp /etc/apache2/sites-available/000-default.conf /etc/apache2/sites-available/example.conf
+sudo vim /etc/apache2/sites-available/example.conf (set <VirtualHost 127.0.0.1:8080>)
+sudo a2ensite example.conf
+sudo a2dissite 000-default.conf
+sudo systemctl reload apache2
+sudo systemctl reload nginx
+-------------------------------
