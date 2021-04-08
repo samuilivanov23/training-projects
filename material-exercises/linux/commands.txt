@@ -27,10 +27,12 @@ AS ROOT install man, net-tools, sudo, vim on debian buster ||| apt install man n
 AS ROOT create user ||| adduser <username> (run as root)
 AS ROOT add user to sudoers ||| adduser <username> sudo
 ----NGINX+APACHE+WORDPRESS----
-sudo apt-get install nginx
+sudo apt-get install nginx, python-pip
+sudo pip3 install nginxtop
 edit /etc/nginx/sites-available/example (change root, location /, location ~ \.php$, add proxy_header_set and proxypass 127.0.0.1:8080, location ~ /\.ht deny all)
 sudo ln -s /etc/nginx/sites-available/example /etc/nginx/sites-enabled/example
 sudo rm /etc/nginx/sites-enabled/default
+nginx-stub-status ||| location / { stub_status; access_log off; allow 10.20.1.121; deny all; }
 sudo apt-get install apache2 php
 sudo vim /etc/apache2/ports.conf (set NameVirtualHost 127.0.0.1:8080; Listen 127.0.0.1:8080)
 sudo cp /etc/apache2/sites-available/000-default.conf /etc/apache2/sites-available/example.conf
@@ -39,4 +41,6 @@ sudo a2ensite example.conf
 sudo a2dissite 000-default.conf
 sudo systemctl reload apache2
 sudo systemctl reload nginx
+apt install wordpress curl mariadb-server
+mysql_secure_installation
 -------------------------------
