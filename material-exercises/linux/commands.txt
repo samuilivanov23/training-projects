@@ -26,6 +26,9 @@ create xen virtual machine ||| xen-create-image --hostname=samuil-test --size=10
 AS ROOT install man, net-tools, sudo, vim on debian buster ||| apt install man net-tools sudo vim
 AS ROOT create user ||| adduser <username> (run as root)
 AS ROOT add user to sudoers ||| adduser <username> sudo
+install firewall ||| sudo apt install ufw
+enable/disable/status firewall ||| ufw <enable/disable/status>
+allow ssh from specific ip ||| ufw allow in from <ip[/netmask] to <ip/any> port <PORTNO> proto tcp
 ----NGINX+APACHE+WORDPRESS----
 sudo apt-get install nginx, python-pip
 sudo pip3 install nginxtop
