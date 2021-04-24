@@ -29,6 +29,7 @@ AS ROOT add user to sudoers ||| adduser <username> sudo
 install firewall ||| sudo apt install ufw
 enable/disable/status firewall ||| ufw <enable/disable/status>
 allow ssh from specific ip ||| ufw allow in from <ip[/netmask] to <ip/any> port <PORTNO> proto tcp
+vim diff check ||| vim -d <files>
 ----NGINX+APACHE+WORDPRESS----
 sudo apt-get install nginx, python-pip
 sudo pip3 install nginxtop
@@ -47,3 +48,38 @@ sudo systemctl reload nginx
 apt install wordpress curl mariadb-server
 mysql_secure_installation
 -------------------------------
+esxcli get all vms info ||| vim-cmd vmsvc/getallvms
+----enable ssh to live .iso----
+add password for the root user ||| sudo passwd root
+change /etc/ssh/sshd_config ||| +PermitRootLogin yes; +PasswordAuthentication yes;
+transfer file with tar ||| tar cvf - <dir1|. for current dir> | tar xf - -C <dir2>
+-------------------------------
+----FULL DISK ENCRYPTION LVM----
+install required packages ||| apt install cryptsetup pv lvm2
+backup system to the second drive || dd if=/dev/sdX | pv --progress --eta --bytes --rate | dd of=/dev/sdY
+delete partition table on the first drive ||| fdisk utility
+create phisycal partition || fdisk utility
+encrypt partition using LUKS  ||| cryptsetup luksFormat -c aes-xts-plain64:sha512 -s 512 --type lusk1 /dev/sdXY
+details about encrypted partition ||| cryptsetup luksDump /dev/sdXY
+open the encrypted partition ||| cryptsetup luksOpen /dev/sdXY <luks_part_name>
+create physical volume for the partition ||| pvcreate /dev/mapper/<luks_part_name>
+create volume group ||| vgcreate <vgname> /dev/mapper/<luks_part_name>
+create logical volumes ||| lvcreate -n <lv-name> -L <strict_size> <vgname> (-l 100%FREE option)
+create filesystem for the logical volumes ||| mkfs.ext4 /dev/mapper/<lv-name> or mkswap /dev/mapper/<lv-name>
+transfer system back to the encrypted drive ||| tar cvf - <source> | tar xf - -C <destination> (/ /boot /var/log /home etc..)
+chroot to the encrypted drive to install grub and initramfs
+sudo mount --bind /dev /mnt/dev
+sudo mount --bind /run /mnt/run
+sudo chroot /mnt/
+sudo mount --types=proc proc /proc
+sudo mount --types=sysfs sys /sys
+edit /etc/default/grub ||| +GRUB_ENABLE_CRYPTODISK=y; +GRUB_CMDLINE_LINUX="cryptdevice=/dev/mapper/<luks_part_name> root=/dev/mapper/<root-lvname | cryptvg-lv--root> lvm=<luks_part_name>"
+install grub ||| grub-install --boot-directory=/boot /dev/sdX (!!! IMPORTANT TO SPECIFY just the DEVICE)
+update grub2 ||| update-grub2
+edit/create /etc/crypttab ||| +<luks_part_name | cryptlvm>        UUID=<luks_uuid>       none       luks
+edit /etc/fstab ||| replace the UUIDs with the /dev/mapper/lv-name associated with the partitions
+create /etc/initramfs-tools/conf.d/cryptroot ||| CRYPTROOT=target=tempo-root,source=/dev/disk/by-uuid/<luks_partition|/dev/sdaX>
+install cryptsetup-initramfs ||| apt install cryptsetup-initramfs
+update initramfs image ||| update-initramfs -u -k all
+reboot
+----------------------------------
