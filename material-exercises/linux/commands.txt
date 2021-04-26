@@ -83,3 +83,15 @@ install cryptsetup-initramfs ||| apt install cryptsetup-initramfs
 update initramfs image ||| update-initramfs -u -k all
 reboot
 ----------------------------------
+----vSphere Perl SDK + Session File + Debian----
+install open-vm-tools ||| apt install open-vm-tools (if installing the SDK on a VM)
+install required perl dependencies ||| apt install lib32z1  libncurses5 build-essential uuid uuid-dev libssldev perl-doc libxml-libxml-perl libcrypt-ssleay-perl libsoap-lite-perl libmodulebuild-perl
+download the compressed .tar.gz SDK from vmware website
+transfer the .tar.gz to the intendet VM ||| scp [OPTION] [user@]SRC_HOST:]file1 [user@]DEST_HOST:]file2 | example (from local machine to specified virtual machine): scp VMware-vSphere-Perl-SDK-6.7.0-8156551.x86_64.tar.gz samuil@10.20.1.117:/home/samuil/Downloads
+edit xxx/vmware-vsphere-cli-distrib/bin/vmware-uninstall-vSphere-CLI.pl ||| line 2382 and 2410 (identical): change UUID -> Data::UUID; AND line 2283: change ubuntu -> debian: if ( direct_command("cat /etc/*-release | grep -I ubuntu") || direct_command("cat /proc/version | grep -I ubuntu") ) { ---> if ( direct_command("cat /etc/*-release | grep -I debian") || direct_command("cat /proc/version | grep -i debian") ) {
+run the vSphere SDK installer ||| xxx/vmware-vsphere-cli-distrib/vmware-install.pl
+edit /usr/share/perl/5.28.1/VMware/SSOConnection.pm ||| line 27: UUID -> Data::UUID
+edit /usr/share/perl/5.24.1/VMware/VICommon.pm ||| after module loads (like in line 26) add: BEGIN { $ENV{PERL_NET_HTTPS_SSL_SOCKET_CLASS} = "Net::SSL"; $ENV{PERL_LWP_SSL_VERIFY_HOSTNAME} = 0; }
+create a session file ||| perl xxx/vmware-vsphere-cli-distrib/apps/session/save_session.pl --savesessionfile <location|/tmp/vSphere-sessionfile> --server <dest ip/domain | x.x.x.x>
+run vSphere scripts using the session file now ||| perl xxx/vmware-vsphere-cli-distrib/apps/host/hostinfo.pl --sessionfile <session_file location|/tmp/vsphere-session-file>
+-------------------------------------------------------------
