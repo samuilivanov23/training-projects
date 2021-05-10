@@ -73,7 +73,7 @@ sudo mount --bind /run /mnt/run
 sudo chroot /mnt/
 sudo mount --types=proc proc /proc
 sudo mount --types=sysfs sys /sys
-edit /etc/default/grub ||| +GRUB_ENABLE_CRYPTODISK=y; +GRUB_CMDLINE_LINUX="cryptdevice=/dev/mapper/<luks_part_name> root=/dev/mapper/<root-lvname | cryptvg-lv--root> lvm=<luks_part_name>"
+edit /etc/default/grub ||| +GRUB_ENABLE_CRYPTODISK=y; +GRUB_CMDLINE_LINUX="cryptdevice=/dev/mapper/<luks_part_name> root=/dev/mapper/<root-lvname | cryptvg-lv--root> lvm=<luks_part_name>"; +GRUB_PRELOAD_MODULES="lvm";
 install grub ||| grub-install --boot-directory=/boot /dev/sdX (!!! IMPORTANT TO SPECIFY just the DEVICE)
 update grub2 ||| update-grub2
 edit/create /etc/crypttab ||| +<luks_part_name | cryptlvm>        UUID=<luks_uuid>       none       luks
@@ -103,6 +103,9 @@ create zabbix database owned by zabbix user ||| sudo -u postgres createdb -O zab
 import data to the database ||| zcat /usr/share/zabbix-server-pgsql/<schema.sql.gz|images.sql.gz|data.sql.gz> | psql -U zabbix zabbix 
 if crash: remove commit/rollback in data.sql 
 set DBName/DBUser/DBPassword in /etc/zabbix/zabbix_server.conf ||| vim /etc/zabbix/zabbix_server.conf
+edit /etc/logrotate.d/zabbi-server-pgsql ||| vim /etc/logrotate.d/zabbix-server-pgsql --> create 0640 root zabbix
+change the group of zabbix log file ||| chgrp zabbix /var/log/zabbix-server/
+chmod g+wr zabbix-server
 start + enable zabbix server ||| systemctl start zabbix-server; update-rc.d zabbix-server enable | systemctl enable zabbix-server;
 uncoment date.timezone in /etc/apache2/conf-available ||| vim /etc/apache2/conf-available/zabbix-frontend-php.conf
 enable zabbix apache config ||| cd /etc/apache2/conf-available/; a2enconf zabbix-frontedn-php.conf
