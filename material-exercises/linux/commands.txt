@@ -95,3 +95,19 @@ edit /usr/share/perl/5.24.1/VMware/VICommon.pm ||| after module loads (like in l
 create a session file ||| perl xxx/vmware-vsphere-cli-distrib/apps/session/save_session.pl --savesessionfile <location|/tmp/vSphere-sessionfile> --server <dest ip/domain | x.x.x.x>
 run vSphere scripts using the session file now ||| perl xxx/vmware-vsphere-cli-distrib/apps/host/hostinfo.pl --sessionfile <session_file location|/tmp/vsphere-session-file>
 -------------------------------------------------------------
+----Zabbix SERVER + PGSQL----
+install postgresql ||| apt update; apt install postgresql postgresql-contrib
+install zabbix-server + zabbix-frontend-php + zabbix-apache-conf ||| apt install zabbix-server-pgsql zabbix-frontend-php zabbix-apache-conf
+create zabbix postgresql user ||| sudo -u postgres createuser --pwprompt zabbix (+ enter a password)
+create zabbix database owned by zabbix user ||| sudo -u postgres createdb -O zabbix -E Unicode -T template0 zabbix
+import data to the database ||| zcat /usr/share/zabbix-server-pgsql/<schema.sql.gz|images.sql.gz|data.sql.gz> | psql -U zabbix zabbix 
+if crash: remove commit/rollback in data.sql 
+set DBName/DBUser/DBPassword in /etc/zabbix/zabbix_server.conf ||| vim /etc/zabbix/zabbix_server.conf
+start + enable zabbix server ||| systemctl start zabbix-server; update-rc.d zabbix-server enable | systemctl enable zabbix-server;
+uncoment date.timezone in /etc/apache2/conf-available ||| vim /etc/apache2/conf-available/zabbix-frontend-php.conf
+enable zabbix apache config ||| cd /etc/apache2/conf-available/; a2enconf zabbix-frontedn-php.conf
+restart apache2 service ||| systemctl reload apache2
+open http://<ip.ad.d.r>/zabbix + follow steps
+download zabbix.conf.php ||| scp zabbix.conf.php <user>@:/home/<user>/Downloads/ (from local pc)
+move zabbix.conf.php to /etx/zabbix/ ||| mv /home/<usr>/Downloads/zabbix.conf.php /etx/zbbix/ (on zabbix server)
+--------------------------------------------------------------
