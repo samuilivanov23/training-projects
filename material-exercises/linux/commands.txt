@@ -121,7 +121,15 @@ apt install postgresql postgresql-contrib zabbix-proxy-pgsql
 setup database + import initial schema 
 configure ServerActive
 add the zabbix proxy in the zabbix server frontend interface
-
+-------------------------------------------------------------
 ----AppArmor Zabbix agent----
 install apparmor tools ||| apt install apparmom-utils
-
+generate zabbix_agent profile ||| aa-autodep zabbix_agent (use which to determine the path of the service you want to protect)
+edit profile in /etc/apparmor.d/usr.sbin.zabbix_agent ||| vim /etc/apparmor.d/usr.sbin.zabbix_agent
+update the profile ||| aa-logprof (type (A) when prompted)
+reload apparmor ||| systemctl reload apparmor
+restart zabbix-agent ||| systemctl restart zabbix-agnet
+-------------------------------------------------------------
+---- Disk image via ssh to local disk----
+dd if=/dev/sdX | ssh <local-PC-user>@<local-PC-IP> dd od=/path/to/iso/file (!!! NOTE: execute this comamnd from the VM you want the disk image and save it to you local system. Must have installed an openssh-server on the local system to connect with SSH)
+-------------------------------------------------------------
