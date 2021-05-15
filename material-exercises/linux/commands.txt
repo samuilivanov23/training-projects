@@ -49,7 +49,7 @@ apt install wordpress curl mariadb-server
 mysql_secure_installation
 -------------------------------
 esxcli get all vms info ||| vim-cmd vmsvc/getallvms
-----enable ssh to live .iso----
+----ENABLE SSH TO LIVE .ISO----
 add password for the root user ||| sudo passwd root
 change /etc/ssh/sshd_config ||| +PermitRootLogin yes; +PasswordAuthentication yes;
 transfer file with tar ||| tar cvf - <dir1|. for current dir> | tar xf - -C <dir2>
@@ -96,7 +96,7 @@ edit /usr/share/perl/5.24.1/VMware/VICommon.pm ||| after module loads (like in l
 create a session file ||| perl xxx/vmware-vsphere-cli-distrib/apps/session/save_session.pl --savesessionfile <location|/tmp/vSphere-sessionfile> --server <dest ip/domain | x.x.x.x>
 run vSphere scripts using the session file now ||| perl xxx/vmware-vsphere-cli-distrib/apps/host/hostinfo.pl --sessionfile <session_file location|/tmp/vsphere-session-file>
 -------------------------------------------------------------
-----Zabbix SERVER + PGSQL----
+----ZABBIX SERVER + PGSQL----
 install postgresql ||| apt update; apt install postgresql postgresql-contrib
 install zabbix-server + zabbix-frontend-php + zabbix-apache-conf ||| apt install zabbix-server-pgsql zabbix-frontend-php zabbix-apache-conf
 create zabbix postgresql user ||| sudo -u postgres createuser --pwprompt zabbix (+ enter a password)
@@ -104,9 +104,11 @@ create zabbix database owned by zabbix user ||| sudo -u postgres createdb -O zab
 import data to the database ||| zcat /usr/share/zabbix-server-pgsql/<schema.sql.gz|images.sql.gz|data.sql.gz> | psql -U zabbix zabbix 
 if crash: remove commit/rollback in data.sql 
 set DBName/DBUser/DBPassword in /etc/zabbix/zabbix_server.conf ||| vim /etc/zabbix/zabbix_server.conf
-edit /etc/logrotate.d/zabbi-server-pgsql ||| vim /etc/logrotate.d/zabbix-server-pgsql --> create 0640 root zabbix
+edit /etc/logrotate.d/zabbi-server-pgsql ||| vim /etc/logrotate.d/zabbix-server-pgsql --> create 0640 zabbix zabbix
 change the group of zabbix log file ||| chgrp zabbix /var/log/zabbix-server/
 chmod g+wr zabbix-server
+OR change ownership of zabbix log dir ||| chown zabbix:zabbix /var/log/zabbix-server
+specify which user/group to be used for rotation ||| vim /etc/logrotate.d/zabbix-server-pgsql -> + su zabbix zabbix
 start + enable zabbix server ||| systemctl start zabbix-server; update-rc.d zabbix-server enable | systemctl enable zabbix-server;
 uncoment date.timezone in /etc/apache2/conf-available ||| vim /etc/apache2/conf-available/zabbix-frontend-php.conf
 enable zabbix apache config ||| cd /etc/apache2/conf-available/; a2enconf zabbix-frontedn-php.conf
@@ -115,14 +117,14 @@ open http://<ip.ad.d.r>/zabbix + follow steps
 download zabbix.conf.php ||| scp zabbix.conf.php <user>@:/home/<user>/Downloads/ (from local pc)
 move zabbix.conf.php to /etx/zabbix/ ||| mv /home/<usr>/Downloads/zabbix.conf.php /etx/zbbix/ (on zabbix server)
 --------------------------------------------------------------
-----Zabbix Proxy + PGSQL----
+----ZABBIX PROXY + PGSQL----
 apt update
 apt install postgresql postgresql-contrib zabbix-proxy-pgsql
 setup database + import initial schema 
 configure ServerActive
 add the zabbix proxy in the zabbix server frontend interface
 -------------------------------------------------------------
-----AppArmor Zabbix agent----
+----APPARMOR ZABBIX AGENT----
 install apparmor tools ||| apt install apparmom-utils
 generate zabbix_agent profile ||| aa-autodep zabbix_agent (use which to determine the path of the service you want to protect)
 edit profile in /etc/apparmor.d/usr.sbin.zabbix_agent ||| vim /etc/apparmor.d/usr.sbin.zabbix_agent
@@ -130,6 +132,20 @@ update the profile ||| aa-logprof (type (A) when prompted)
 reload apparmor ||| systemctl reload apparmor
 restart zabbix-agent ||| systemctl restart zabbix-agnet
 -------------------------------------------------------------
----- Disk image via ssh to local disk----
+----DISK IMAGE VIA SSH TO LOCAL DISK----
 dd if=/dev/sdX | ssh <local-PC-user>@<local-PC-IP> dd od=/path/to/iso/file (!!! NOTE: execute this comamnd from the VM you want the disk image and save it to you local system. Must have installed an openssh-server on the local system to connect with SSH)
+-------------------------------------------------------------
+----EXTEND ENCRYPTED LVM PARTITION----
+unmount the partition ||| lsof -nP | grep <mntpt>; kill -9 <systemd service name>; umount /path/to/mntpt
+enlarge the phisical partition with fdisk ||| fdisk /dev/sdXY -> d <partition number> -> n <primary | same parition number | same start sector | last sector to he end, usually the default option> -> No (DO NOT erase the existing data from the partition) -> p (to check config) -> w (save changes)
+resize the LUKS partition ||| cryptsetup resize /dev/mapper/<luks-partition-name|cryptlvm2>
+resize the physical volume on which the VG lives ||| pvresize /dev/mapper/<luks-partition-name|cryptlvm2>
+resize the logical volume size ||| lvresize -L <sizeM/G/T/P> /dev/mapper/cryptvg--<name-of-lv|lv-log>
+resize the fs of the logical volume partition ||| resize2fs /dev/mapper/cryptvg--<name-of-lv|lv-log>
+-------------------------------------------------------------
+----SHRINK ENCRYPTED LVM PARTITION----
+resize logical volume and resize fs ||| lvresize --verbose --resizefs -L <sizeG> /dev/mapper/cryptvg-lv--log
+resize the physical volume ||| pvresize --setphysicalvolumesize <sizeG> /dev/mapper/<luks-partition-name|cryptlvm>
+resize LUKS partition (calculate the 512M sectors) ||| cryptsetup resize --size <sectors-number|31458000 for 15G> /dev/mapper/<luks-partition-name\cryptlvm>
+resize the physical partition ||| fdisk /dev/sdXY -> d <partition-number> -> n (primary | same partition number | same start sector | end sector as the one used for the encrypted luks part | 31458000) -> NO (DO NOT erase the existing data from the partition) -> p (check config) -> w (save changes)
 -------------------------------------------------------------
