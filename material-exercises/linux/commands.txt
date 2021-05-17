@@ -82,7 +82,18 @@ create /etc/initramfs-tools/conf.d/cryptroot ||| CRYPTROOT=target=tempo-root,sou
 install cryptsetup-initramfs ||| apt install cryptsetup-initramfs
 update initramfs image ||| update-initramfs -u -k all
 reboot
-----------------------------------
+-------------------------------------------------------------------
+---SINGLE NON-BOOTALBE PARTITION ENCRYPTION----
+backup
+encrypt the specified partition ||| cryptsetup luksFormat -c aes-xts-plain64;sah512 -s 512 --type luks1 /dev/sdXY
+open the encrypted partition ||| cryptsetuo luksOpen /dev/sdXY + enter passphrase
+trasfer data back to the encrypted partition ||}| tar cvf - .| tar xf - -C <encr-part-mount-point>
+chroot into the root partition
+edit /etc/fstab (change the uuid to /dev/mapper/cryptvg-lv--home)
+add the encrypted partition in the /etc/crypttab ||| + <encrypted-lvm-name> <partition source device | /dev/sda5> <none> <luks>
+exit from chrooted env and unmount partitions including /mnt/run, /mnt/dev, /mnt/proc, /mnt/sys
+reboot
+--------------------------------------------------------------------
 ----vSphere Perl SDK + Session File + Debian----
 install open-vm-tools ||| apt install open-vm-tools (if installing the SDK on a VM)
 install required perl dependencies ||| apt install lib32z1  libncurses5 build-essential uuid uuid-dev libssl-dev perl-doc libxml-libxml-perl libcrypt-ssleay-perl libsoap-lite-perl libmodule-build-perl
