@@ -149,3 +149,23 @@ resize the physical volume ||| pvresize --setphysicalvolumesize <sizeG> /dev/map
 resize LUKS partition (calculate the 512M sectors) ||| cryptsetup resize --size <sectors-number|31458000 for 15G> /dev/mapper/<luks-partition-name\cryptlvm>
 resize the physical partition ||| fdisk /dev/sdXY -> d <partition-number> -> n (primary | same partition number | same start sector | end sector as the one used for the encrypted luks part | 31458000) -> NO (DO NOT erase the existing data from the partition) -> p (check config) -> w (save changes)
 -------------------------------------------------------------
+----BLOCKS VS BYTES----
+512 byte = 1 block
+
+      2 block = 1024 byte = 1 kb
+   2048 block = 1024 kb   = 1 mb
+2097152 block = 1024 mb   = 1 gb
+
+
+BLOCKS TO MB:   blocks / 2048 = mb
+BLOCKS TO KB:   blocks / 2    = kb
+
+KB TO MB:       kb / 1024 = mb
+MB TO KB:       mb x 1024 = kb
+
+MB TO GB:       mb / 1024 = gb
+GB TO MB:       gb x 1024 = mb
+
+KB TO BLOCKS:   kb x 2    = blocks
+MB TO BLOCKS:   mb x 2048 = blocks
+-------------------------------------------------------------
