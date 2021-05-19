@@ -160,6 +160,10 @@ resize the physical volume ||| pvresize --setphysicalvolumesize <sizeG> /dev/map
 resize LUKS partition (calculate the 512M sectors) ||| cryptsetup resize --size <sectors-number|31458000 for 15G> /dev/mapper/<luks-partition-name\cryptlvm>
 resize the physical partition ||| fdisk /dev/sdXY -> d <partition-number> -> n (primary | same partition number | same start sector | end sector as the one used for the encrypted luks part | 31458000) -> NO (DO NOT erase the existing data from the partition) -> p (check config) -> w (save changes)
 -------------------------------------------------------------
+----CPU/RAM HOT ADD---
+for file in /sys/devices/system/cpu/cpu*; do echo 1 > $file/online; done;
+for file in /sys/devices/system/memory/memory*; do echo 1 > $file/online; done;
+-------------------------------------------------------------
 ----BLOCKS VS BYTES----
 512 byte = 1 block
 
