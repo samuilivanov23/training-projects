@@ -81,6 +81,7 @@ edit /etc/fstab ||| replace the UUIDs with the /dev/mapper/lv-name associated wi
 create /etc/initramfs-tools/conf.d/cryptroot ||| CRYPTROOT=target=tempo-root,source=/dev/disk/by-uuid/<luks_partition|/dev/sdaX>
 install cryptsetup-initramfs ||| apt install cryptsetup-initramfs
 update initramfs image ||| update-initramfs -u -k all
+unmount chrooted env ||| umount /mnt/run /mnt/dev /mnt/proc /mnt/sys
 reboot
 -------------------------------------------------------------------
 ---SINGLE NON-BOOTALBE PARTITION ENCRYPTION----
@@ -183,4 +184,10 @@ GB TO MB:       gb x 1024 = mb
 
 KB TO BLOCKS:   kb x 2    = blocks
 MB TO BLOCKS:   mb x 2048 = blocks
+-------------------------------------------------------------
+---- SET NETWORK INTERFACE MANUALLY ----
+edit /etc/network/interfaces ||| if <if-name|ens192> auto; iface <if-name|ens192> inet <static|dhsp>; \taddress <ip.ad.d.r/netmask>; \tgateway <router-ip-addr>;
+set nameserver in /etc/resolve.conf if not set ||| nameserver <nameserver-addr>
+restart the interface ||| ifconfig <if-name> down; ifconfig <if-name> up;
+restart networking service ||| systemctl restart networking
 -------------------------------------------------------------
