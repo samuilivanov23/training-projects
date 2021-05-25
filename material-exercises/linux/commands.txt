@@ -144,7 +144,7 @@ reload apparmor ||| systemctl reload apparmor
 restart zabbix-agent ||| systemctl restart zabbix-agnet
 -------------------------------------------------------------
 ----DISK IMAGE VIA SSH TO LOCAL DISK----
-dd if=/dev/sdX | ssh <local-PC-user>@<local-PC-IP> dd od=/path/to/iso/file (!!! NOTE: execute this comamnd from the VM you want the disk image and save it to you local system. Must have installed an openssh-server on the local system to connect with SSH)
+dd if=/dev/sdX | ssh <local-PC-user>@<local-PC-IP> dd of=/path/to/iso/file (!!! NOTE: execute this comamnd from the VM you want the disk image and save it to you local system. Must have installed an openssh-server on the local system to connect with SSH)
 -------------------------------------------------------------
 ----EXTEND ENCRYPTED LVM PARTITION----
 unmount the partition ||| lsof -nP | grep <mntpt>; kill -9 <systemd service name>; umount /path/to/mntpt
