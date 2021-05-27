@@ -191,3 +191,10 @@ set nameserver in /etc/resolve.conf if not set ||| nameserver <nameserver-addr>
 restart the interface ||| ifconfig <if-name> down; ifconfig <if-name> up;
 restart networking service ||| systemctl restart networking
 -------------------------------------------------------------
+--- POSTGRESQL ----
+check edited postgres config ||| select pg_relaod_conf();
+change database ||| \c <dbname>
+list databases ||| \l
+list relations ||| \d
+list relation constraints ||| \d+ <table-name>
+-------------------------------------------------------------
