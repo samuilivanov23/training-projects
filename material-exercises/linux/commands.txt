@@ -128,6 +128,7 @@ restart apache2 service ||| systemctl reload apache2
 open http://<ip.ad.d.r>/zabbix + follow steps
 download zabbix.conf.php ||| scp zabbix.conf.php <user>@:/home/<user>/Downloads/ (from local pc)
 move zabbix.conf.php to /etx/zabbix/ ||| mv /home/<usr>/Downloads/zabbix.conf.php /etx/zbbix/ (on zabbix server)
+netstat ||| netstat -tulpna | grep <postgre|LISTEN>; netstat -anpt | grep LISTEN
 --------------------------------------------------------------
 ----ZABBIX PROXY + PGSQL----
 apt update
