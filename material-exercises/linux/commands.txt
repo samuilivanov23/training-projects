@@ -30,6 +30,9 @@ install firewall ||| sudo apt install ufw
 enable/disable/status firewall ||| ufw <enable/disable/status>
 allow ssh from specific ip ||| ufw allow in from <ip[/netmask] to <ip/any> port <PORTNO> proto tcp
 vim diff check ||| vim -d <files>
+open active less for the end of file ||| less -F
+check kernel version ||| cat /proc/version
+check os version/info ||| cat /etx/os-release
 ----NGINX+APACHE+WORDPRESS----
 sudo apt-get install nginx, python-pip
 sudo pip3 install nginxtop
@@ -155,16 +158,21 @@ resize the LUKS partition ||| cryptsetup resize /dev/mapper/<luks-partition-name
 resize the physical volume on which the VG lives ||| pvresize /dev/mapper/<luks-partition-name|cryptlvm2>
 resize the logical volume size ||| lvresize -L <sizeM/G/T/P> /dev/mapper/cryptvg--<name-of-lv|lv-log>
 resize the fs of the logical volume partition ||| resize2fs /dev/mapper/cryptvg--<name-of-lv|lv-log>
+check file system ||| e2fsck -fy /dev/mapper/cryptvf-lv--home
 -------------------------------------------------------------
 ----SHRINK ENCRYPTED LVM PARTITION----
+unmount partition ||| umount /dev/mapper/cryptvg-lv--home
+check file system ||| e2fscheck -fy /dev/mapper/cryptvg-lv--home
 resize logical volume and resize fs ||| lvresize --verbose --resizefs -L <sizeG> /dev/mapper/cryptvg-lv--log
 resize the physical volume ||| pvresize --setphysicalvolumesize <sizeG> /dev/mapper/<luks-partition-name|cryptlvm>
-resize LUKS partition (calculate the 512M sectors) ||| cryptsetup resize --size <sectors-number|31458000 for 15G> /dev/mapper/<luks-partition-name\cryptlvm>
-resize the physical partition ||| fdisk /dev/sdXY -> d <partition-number> -> n (primary | same partition number | same start sector | end sector as the one used for the encrypted luks part | 31458000) -> NO (DO NOT erase the existing data from the partition) -> p (check config) -> w (save changes)
+resize the physical partition ||| fdisk /dev/sdXY -> d <partition-number> -> n (primary | same partition number | same start sector | end sector | +sizeG) -> NO (DO NOT erase the existing data from the partition) -> p (check config) -> w (save changes)
+resize LUKS partition (calculate the 512M sectors) ||| cryptsetup resize /dev/mapper/<luks-partition-name\cryptlvm>
+mount the partition ||| mount /dev/mapper/cryptvg-lv--home /home/
 -------------------------------------------------------------
-----CPU/RAM HOT ADD---
+----CPU/RAM/DISK HOT ADD----
 for file in /sys/devices/system/cpu/cpu*; do echo 1 > $file/online; done;
 for file in /sys/devices/system/memory/memory*; do echo 1 > $file/online; done;
+echo 1 > /sys/class/scsi_device/0\:0\:0\:0/device/rescan;
 -------------------------------------------------------------
 ----BLOCKS VS BYTES----
 512 byte = 1 block
@@ -199,3 +207,6 @@ list databases ||| \l
 list relations ||| \d
 list relation constraints ||| \d+ <table-name>
 -------------------------------------------------------------
+---- ATOP ----
+parsable outpu ||| atop -r /var/log/atop/atop_20210531 -b 06:00 -e 12:00
+set interval for parsable output ||| atop -P PRM -i <seconds>
