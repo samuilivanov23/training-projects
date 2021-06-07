@@ -1,0 +1,13 @@
+[Unit]
+Description=Service to start pg_bench on boot after postgresql is running.
+After=network.target postgresql.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=root
+Group=root
+ExecStart=/bin/bash /home/samuil/bash_scripts/pg_bench_starter.sh 2>&1 >> /var/log/samuil_pg_bench_starter.log
+
+[Install]
+WantedBy=multi-user.target
