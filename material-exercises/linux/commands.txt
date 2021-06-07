@@ -219,10 +219,22 @@ pgbench start concurrent transactions ||| sudo -u samuil gbench -c <num-clients>
 parsable outpu ||| atop -r /var/log/atop/atop_20210531 -b 06:00 -e 12:00
 set interval for parsable output ||| atop -P PRM -i <seconds>
 -----------------------------------------------------------------
----- GIT MERGE CONFLICT---
+---- GIT MERGE CONFLICT ----
 vim /path/to/conflicted/file (grep for <<<<< HEAD and keep the changes that you want)
 git add /path/to/conficted/file
 git commit -m "(yyyy-mm-dd) Propper message here"
 git pull
 git push
------------------------------------------------------------------
+---------------------------------------------------------------------
+---- SCREEN ----
+kill all active/detached screens ||| for pid in screen -ls | grep -ioP '\d{4}[\.]'; do kill ${pid::-1}; done;
+add auto idle detach /etc/screenrc ||| +idle <seconds | 3600> <command | detach>
+add status bar ||| hardstatus alwayslastline 
+                   shelltitle 'bash'
+                   hardstatus string '%{gk}[%{wk}%?%-Lw%?%{=b kR}(%{W}%n*%f %t%?(%u)%?%{=b kR})%{= w}%?%+Lw%?%? %{g}][%{d}%l%{g}][ %{= w}%Y/%m/%d %0C:%s%a%{g} ]%{W}'
+change tab's name ||| C-a A: new_session_name
+next/previous tab C-a n/p
+manual detach ||| C-a d
+reattach ||| screen -r [PID]
+list current screens ||| screen -ls
+-------------------------------------------------------------------
