@@ -218,3 +218,11 @@ pgbench start concurrent transactions ||| sudo -u samuil gbench -c <num-clients>
 ---- ATOP ----
 parsable outpu ||| atop -r /var/log/atop/atop_20210531 -b 06:00 -e 12:00
 set interval for parsable output ||| atop -P PRM -i <seconds>
+-----------------------------------------------------------------
+---- GIT MERGE CONFLICT---
+vim /path/to/conflicted/file (grep for <<<<< HEAD and keep the changes that you want)
+git add /path/to/conficted/file
+git commit -m "(yyyy-mm-dd) Propper message here"
+git pull
+git push
+-----------------------------------------------------------------
