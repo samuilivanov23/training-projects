@@ -33,6 +33,7 @@ vim diff check ||| vim -d <files>
 open active less for the end of file ||| less -F
 check kernel version ||| cat /proc/version
 check os version/info ||| cat /etx/os-release
+check SSD or HDD ||| cat /sys/block/sdX/queue/rotational (0->SSD, 1->HDD)
 ----NGINX+APACHE+WORDPRESS----
 sudo apt-get install nginx, python-pip
 sudo pip3 install nginxtop
