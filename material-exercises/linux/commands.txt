@@ -30,6 +30,10 @@ install firewall ||| sudo apt install ufw
 enable/disable/status firewall ||| ufw <enable/disable/status>
 allow ssh from specific ip ||| ufw allow in from <ip[/netmask] to <ip/any> port <PORTNO> proto tcp
 vim diff check ||| vim -d <files>
+execute commands as another user ||| sudo -H -u <otheruser> bash -c "<command>"
+directory usage by processes ||| lsof -nP </path/to/dir>
+check ports the linux is listening on ||| netstat -tulpna | grep LISTEN
+check file/directory timestamps (modify|change|access) ||| stat </path/to/file_or_dir>
 open active less for the end of file ||| less -F
 check kernel version ||| cat /proc/version
 check os version/info ||| cat /etx/os-release
@@ -201,13 +205,37 @@ set nameserver in /etc/resolve.conf if not set ||| nameserver <nameserver-addr>
 restart the interface ||| ifconfig <if-name> down; ifconfig <if-name> up;
 restart networking service ||| systemctl restart networking
 -------------------------------------------------------------
---- POSTGRESQL ----
+---- POSTGRESQL CRASH TESTS ----
 check edited postgres config ||| select pg_relaod_conf();
 change database ||| \c <dbname>
 list databases ||| \l
 list relations ||| \d
 list relation constraints ||| \d+ <table-name>
+get database/table size from psql cli ||| select pg_size_pretty( pg_database_size('<dbname|tablename>') ); || /var/lib/postgresql/<version>/<cluster>/base/*
+get pg_wal size from psql cli ||| select sum( size ) from pg_ls_waldir(); || /var/lib/postgresql/<version>/<cluster>/pg_wal/*
+pgbench init relations in created database ||| sudo -u samuil pgbench -i -s <num-rows> <db-name>
+pgbench start concurrent transactions ||| sudo -u samuil gbench -c <num-clients> -j <num_workers> -t <num-transactions-per-client> <dbname> 
 -------------------------------------------------------------
 ---- ATOP ----
 parsable outpu ||| atop -r /var/log/atop/atop_20210531 -b 06:00 -e 12:00
 set interval for parsable output ||| atop -P PRM -i <seconds>
+-----------------------------------------------------------------
+---- GIT MERGE CONFLICT ----
+vim /path/to/conflicted/file (grep for <<<<< HEAD and keep the changes that you want)
+git add /path/to/conficted/file
+git commit -m "(yyyy-mm-dd) Propper message here"
+git pull
+git push
+---------------------------------------------------------------------
+---- SCREEN ----
+kill all active/detached screens ||| for pid in screen -ls | grep -ioP '\d{4}[\.]'; do kill ${pid::-1}; done;
+add auto idle detach /etc/screenrc ||| +idle <seconds | 3600> <command | detach>
+add status bar ||| hardstatus alwayslastline 
+                   shelltitle 'bash'
+                   hardstatus string '%{gk}[%{wk}%?%-Lw%?%{=b kR}(%{W}%n*%f %t%?(%u)%?%{=b kR})%{= w}%?%+Lw%?%? %{g}][%{d}%l%{g}][ %{= w}%Y/%m/%d %0C:%s%a%{g} ]%{W}'
+change tab's name ||| C-a A: new_session_name
+next/previous tab C-a n/p
+manual detach ||| C-a d
+reattach ||| screen -r [PID]
+list current screens ||| screen -ls
+-------------------------------------------------------------------
