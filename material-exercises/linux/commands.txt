@@ -38,6 +38,8 @@ open active less for the end of file ||| less -F
 check kernel version ||| cat /proc/version
 check os version/info ||| cat /etx/os-release
 check SSD or HDD ||| cat /sys/block/sdX/queue/rotational (0->SSD, 1->HDD)
+check all files of package ||| dpkg -L <package-name>
+check from which package a file is ||| dpkg -S </path/to/file>
 ----NGINX+APACHE+WORDPRESS----
 sudo apt-get install nginx, python-pip
 sudo pip3 install nginxtop
