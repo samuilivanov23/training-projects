@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -x
+
 while :
 do
 	if [[ `/usr/bin/netstat -tulpna | /bin/grep -iP "(listen).*(/postgres)" | /bin/wc -l` -gt 1 ]]
