@@ -40,6 +40,8 @@ check os version/info ||| cat /etx/os-release
 check SSD or HDD ||| cat /sys/block/sdX/queue/rotational (0->SSD, 1->HDD)
 check all files of package ||| dpkg -L <package-name>
 check from which package a file is ||| dpkg -S </path/to/file>
+build shasums of files ||| find material-exercises/linux/ -type f -exec sha256sum {} > /home/samuil/shasums.txt \;
+check uptime ||| uptime ||| uptime -s
 ----NGINX+APACHE+WORDPRESS----
 sudo apt-get install nginx, python-pip
 sudo pip3 install nginxtop
@@ -240,4 +242,25 @@ next/previous tab C-a n/p
 manual detach ||| C-a d
 reattach ||| screen -r [PID]
 list current screens ||| screen -ls
+-------------------------------------------------------------------
+---- SWAP FILE ----
+swapoff -v /dev/sdXY
+delete partition
+dd if=/dev/zero of=/swapfile bs=1024 count=1048576
+chmod 600 /swapfile
+mkswap /swapfile
+swapon /swapfile
+in /etc/fstab replace the swap partition entry with /swapfile entry
+-------------------------------------------------------------------
+---- MBR to GPT UEFI ----
+gdisk /dev/sdX
+  --> 'n' - create new partition (ef00 for EFI)
+  --> 'c' - set proper label (EFI-system for instance)
+  --> 'p' - verify created partition
+  --> 'w' - save changes and exit
+partprobe /dev/sdX
+mkfs -t vfat -v /dev/sdXY
+mount /dev/sdXY /boot/efi (mkdir /boot/efi if not exists)
+apt install grub-efi
+grub-install --target=x86_64-efi /dev/sdX (JUST the device!)
 -------------------------------------------------------------------
